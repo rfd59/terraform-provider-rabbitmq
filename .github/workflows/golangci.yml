@@ -11,7 +11,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.19.x
+          go-version-file: 'go.mod'
+          cache: true
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3.2.0
