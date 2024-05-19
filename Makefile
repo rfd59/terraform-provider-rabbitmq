@@ -6,9 +6,7 @@ build:
 	go install
 
 test: build
-	go test -i $(TEST) || exit 1
-	echo $(TEST) | \
-		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
+	go test -cover ./rabbitmq
 
 testacc: build
 	scripts/testacc.sh
