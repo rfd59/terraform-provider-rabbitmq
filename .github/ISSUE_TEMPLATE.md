@@ -5,6 +5,9 @@ Thank you for opening an issue. Please note that we try to keep the Terraform is
 ### Terraform Version
 Run `terraform -v` to show the version. If you are not running the latest version of Terraform, please upgrade because your issue may have already been fixed.
 
+### Provider Version
+If you are not running the latest version of the provider, please upgrade because your issue may have already been fixed.
+
 ### Affected Resource(s)
 Please list the resources as a list, for example:
 - opc_instance

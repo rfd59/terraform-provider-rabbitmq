@@ -1,16 +1,18 @@
-Terraform Provider
-==================
+<a href="https://terraform.io">
+    <img src=".github/tf.png" alt="Terraform logo" title="Terraform" align="left" height="50" />
+</a>
+
+# Terraform Provider for RabbitMQ
 
 - Website: https://www.terraform.io
 - [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
 - Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
 
-<img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" width="600px">
 
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
+-	[Terraform](https://www.terraform.io/downloads.html) 1.0.x
 -	[Go](https://golang.org/doc/install) 1.21 (to build the provider plugin)
 
 Building The Provider
@@ -60,8 +62,28 @@ $ make test
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests create real resources, and often cost money to run.
-
 ```sh
 $ make testacc
 ```
+
+To launch the **examples** terraform script with your local Provider, follow these steps:
+1. Into your home folder, add/update the `~/.terraformrc` file with:
+```
+provider_installation {
+
+  dev_overrides {
+      "rfd59/rabbitmq" = "${GOPATH}/bin"
+  }
+
+  # For all other providers, install them directly from their origin provider
+  # registries as normal. If you omit this, Terraform will _only_ use
+  # the dev_overrides block, and so no other providers will be available.
+  direct {}
+}
+```
+   > To find the '${GOPATH}', you can run `go env GOPATH`.
+2. Launch a RabbitMQ engine by `./scripts/testacc.sh setup` command.
+   > The RabbitMQ console will be available by _http://localhost:15672_ (_guest_/_guest_)
+3. Build you local Provider by `make build` command.
+3. Launch `terraform -chdir=./examples/xxx apply` to apply the example.
+   > _xxx_ is the subfolder name from _./examples_. (`terraform -chdir=./examples/vhost apply`)
