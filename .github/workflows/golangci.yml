@@ -13,11 +13,20 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
+      
+      - name: Download modules
+        run: go mod download
+      
+      - name: Build
+        run: go build -v .
 
-      - name: Run golangci-lint
+      - name: Unit Tests
+        run: make test
+
+      - name: Run linters
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.58.1
+          version: latest
 
-      - name: Run go vet
+      - name: Run vet
         run: make vet

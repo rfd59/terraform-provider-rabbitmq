@@ -28,8 +28,5 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
 
-      - name: Unit Test
-        run: make test
-
-      - name: Integration Test
+      - name: Acceptance Tests
         run: make testacc
