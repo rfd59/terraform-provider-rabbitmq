@@ -1,4 +1,4 @@
-module github.com/terraform-providers/terraform-provider-rabbitmq
+module github.com/rfd59/terraform-provider-rabbitmq
 
 require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
