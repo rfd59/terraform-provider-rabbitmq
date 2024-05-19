@@ -4,9 +4,15 @@
 
 # Terraform Provider for RabbitMQ
 
-- Website: https://www.terraform.io
-- [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
-- Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
+![GitHub Release](https://img.shields.io/github/v/release/rfd59/terraform-provider-rabbitmq)
+![GitHub Issues](https://img.shields.io/github/issues/rfd59/terraform-provider-rabbitmq)
+![GitHub Pull Requests](https://img.shields.io/github/issues-pr/rfd59/terraform-provider-rabbitmq)
+![GitHub License](https://img.shields.io/github/license/rfd59/terraform-provider-rabbitmq)
+
+
+![Go version](https://img.shields.io/github/go-mod/go-version/rfd59/terraform-provider-rabbitmq)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Fgolangci.yml)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Ftest.yml?label=test)
 
 
 Requirements
@@ -43,7 +49,7 @@ For information on RabbitMQ versions, see the RabbitMQ [Release Information](htt
 Developing the Provider
 -----------------------
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.11+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.21+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
 
 To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
