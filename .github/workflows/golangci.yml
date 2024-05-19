@@ -2,7 +2,7 @@ name: GolangCI
 
 on: [pull_request]
 jobs:
-  lint:
+  ContinousIntegration:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
