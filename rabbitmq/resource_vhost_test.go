@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccVhost(t *testing.T) {
+func TestAccVhost_basic(t *testing.T) {
 	var vhost string
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -29,6 +29,33 @@ func TestAccVhost(t *testing.T) {
 				// would be created without error.
 				PreConfig: forceDropVhost(&vhost),
 				Config:    testAccVhostConfig_basic,
+				Check: testAccVhostCheck(
+					"rabbitmq_vhost.test", &vhost,
+				),
+			},
+		},
+	})
+}
+
+func TestAccVhost_settings(t *testing.T) {
+	var vhost string
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccVhostCheckDestroy(vhost),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVhostConfig_settings,
+				Check: testAccVhostCheck(
+					"rabbitmq_vhost.test", &vhost,
+				),
+			},
+			{
+				// Test that, once a vhost has been created and stored in the
+				// state, even if it disappears from the RabbitMQ cluster, it
+				// would be created without error.
+				PreConfig: forceDropVhost(&vhost),
+				Config:    testAccVhostConfig_settings,
 				Check: testAccVhostCheck(
 					"rabbitmq_vhost.test", &vhost,
 				),
@@ -102,4 +129,13 @@ func testAccVhostCheckDestroy(name string) resource.TestCheckFunc {
 const testAccVhostConfig_basic = `
 resource "rabbitmq_vhost" "test" {
     name = "test"
+}`
+
+const testAccVhostConfig_settings = `
+resource "rabbitmq_vhost" "test" {
+    name = "test"
+	description = "test description"
+	tracing = true
+	max_connections = 100
+	max_queues = 200
 }`

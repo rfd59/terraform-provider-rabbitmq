@@ -121,6 +121,12 @@ func resourceShovel() *schema.Resource {
 							Optional:      true,
 							ForceNew:      true,
 						},
+						"destination_queue_arguments": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Default:  nil,
+						},
 						"destination_uri": {
 							Type:      schema.TypeString,
 							Required:  true,
@@ -256,6 +262,7 @@ func ReadShovel(d *schema.ResourceData, meta interface{}) error {
 	info["destination_properties"] = shovelInfo.Definition.DestinationProperties
 	info["destination_protocol"] = shovelInfo.Definition.DestinationProtocol
 	info["destination_publish_properties"] = shovelInfo.Definition.DestinationPublishProperties
+	info["destination_queue_arguments"] = shovelInfo.Definition.DestinationQueueArgs
 	info["destination_queue"] = shovelInfo.Definition.DestinationQueue
 	if len(shovelInfo.Definition.DestinationURI) > 0 {
 		info["destination_uri"] = shovelInfo.Definition.DestinationURI[0]
@@ -385,6 +392,10 @@ func setShovelDefinition(shovelMap map[string]interface{}) interface{} {
 
 	if v, ok := shovelMap["destination_queue"].(string); ok {
 		shovelDefinition.DestinationQueue = v
+	}
+
+	if v, ok := shovelMap["destination_queue_arguments"].(map[string]interface{}); ok {
+		shovelDefinition.DestinationQueueArgs = v
 	}
 
 	if v, ok := shovelMap["destination_uri"].(string); ok {

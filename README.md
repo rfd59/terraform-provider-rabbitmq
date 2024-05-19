@@ -33,9 +33,9 @@ $ make build
 Using the provider
 ------------------
 
-The provider supports versions `3.10.x` and `3.9.x` of RabbitMQ. It may still work with versions `3.8.x` and `3.7.x`, however these versions are no longer officialy supported.
+The provider supports versions `3.13.x`, `3.12.x` and `3.11.x` of RabbitMQ. It may still work with versions `3.10.x`, `3.9.x` and `3.8.x`, however these versions are no longer officialy supported.
 
-For information on RabbitMQ versions, see the RabbitMQ [version documentation](https://www.rabbitmq.com/versions.html) and [changelog](https://www.rabbitmq.com/changelog.html).
+For information on RabbitMQ versions, see the RabbitMQ [Release Information](https://www.rabbitmq.com/release-information).
 
 
 Developing the Provider
@@ -46,7 +46,7 @@ If you wish to work on the provider, you'll first need [Go](http://www.golang.or
 To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
 ```sh
-$ make bin
+$ make build
 ...
 $ $GOPATH/bin/terraform-provider-rabbitmq
 ...

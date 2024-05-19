@@ -45,6 +45,9 @@ resource "rabbitmq_shovel" "shovelTest" {
 		source_exchange_key = "test"
 		destination_uri = "amqp:///test"
 		destination_queue = "${rabbitmq_queue.test.name}"
+		destination_queue_arguments = {
+			x-queue-type = "classic"
+		}
 	}
 }
 ```
@@ -101,6 +104,8 @@ Either this or `destination_queue` must be specified but not both.
 
 * `destination_publish_properties` - (Optional) A map of properties to overwrite when shovelling messages.
 
+* `destination_queue_arguments` - (Optional) A map of agurments to add into the queue.
+
 * `prefetch_count` - (Optional; **Deprecated**, please use `source_prefetch_count`) The maximum number of unacknowledged messages copied over a shovel at any one time.
 
 * `reconnect_delay` - (Optional) The duration in seconds to reconnect to a broker after disconnected.
@@ -121,9 +126,9 @@ Either this or `source_queue` must be specified but not both.
 
 * `destination_address` - (Optional) The AMQP 1.0 destination link address.
 
-* `destination_application_properties` - (Optional) Application properties to set when shovelling messages.
+* `destination_application_properties` - (Optional) A map of application properties to set when shovelling messages.
 
-* `destination_properties` - (Optional) Properties to overwrite when shovelling messages.
+* `destination_properties` - (Optional) A map of properties to overwrite when shovelling messages.
 
 For more details regarding dynamic shovel parameters please have a look at the official reference documentaion at [RabbitMQ: Configuring Dynamic Shovels](https://www.rabbitmq.com/shovel-dynamic.html).
 
