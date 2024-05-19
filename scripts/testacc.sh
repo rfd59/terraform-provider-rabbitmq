@@ -23,9 +23,7 @@ cleanup() {
 
 testacc() {
     setup
-
     run || (cleanup && exit 1)
-
     cleanup
 }
 
