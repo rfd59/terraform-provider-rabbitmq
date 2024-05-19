@@ -64,5 +64,5 @@ jobs:
       - name: Acceptance Tests
         env:
           TF_ACC: "1"
-        run: go test -v -cover ./internal/provider/
+        run: go test -v -cover ./rabbitmq/
         timeout-minutes: 10
