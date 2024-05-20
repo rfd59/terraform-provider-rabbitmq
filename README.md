@@ -9,17 +9,16 @@
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/rfd59/terraform-provider-rabbitmq)
 ![GitHub License](https://img.shields.io/github/license/rfd59/terraform-provider-rabbitmq)
 
-
 ![Go version](https://img.shields.io/github/go-mod/go-version/rfd59/terraform-provider-rabbitmq)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Fgolangci.yml)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Fbuild.yml)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Ftest.yml?label=test)
-
+![Coverage](https://sonar.rfd.ovh/api/project_badges/measure?project=rfd59.terraform-provider-rabbitmq&metric=coverage&token=sqb_44b6ae8e30de40b0d76cc3bcfad1a5e2e3f3c0c0)
 
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 1.0.x
--	[Go](https://golang.org/doc/install) 1.21 (to build the provider plugin)
+- [Terraform](https://www.terraform.io/downloads.html) 1.0.x
+- [Go](https://golang.org/doc/install) 1.21 (to build the provider plugin)
 
 Building The Provider
 ---------------------
@@ -44,7 +43,6 @@ Using the provider
 The provider supports versions `3.13.x`, `3.12.x` and `3.11.x` of RabbitMQ. It may still work with versions `3.10.x`, `3.9.x` and `3.8.x`, however these versions are no longer officialy supported.
 
 For information on RabbitMQ versions, see the RabbitMQ [Release Information](https://www.rabbitmq.com/release-information).
-
 
 Developing the Provider
 -----------------------
@@ -91,5 +89,5 @@ provider_installation {
 2. Launch a RabbitMQ engine by `./scripts/testacc.sh setup` command.
    > The RabbitMQ console will be available by _http://localhost:15672_ (_guest_/_guest_)
 3. Build you local Provider by `make build` command.
-3. Launch `terraform -chdir=./examples/xxx apply` to apply the example.
+4. Launch `terraform -chdir=./examples/xxx apply` to apply the example.
    > _xxx_ is the subfolder name from _./examples_. (`terraform -chdir=./examples/vhost apply`)

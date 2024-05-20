@@ -11,7 +11,7 @@ setup() {
 }
 
 run() {
-    go test -cover -count=1 ./rabbitmq -v -timeout 120m
+    go test -cover -count=1 ./rabbitmq -v -timeout 120m -coverprofile coverage.out
 
     # keep the return value for the scripts to fail and clean properly
     return $?
