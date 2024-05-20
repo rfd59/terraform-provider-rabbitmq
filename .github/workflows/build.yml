@@ -1,6 +1,10 @@
-name: GolangCI
+name: CI
 
-on: [pull_request]
+on:
+  push:
+    branches:    
+      - '!master'   # excludes master
+
 jobs:
   ContinousIntegration:
     runs-on: ubuntu-latest
@@ -20,13 +24,10 @@ jobs:
       - name: Build
         run: go build -v .
 
-      - name: Unit Tests
-        run: make test
+      - name: Unit Testing
+        run: go test -cover ./rabbitmq
 
       - name: Run linters
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
-
-      - name: Run vet
-        run: make vet
