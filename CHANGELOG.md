@@ -1,3 +1,30 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## 2.0.0 (May 20, 2024)
+
+FEATURES:
+
+* Added vhost options/limits and Added shovel parameters - @Galvill
+  ([#3](https://github.com/rfd59/terraform-provider-rabbitmq/pull/3))
+
+FIX:
+
+* Add already exists exceptions and enhance errors - @Chahed
+  ([#6](https://github.com/rfd59/terraform-provider-rabbitmq/pull/6))
+
+BUILD / DEV:
+
+* Update project - @rfavreau
+  ([#2](https://github.com/rfd59/terraform-provider-rabbitmq/pull/2))
+
+* Update GitHub Actions - @rfavreau
+  ([#7](https://github.com/rfd59/terraform-provider-rabbitmq/pull/7))
+
 ## 1.8.0 (March 15, 2023)
 
 FEATURES:
@@ -5,9 +32,11 @@ FEATURES:
 * Support for RabbitMq versions 3.9 and 3.10 - @mryan43 
   ([#40](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/40))
 
-FIX: 
+FIX:
+
 * `rabbitmq_federation`: Fix problematic default `message_ttl` - @ahmadalli
   ([#47](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/47))
+
 * `rabbitmq_binding`: Get only bindings related to source/destination to be faster - @avitsidis 
   ([#43](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/43))
 
@@ -17,10 +46,9 @@ FEATURES:
 
 * `rabbitmq_operator_policy`: new resource - @MrLuje
   ([#8](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/8))
- 
+
 * Add `rabbitmq_vhost`, `rabbitmq_user` and `rabbitmq_exchange` datasources - @Skeen
   ([#37](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/37))
-
 
 FIX:
 
@@ -32,8 +60,6 @@ BUILD / DEV:
 * Update Terraform SDK to v2 and Go to 1.19 - @cyrilgdn
   ([#21](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/21))
   ([#38](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/38))
-
-
 
 ## 1.6.0 (September 01, 2021)
 
@@ -149,7 +175,6 @@ DEV IMPROVEMENTS:
 
 * Execute acceptance tests in Travis.
   ([#47](https://github.com/terraform-providers/terraform-provider-rabbitmq/issues/47))
-
 
 ## 1.1.0 (June 21, 2019)
 
