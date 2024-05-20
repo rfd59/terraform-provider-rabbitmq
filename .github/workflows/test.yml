@@ -31,12 +31,14 @@ jobs:
 
       - name: Tests
         run: make testacc
-  unit:
-    name: Unit Tests
+  sonar:
+    name: SonarQube
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -44,14 +46,19 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
 
-      - name: Tests
+      - name: Set up RabbitMQ
+        run: ./scripts/testacc setup
+          
+      - name: Test 
         run: go test -v -cover ./...
-  sonar:
-    name: SonarQube
-    runs-on: ubuntu-latest
-    steps:
+        env:
+          TF_ACC: '1'
+
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      
+      - name: Clean up RabbitMQ
+        run: ./scripts/testacc cleanup
