@@ -44,8 +44,6 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - name: env
-        run: env
 
       - name: Tests
         run: make testacc
@@ -55,4 +53,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_PROJECTVERSION: ${{ github.ref.name }}
+          
