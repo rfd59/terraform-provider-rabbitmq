@@ -3,7 +3,9 @@ name: CI
 on:
   push:
     branches:
-      - '!master'   # excludes master
+    - develop
+    - '!master'   # excludes master
+  pull_request:
 
 jobs:
   ContinousIntegration:
