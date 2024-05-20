@@ -46,13 +46,8 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
 
-      - name: Set up RabbitMQ
-        run: ./scripts/testacc.sh setup
-          
-      - name: Test 
-        run: go test -v -cover ./...
-        env:
-          TF_ACC: '1'
+      - name: Tests
+        run: make testacc
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
