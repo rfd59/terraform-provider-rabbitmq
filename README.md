@@ -20,7 +20,7 @@ Requirements
 - [Terraform](https://www.terraform.io/downloads.html) 1.0.x
 - [Go](https://golang.org/doc/install) 1.21 (to build the provider plugin)
 
-Building The Provider
+Building the Provider
 ---------------------
 
 Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-rabbitmq`
@@ -44,7 +44,7 @@ The provider supports versions `3.13.x`, `3.12.x` and `3.11.x` of RabbitMQ. It m
 
 For information on RabbitMQ versions, see the RabbitMQ [Release Information](https://www.rabbitmq.com/release-information).
 
-Developing the Provider
+Developing the provider
 -----------------------
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.21+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
