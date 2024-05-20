@@ -2,15 +2,13 @@ GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 
 default: build
 
-build: fmtcheck
+build: 
 	go install
 
-test: fmtcheck
-	go test -i $(TEST) || exit 1
-	echo $(TEST) | \
-		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
+test: build
+	go test -cover ./rabbitmq
 
-testacc: fmtcheck
+testacc: build
 	scripts/testacc.sh
 
 vet:
@@ -22,14 +20,4 @@ vet:
 		exit 1; \
 	fi
 
-fmt:
-	gofmt -w $(GOFMT_FILES)
-
-fmtcheck:
-	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
-
-errcheck:
-	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
-
-.PHONY: build test testacc vet fmt fmtcheck errcheck
-
+.PHONY: build test testacc vet

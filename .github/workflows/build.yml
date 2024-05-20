@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - develop
+    - '!master'   # excludes master
+  pull_request:
+
+jobs:
+  ContinousIntegration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      
+      - name: Download modules
+        run: go mod download
+      
+      - name: Build
+        run: go build -v .
+
+      - name: Unit Testing
+        run: go test -cover -v ./...
+
+      - name: Run linters
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest

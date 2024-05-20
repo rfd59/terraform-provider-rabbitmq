@@ -191,7 +191,7 @@ resource "rabbitmq_exchange" "foo" {
 }
 
 resource "rabbitmq_exchange" "bar" {
-    name = "foo"
+    name = "bar"
     vhost = "${rabbitmq_permissions.guest.vhost}"
     settings {
         type = "fanout"

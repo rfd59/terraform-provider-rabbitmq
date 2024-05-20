@@ -2,6 +2,12 @@ Hi there,
 
 Thank you for opening an issue. Please note that we try to keep the Terraform issue tracker reserved for bug reports and feature requests. For general usage questions, please see: https://www.terraform.io/community.html.
 
+### Provider Version
+If you are not running the latest version of the provider, please upgrade because your issue may have already been fixed.
+
+### RabbitMQ Version
+You will find this information into the home page of the management console (_http://localhost:15672/_).
+
 ### Terraform Version
 Run `terraform -v` to show the version. If you are not running the latest version of Terraform, please upgrade because your issue may have already been fixed.
 
