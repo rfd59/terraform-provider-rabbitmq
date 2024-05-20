@@ -1,4 +1,4 @@
-name: Tests
+name: SonarQube
 
 on:
   push:
@@ -7,20 +7,14 @@ on:
   pull_request:
 
 jobs:
-  acceptance:
-    name: Acceptance Tests
+  sonar:
+    name: SonarQube
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        rmq_version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
-
-    env:
-      RABBITMQ_VERSION: ${{ matrix.rmq_version }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -30,4 +24,10 @@ jobs:
 
       - name: Tests
         run: make testacc
-        
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          
