@@ -47,7 +47,7 @@ jobs:
           cache: true
 
       - name: Set up RabbitMQ
-        run: ./scripts/testacc setup
+        run: ./scripts/testacc.sh setup
           
       - name: Test 
         run: go test -v -cover ./...
@@ -61,4 +61,4 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       
       - name: Clean up RabbitMQ
-        run: ./scripts/testacc cleanup
+        run: ./scripts/testacc.sh cleanup
