@@ -20,3 +20,12 @@ resource "rabbitmq_user" "test" {
   password = "foobar"
   tags     = ["administrator", "management"]
 }
+
+# Create a user
+resource "rabbitmq_user" "limit" {
+  name     = "UserTestLimits"
+  password = "foobar"
+  tags     = ["management"]
+  max_connections = 10
+  max_channels = 20
+}

@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -50,4 +51,12 @@ func parseId(resourceId string) (name, vhost string, err error) {
 	name = parts[0]
 	vhost = parts[1]
 	return
+}
+
+func failApiResponse(err error, resp *http.Response, action string, name string) error {
+	if err != nil {
+		return fmt.Errorf("Error %s RabbitMQ %s: %#v", action, name, err)
+	} else {
+		return fmt.Errorf("Error %s RabbitMQ %s: %s", action, name, resp.Status)
+	}
 }
