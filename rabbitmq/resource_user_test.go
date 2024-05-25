@@ -24,6 +24,7 @@ func TestAccUser_Required(t *testing.T) {
 				Config: r.RequiredCreate(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("password").HasValue(r.Password),
 					check.That(data.ResourceName).Key("tags").DoesNotExist(),
@@ -36,6 +37,7 @@ func TestAccUser_Required(t *testing.T) {
 				Config: r.RequiredUpdate(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("password").HasValue(r.Password),
 					check.That(data.ResourceName).Key("tags").DoesNotExist(),
@@ -67,6 +69,7 @@ func TestAccUser_Optional(t *testing.T) {
 				Config: r.OptionalCreate(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("password").HasValue(r.Password),
 					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
@@ -80,6 +83,7 @@ func TestAccUser_Optional(t *testing.T) {
 				Config: r.OptionalUpdateTags(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("password").HasValue(r.Password),
 					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
@@ -93,6 +97,7 @@ func TestAccUser_Optional(t *testing.T) {
 				Config: r.OptionalUpdateLimits(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("password").HasValue(r.Password),
 					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
@@ -106,6 +111,7 @@ func TestAccUser_Optional(t *testing.T) {
 				Config: r.OptionalRemove(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("password").HasValue(r.Password),
 					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),

@@ -149,8 +149,8 @@ func (t thatWithKeyType) HasValue(value string) resource.TestCheckFunc {
 
 // MatchesOtherKey returns a TestCheckFunc which validates that the key on this resource
 // matches another other key on another resource
-func (t thatWithKeyType) MatchesOtherKey(other thatWithKeyType) resource.TestCheckFunc {
-	return resource.TestCheckResourceAttrPair(t.resourceName, t.key, other.resourceName, other.key)
+func (t thatWithKeyType) MatchesOtherKey(other string) resource.TestCheckFunc {
+	return resource.TestCheckResourceAttrPair(t.resourceName, t.key, t.resourceName, other)
 }
 
 // MatchesRegex returns a TestCheckFunc which validates that the key on this resource matches
