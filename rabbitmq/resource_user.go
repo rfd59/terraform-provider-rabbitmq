@@ -67,19 +67,23 @@ func CreateUser(d *schema.ResourceData, meta interface{}) error {
 	limits := make(rabbithole.UserLimitsValues)
 
 	if v, ok := d.GetOk("max_connections"); ok {
-		v_int, err := strconv.Atoi(v.(string))
-		if err != nil {
-			return fmt.Errorf("Error converting 'max_connections' to int: %#v", v)
+		if (len(v.(string))) > 0 {
+			v_int, err := strconv.Atoi(v.(string))
+			if err != nil {
+				return fmt.Errorf("error converting 'max_connections' to int: %#v", v)
+			}
+			limits["max-connections"] = v_int
 		}
-		limits["max-connections"] = v_int
 	}
 
 	if v, ok := d.GetOk("max_channels"); ok {
-		v_int, err := strconv.Atoi(v.(string))
-		if err != nil {
-			return fmt.Errorf("Error converting 'max_channels' to int: %#v", v)
+		if (len(v.(string))) > 0 {
+			v_int, err := strconv.Atoi(v.(string))
+			if err != nil {
+				return fmt.Errorf("error converting 'max_channels' to int: %#v", v)
+			}
+			limits["max-channels"] = v_int
 		}
-		limits["max-channels"] = v_int
 	}
 
 	resp, err := rmqc.PutUser(name, userSettings)
@@ -163,7 +167,7 @@ func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 			if v, ok := newMaxConnections.(string); ok {
 				limits["max-connections"], err = strconv.Atoi(v)
 				if err != nil {
-					return fmt.Errorf("Error converting 'max_connections' to int: %#v", v)
+					return fmt.Errorf("error converting 'max_connections' to int: %#v", v)
 				}
 			}
 		} else {
@@ -178,7 +182,7 @@ func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 			if v, ok := newMaxQueues.(string); ok {
 				limits["max-channels"], err = strconv.Atoi(v)
 				if err != nil {
-					return fmt.Errorf("Error converting 'max_channels' to int: %#v", v)
+					return fmt.Errorf("error converting 'max_channels' to int: %#v", v)
 				}
 			}
 		} else {
@@ -191,12 +195,12 @@ func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 		return failApiResponse(err, resp, "updating", "user")
 	}
 
-	if len(limits) > 0 {
-		resp, err = rmqc.DeleteUserLimits(name, rabbithole.UserLimits{"max-connections", "max-channels"})
-		if err != nil || resp.StatusCode >= 400 {
-			return failApiResponse(err, resp, "updating", "user limits")
-		}
+	resp, err = rmqc.DeleteUserLimits(name, rabbithole.UserLimits{"max-connections", "max-channels"})
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "updating", "user limits")
+	}
 
+	if len(limits) > 0 {
 		resp, err = rmqc.PutUserLimits(name, limits)
 		if err != nil || resp.StatusCode >= 400 {
 			return failApiResponse(err, resp, "updating", "user limits")
