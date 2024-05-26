@@ -8,14 +8,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 )
 
 func TestAccShovel(t *testing.T) {
 	var shovelInfo rabbithole.ShovelInfo
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccShovelCheckDestroy(&shovelInfo),
 		Steps: []resource.TestStep{
 			{
@@ -45,7 +46,7 @@ func testAccShovelCheck(rn string, shovelInfo *rabbithole.ShovelInfo) resource.T
 			return fmt.Errorf("shovel id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		shovelParts := strings.Split(rs.Primary.ID, "@")
 
 		shovelInfos, err := rmqc.ListShovels()
@@ -86,7 +87,7 @@ func testAccShovelCheck(rn string, shovelInfo *rabbithole.ShovelInfo) resource.T
 
 func testAccShovelCheckDestroy(shovelInfo *rabbithole.ShovelInfo) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 
 		shovelInfos, err := rmqc.ListShovels()
 		if err != nil {

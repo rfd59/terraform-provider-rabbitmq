@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -14,8 +15,8 @@ import (
 func TestAccPolicy(t *testing.T) {
 	var policy rabbithole.Policy
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccPolicyCheckDestroy(&policy),
 		Steps: []resource.TestStep{
 			{
@@ -45,7 +46,7 @@ func testAccPolicyCheck(rn string, policy *rabbithole.Policy) resource.TestCheck
 			return fmt.Errorf("policy id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		policyParts := strings.Split(rs.Primary.ID, "@")
 
 		policies, err := rmqc.ListPolicies()
@@ -66,7 +67,7 @@ func testAccPolicyCheck(rn string, policy *rabbithole.Policy) resource.TestCheck
 
 func testAccPolicyCheckDestroy(policy *rabbithole.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 
 		policies, err := rmqc.ListPolicies()
 		if err != nil {

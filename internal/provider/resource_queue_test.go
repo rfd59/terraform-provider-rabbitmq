@@ -10,13 +10,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 )
 
 func TestAccQueue_basic(t *testing.T) {
 	var queueInfo rabbithole.QueueInfo
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccQueueCheckDestroy(&queueInfo),
 		Steps: []resource.TestStep{
 			{
@@ -39,8 +40,8 @@ func TestAccQueue_jsonArguments(t *testing.T) {
 	var queueInfo rabbithole.QueueInfo
 	js := `{"x-message-ttl": 5000,"foo": "bar","baz": 50}`
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccQueueCheckDestroy(&queueInfo),
 		Steps: []resource.TestStep{
 			{
@@ -65,7 +66,7 @@ func testAccQueueCheck(rn string, queueInfo *rabbithole.QueueInfo) resource.Test
 			return fmt.Errorf("queue id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		queueParts := strings.Split(rs.Primary.ID, "@")
 
 		queues, err := rmqc.ListQueuesIn(queueParts[1])
@@ -112,7 +113,7 @@ func testAccQueueCheckJsonArguments(rn string, queueInfo *rabbithole.QueueInfo, 
 
 func testAccQueueCheckDestroy(queueInfo *rabbithole.QueueInfo) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 
 		queues, err := rmqc.ListQueuesIn(queueInfo.Vhost)
 		if err != nil && !strings.Contains(strings.ToLower(err.Error()), "not found") {

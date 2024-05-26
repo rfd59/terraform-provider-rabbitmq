@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -14,8 +15,8 @@ import (
 func TestAccExchange(t *testing.T) {
 	var exchangeInfo rabbithole.ExchangeInfo
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccExchangeCheckDestroy(&exchangeInfo),
 		Steps: []resource.TestStep{
 			{
@@ -39,7 +40,7 @@ func testAccExchangeCheck(rn string, exchangeInfo *rabbithole.ExchangeInfo) reso
 			return fmt.Errorf("exchange id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		exchParts := strings.Split(rs.Primary.ID, "@")
 
 		exchanges, err := rmqc.ListExchangesIn(exchParts[1])
@@ -60,7 +61,7 @@ func testAccExchangeCheck(rn string, exchangeInfo *rabbithole.ExchangeInfo) reso
 
 func testAccExchangeCheckDestroy(exchangeInfo *rabbithole.ExchangeInfo) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 
 		exchanges, err := rmqc.ListExchangesIn(exchangeInfo.Vhost)
 		if err != nil {

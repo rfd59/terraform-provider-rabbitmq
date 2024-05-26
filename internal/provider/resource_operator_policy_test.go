@@ -8,14 +8,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 )
 
 func TestAccOperatorPolicy(t *testing.T) {
 	var operatorPolicy rabbithole.OperatorPolicy
 	resourceName := "rabbitmq_operator_policy.test"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccOperatorPolicyCheckDestroy(&operatorPolicy),
 		Steps: []resource.TestStep{
 			{
@@ -56,7 +57,7 @@ func testAccOperatorPolicyCheck(rn string, operatorPolicy *rabbithole.OperatorPo
 			return fmt.Errorf("operator policy id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		operatorPolicyParts := strings.Split(rs.Primary.ID, "@")
 
 		operatorPolicies, err := rmqc.ListOperatorPolicies()
@@ -77,7 +78,7 @@ func testAccOperatorPolicyCheck(rn string, operatorPolicy *rabbithole.OperatorPo
 
 func testAccOperatorPolicyCheckDestroy(operatorPolicy *rabbithole.OperatorPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 
 		operatorPolicies, err := rmqc.ListOperatorPolicies()
 		if err != nil {

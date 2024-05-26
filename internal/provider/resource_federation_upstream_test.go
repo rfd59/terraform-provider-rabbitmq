@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 )
 
 func TestAccFederationUpstream(t *testing.T) {
@@ -16,8 +17,8 @@ func TestAccFederationUpstream(t *testing.T) {
 	resourceName := "rabbitmq_federation_upstream.foo"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccFederationUpstreamCheckDestroy(&upstream),
 		Steps: []resource.TestStep{
 			{
@@ -56,8 +57,8 @@ func TestAccFederationUpstream_hasComponent(t *testing.T) {
 	resourceName := "rabbitmq_federation_upstream.foo"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccFederationUpstreamCheckDestroy(&upstream),
 		Steps: []resource.TestStep{
 			{
@@ -76,8 +77,8 @@ func TestAccFederationUpstream_defaults(t *testing.T) {
 	resourceName := "rabbitmq_federation_upstream.foo"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccFederationUpstreamCheckDestroy(&upstream),
 		Steps: []resource.TestStep{
 			{
@@ -100,8 +101,8 @@ func TestAccFederationUpstream_validation(t *testing.T) {
 	var upstream rabbithole.FederationUpstream
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccFederationUpstreamCheckDestroy(&upstream),
 		Steps: []resource.TestStep{
 			{
@@ -127,7 +128,7 @@ func testAccFederationUpstreamCheck(rn string, upstream *rabbithole.FederationUp
 		name := id[0]
 		vhost := id[1]
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		upstreams, err := rmqc.ListFederationUpstreamsIn(vhost)
 		if err != nil {
 			return fmt.Errorf("Error retrieving federation upstreams: %s", err)
@@ -146,7 +147,7 @@ func testAccFederationUpstreamCheck(rn string, upstream *rabbithole.FederationUp
 
 func testAccFederationUpstreamCheckDestroy(upstream *rabbithole.FederationUpstream) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 
 		upstreams, err := rmqc.ListFederationUpstreamsIn(upstream.Vhost)
 		if err != nil {

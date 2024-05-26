@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -22,8 +23,8 @@ func TestAccTopicPermissions(t *testing.T) {
 		checkDestroy = nil
 	}
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: checkDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -55,7 +56,7 @@ func testAccTopicPermissionsCheck(rn string, topicPermissionInfo *rabbithole.Top
 			return fmt.Errorf("permission id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		perms, err := rmqc.ListTopicPermissions()
 		if err != nil {
 			return fmt.Errorf("Error retrieving topic permissions: %s", err)
@@ -75,7 +76,7 @@ func testAccTopicPermissionsCheck(rn string, topicPermissionInfo *rabbithole.Top
 
 func testAccTopicPermissionsCheckDestroy(topicPermissionInfo *rabbithole.TopicPermissionInfo) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		perms, err := rmqc.ListTopicPermissions()
 		if err != nil {
 			return fmt.Errorf("Error retrieving topic permissions: %s", err)

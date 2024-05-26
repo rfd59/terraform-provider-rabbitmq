@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -14,8 +15,8 @@ import (
 func TestAccPermissions(t *testing.T) {
 	var permissionInfo rabbithole.PermissionInfo
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccPermissionsCheckDestroy(&permissionInfo),
 		Steps: []resource.TestStep{
 			{
@@ -57,8 +58,8 @@ resource "rabbitmq_permissions" "test" {
 }`
 	var permissionInfo rabbithole.PermissionInfo
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccPermissionsCheckDestroy(&permissionInfo),
 		Steps: []resource.TestStep{
 			{
@@ -82,7 +83,7 @@ func testAccPermissionsCheck(rn string, permissionInfo *rabbithole.PermissionInf
 			return fmt.Errorf("permission id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		perms, err := rmqc.ListPermissions()
 		if err != nil {
 			return fmt.Errorf("Error retrieving permissions: %s", err)
@@ -102,7 +103,7 @@ func testAccPermissionsCheck(rn string, permissionInfo *rabbithole.PermissionInf
 
 func testAccPermissionsCheckDestroy(permissionInfo *rabbithole.PermissionInfo) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		perms, err := rmqc.ListPermissions()
 		if err != nil {
 			return fmt.Errorf("Error retrieving permissions: %s", err)
