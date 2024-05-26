@@ -13,6 +13,7 @@ import (
 
 func dataSourcesExchange() *schema.Resource {
 	return &schema.Resource{
+		Description: "Use this data source to access information about an existing _exchange_.",
 		ReadContext: dataSourcesReadExchange,
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -20,39 +21,44 @@ func dataSourcesExchange() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The name of the exchange.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"vhost": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "/",
+				Description: "The vhost to read the exchange in. Defaults to `/`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "/",
 			},
 			"settings": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Description: "The settings of the exchange. The structure is described below.",
+				Type:        schema.TypeList,
+				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The type of exchange.",
+							Type:        schema.TypeString,
+							Computed:    true,
 						},
 
 						"durable": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Description: "Whether the exchange survives server restarts.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 
 						"auto_delete": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Description: "Whether the exchange will self-delete when all queues have finished using it.",
+							Type:        schema.TypeBool,
+							Computed:    true,
 						},
 
 						"arguments": {
-							Type:     schema.TypeMap,
-							Optional: true,
+							Description: "Additional key/value settings for the exchange.",
+							Type:        schema.TypeMap,
+							Computed:    true,
 						},
 					},
 				},

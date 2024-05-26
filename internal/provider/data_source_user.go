@@ -11,6 +11,7 @@ import (
 
 func dataSourcesUser() *schema.Resource {
 	return &schema.Resource{
+		Description: "Use this data source to access information about an existing _user_.",
 		ReadContext: dsRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -18,21 +19,25 @@ func dataSourcesUser() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Description: "The name of the user.",
+				Type:        schema.TypeString,
+				Required:    true,
 			},
 			"tags": {
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
+				Description: "Which permission model the user has.",
+				Type:        schema.TypeList,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Computed:    true,
 			},
 			"max_connections": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The maximum number of connection the user can open.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 			"max_channels": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "The maximum number of channels, in total, the user can open.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 		},
 	}

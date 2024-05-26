@@ -13,7 +13,7 @@ The `rabbitmq_user` resource creates and manages a user.
 ## Example Usage
 
 ```terraform
-# Create a user with administrator and management tags
+# Create a user (with administrator and management tags)
 resource "rabbitmq_user" "example" {
   name     = "myuser"
   password = "foobar"
