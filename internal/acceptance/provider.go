@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/rfd59/terraform-provider-rabbitmq/internal/rabbitmq"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider"
 )
 
 var TestAcc TestProvider
@@ -16,7 +16,7 @@ type TestProvider struct {
 }
 
 func init() {
-	TestAcc.Provider = rabbitmq.Provider()
+	TestAcc.Provider = provider.Provider()
 	TestAcc.Providers = map[string]*schema.Provider{
 		"rabbitmq": TestAcc.Provider,
 	}

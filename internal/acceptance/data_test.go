@@ -6,7 +6,7 @@ package acceptance_test
 import (
 	"testing"
 
-	"github.com/rfd59/terraform-provider-rabbitmq/acceptance"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 )
 
 func TestBuildArrayString(t *testing.T) {
