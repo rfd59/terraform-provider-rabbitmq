@@ -16,7 +16,7 @@ type TestProvider struct {
 }
 
 func init() {
-	TestAcc.Provider = provider.Provider()
+	TestAcc.Provider = provider.New()
 	TestAcc.Providers = map[string]*schema.Provider{
 		"rabbitmq": TestAcc.Provider,
 	}
