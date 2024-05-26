@@ -11,54 +11,62 @@ import (
 
 func resourceExchange() *schema.Resource {
 	return &schema.Resource{
-		Create: CreateExchange,
-		Read:   ReadExchange,
-		Delete: DeleteExchange,
+		Description: "The `rabbitmq_exchange` resource creates and manages an exchange.",
+		Create:      CreateExchange,
+		Read:        ReadExchange,
+		Delete:      DeleteExchange,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The name of the exchange.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"vhost": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "/",
-				ForceNew: true,
+				Description: "The vhost to create the resource in. Defaults to `/`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "/",
+				ForceNew:    true,
 			},
 
 			"settings": {
-				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
-				MaxItems: 1,
+				Description: "The settings of the exchange. The structure is described below.",
+				Type:        schema.TypeList,
+				Required:    true,
+				ForceNew:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The type of exchange.",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 
 						"durable": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Description: "Whether the exchange survives server restarts. Defaults to `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
 						},
 
 						"auto_delete": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Description: "Whether the exchange will self-delete when all queues have finished using it. Defaults to `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
 						},
 
 						"arguments": {
-							Type:     schema.TypeMap,
-							Optional: true,
+							Description: "Additional key/value settings for the exchange.",
+							Type:        schema.TypeMap,
+							Optional:    true,
 						},
 					},
 				},

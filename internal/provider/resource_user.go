@@ -10,39 +10,45 @@ import (
 
 func resourceUser() *schema.Resource {
 	return &schema.Resource{
-		Create: CreateUser,
-		Update: UpdateUser,
-		Read:   ReadUser,
-		Delete: DeleteUser,
+		Description: "The `rabbitmq_user` resource creates and manages a user.",
+		Create:      CreateUser,
+		Update:      UpdateUser,
+		Read:        ReadUser,
+		Delete:      DeleteUser,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The name of the user.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Description: "The password of the user.\n~> **Note:** The value of this argument is plain-text so make sure to secure where this is defined.",
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
 			},
 			"tags": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: "Which permission model to apply to the user. Valid options are: `management`, `policymaker`, `monitoring`, and `administrator`.",
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"max_connections": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Description: "To limit how many connection a user can open.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    false,
 			},
 			"max_channels": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
+				Description: "To limit how many channels, in total, a user can open.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    false,
 			},
 		},
 	}

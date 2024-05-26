@@ -11,62 +11,71 @@ import (
 
 func resourceFederationUpstream() *schema.Resource {
 	return &schema.Resource{
-		Create: CreateFederationUpstream,
-		Read:   ReadFederationUpstream,
-		Update: UpdateFederationUpstream,
-		Delete: DeleteFederationUpstream,
+		Description: "The `rabbitmq_federation_upstream` resource creates and manages a federation upstream parameter.",
+		Create:      CreateFederationUpstream,
+		Read:        ReadFederationUpstream,
+		Update:      UpdateFederationUpstream,
+		Delete:      DeleteFederationUpstream,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The name of the federation upstream.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"vhost": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The vhost to create the resource in.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			// "federation-upstream"
 			"component": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "Set to _federation-upstream_ by the underlying RabbitMQ provider. You do not set this attribute but will see it in state and plan output.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"definition": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Description: "The configuration of the federation upstream. The structure is described below.",
+				Type:        schema.TypeList,
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						// applicable to both federated exchanges and queues
 						"uri": {
-							Type:      schema.TypeString,
-							Required:  true,
-							Sensitive: true,
+							Description: "The AMQP Uri for the upstream.\n~> **Note:** The Uri may contain sensitive information, such as a password.",
+							Type:        schema.TypeString,
+							Required:    true,
+							Sensitive:   true,
 						},
 
 						"prefetch_count": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  1000,
+							Description: "Maximum number of unacknowledged messages that may be in flight over a federation link at one time. Defaults to `1000`.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     1000,
 						},
 
 						"reconnect_delay": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  5,
+							Description: "Time in seconds to wait after a network link goes down before attempting reconnection. Defaults to `5`.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5,
 						},
 
 						"ack_mode": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "on-confirm",
+							Description: "Determines how the link should acknowledge messages. Possible values are `on-confirm`, `on-publish` and `no-ack`. Defaults to `on-confirm`.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Default:     "on-confirm",
 							ValidateFunc: validation.StringInSlice([]string{
 								"on-confirm",
 								"on-publish",
@@ -75,35 +84,38 @@ func resourceFederationUpstream() *schema.Resource {
 						},
 
 						"trust_user_id": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
+							Description: "Determines how federation should interact with the validated user-id feature. Default is `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
 						},
 						// applicable to federated exchanges only
 						"exchange": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "**Federated Exchanges Only**: The name of the upstream exchange.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
-
 						"max_hops": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  1,
+							Description: "**Federated Exchanges Only**: Maximum number of federation links that messages can traverse before being dropped. Defaults to `1`.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     1,
 						},
-
 						"expires": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Description: "**Federated Exchanges Only**: The expiry time (in milliseconds) after which an upstream queue for a federated exchange may be deleted if a connection to the upstream is lost.",
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
-
 						"message_ttl": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Description: "**Federated Exchanges Only**: The expiry time (in milliseconds) for messages in the upstream queue for a federated exchange (see `expires`).",
+							Type:        schema.TypeInt,
+							Optional:    true,
 						},
 						// applicable to federated queues only
 						"queue": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Description: "**Federated Queues Only**: The name of the upstream queue.",
+							Type:        schema.TypeString,
+							Optional:    true,
 						},
 					},
 				},
