@@ -1,4 +1,4 @@
-package provider
+package provider_test
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -16,8 +17,8 @@ import (
 func TestAccBinding_basic(t *testing.T) {
 	var bindingInfo rabbithole.BindingInfo
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccBindingCheckDestroy(bindingInfo),
 		Steps: []resource.TestStep{
 			{
@@ -40,8 +41,8 @@ func TestAccBinding_jsonArguments(t *testing.T) {
 	var bindingInfo rabbithole.BindingInfo
 	js := `{"x-match": "all", "foo": ["bar", "baz"]}`
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccBindingCheckDestroy(bindingInfo),
 		Steps: []resource.TestStep{
 			{
@@ -58,8 +59,8 @@ func TestAccBinding_jsonArguments(t *testing.T) {
 func TestAccBinding_slashEscaping(t *testing.T) {
 	var bindingInfo rabbithole.BindingInfo
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccBindingCheckDestroy(bindingInfo),
 		Steps: []resource.TestStep{
 			{
@@ -75,8 +76,8 @@ func TestAccBinding_slashEscaping(t *testing.T) {
 func TestAccBinding_propertiesKey(t *testing.T) {
 	var bindingInfo rabbithole.BindingInfo
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
 		CheckDestroy: testAccBindingCheckDestroy(bindingInfo),
 		Steps: []resource.TestStep{
 			{
@@ -101,10 +102,10 @@ func testAccBindingCheck(rn string, bindingInfo *rabbithole.BindingInfo) resourc
 			return fmt.Errorf("binding id not set")
 		}
 
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		bindingParts := strings.Split(rs.Primary.ID, "/")
 
-		bindings, err := rmqc.ListBindingsIn(percentDecodeSlashes(bindingParts[0]))
+		bindings, err := rmqc.ListBindingsIn(strings.Replace(strings.Replace(bindingParts[0], "%2F", "/", -1), "%25", "%", -1))
 		if err != nil {
 			return fmt.Errorf("Error retrieving exchange: %s", err)
 		}
@@ -148,7 +149,7 @@ func testAccBindingCheckJsonArguments(rn string, bindingInfo *rabbithole.Binding
 
 func testAccBindingCheckDestroy(bindingInfo rabbithole.BindingInfo) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
+		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 
 		bindings, err := rmqc.ListBindingsIn(bindingInfo.Vhost)
 		if err != nil {

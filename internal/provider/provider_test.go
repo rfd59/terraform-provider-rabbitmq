@@ -1,10 +1,11 @@
-package provider
+package provider_test
 
 import (
 	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider"
 )
 
 // To run these acceptance tests, you will need access to a RabbitMQ server
@@ -20,20 +21,20 @@ var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
 func init() {
-	testAccProvider = Provider()
+	testAccProvider = provider.Provider()
 	testAccProviders = map[string]*schema.Provider{
 		"rabbitmq": testAccProvider,
 	}
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().InternalValidate(); err != nil {
+	if err := provider.Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
-	var _ *schema.Provider = Provider()
+	var _ *schema.Provider = provider.Provider()
 }
 
 func testAccPreCheck(t *testing.T) {
