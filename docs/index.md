@@ -1,3 +1,4 @@
+---
 page_title: "RabbitMQ Provider - terraform-provider-rabbitmq"
 subcategory: ""
 description: |-
