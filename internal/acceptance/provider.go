@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/rfd59/terraform-provider-rabbitmq/rabbitmq"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/rabbitmq"
 )
 
 var TestAcc TestProvider

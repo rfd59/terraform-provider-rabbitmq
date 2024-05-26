@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/rfd59/terraform-provider-rabbitmq/acceptance"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 )
 
 type thatType struct {
