@@ -15,8 +15,23 @@ provider "rabbitmq" {
 }
 
 # Create a user
+resource "rabbitmq_user" "required" {
+  name     = "UserRequired"
+  password = "foobar"
+}
+
+# Create a user
 resource "rabbitmq_user" "test" {
   name     = "UserTest"
   password = "foobar"
   tags     = ["administrator", "management"]
+}
+
+# Create a user
+resource "rabbitmq_user" "limit" {
+  name     = "UserTestLimits"
+  password = "foobar"
+  tags     = ["management"]
+  max_connections = 10
+  max_channels = 20
 }

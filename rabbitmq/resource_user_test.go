@@ -1,298 +1,295 @@
-package rabbitmq
+package rabbitmq_test
 
 import (
-	"fmt"
+	"os"
+	"regexp"
 	"testing"
 
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"github.com/rfd59/terraform-provider-rabbitmq/acceptance"
+	"github.com/rfd59/terraform-provider-rabbitmq/acceptance/check"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccUser_basic(t *testing.T) {
-	var user string
+func TestAccUser_Required(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{Name: data.RandomString(), Password: data.RandomString()}
+
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccUserCheckDestroy(user),
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccUserConfig_basic,
-				Check: testAccUserCheck(
-					"rabbitmq_user.test", &user,
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").DoesNotExist(),
+					check.That(data.ResourceName).Key("max_connections").DoesNotExist(),
+					check.That(data.ResourceName).Key("max_channels").DoesNotExist(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 			{
-				Config: testAccUserConfig_update,
-				Check: testAccUserCheck(
-					"rabbitmq_user.test", &user,
+				Config: r.RequiredUpdate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").DoesNotExist(),
+					check.That(data.ResourceName).Key("max_connections").DoesNotExist(),
+					check.That(data.ResourceName).Key("max_channels").DoesNotExist(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 		},
 	})
 }
 
-func TestUpdateTags_password(t *testing.T) {
-	var user string
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccUserCheckDestroy(user),
-		Steps: []resource.TestStep{
-			{
-				Config: testUpdateTagsCreate,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck(
-						"rabbitmq_user.test", &user,
-					),
-					testAccUserConnect("mctest", "foobar"),
-				),
-			},
-			{
-				Config: testUpdateTagsUpdate,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck(
-						"rabbitmq_user.test", &user,
-					),
-					testAccUserConnect("mctest", "foobar"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccUser_emptyTag(t *testing.T) {
-	var user string
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccUserCheckDestroy(user),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccUserConfig_emptyTag_1,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck("rabbitmq_user.test", &user),
-					testAccUserCheckTagCount(&user, 0),
-				),
-			},
-			{
-				Config: testAccUserConfig_emptyTag_2,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck("rabbitmq_user.test", &user),
-					testAccUserCheckTagCount(&user, 1),
-				),
-			},
-			{
-				Config: testAccUserConfig_emptyTag_1,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck("rabbitmq_user.test", &user),
-					testAccUserCheckTagCount(&user, 0),
-				),
-			},
-		},
-	})
-}
-
-func TestAccUser_noTags(t *testing.T) {
-	var user string
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccUserCheckDestroy(user),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccUserConfig_noTags_1,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck("rabbitmq_user.test", &user),
-					testAccUserCheckTagCount(&user, 0),
-				),
-			},
-			{
-				Config: testAccUserConfig_noTags_2,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck("rabbitmq_user.test", &user),
-					testAccUserCheckTagCount(&user, 1),
-				),
-			},
-		},
-	})
-}
-
-func TestAccUser_passwordChange(t *testing.T) {
-	var user string
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccUserCheckDestroy(user),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccUserConfig_passwordChange_1,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck("rabbitmq_user.test", &user),
-					testAccUserCheckTagCount(&user, 2),
-				),
-			},
-			{
-				Config: testAccUserConfig_passwordChange_2,
-				Check: resource.ComposeTestCheckFunc(
-					testAccUserCheck("rabbitmq_user.test", &user),
-					testAccUserCheckTagCount(&user, 2),
-				),
-			},
-		},
-	})
-}
-
-func testAccUserCheck(rn string, name *string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[rn]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", rn)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("user id not set")
-		}
-
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
-		users, err := rmqc.ListUsers()
-		if err != nil {
-			return fmt.Errorf("Error retrieving users: %s", err)
-		}
-
-		for _, user := range users {
-			if user.Name == rs.Primary.ID {
-				*name = rs.Primary.ID
-				return nil
-			}
-		}
-
-		return fmt.Errorf("Unable to find user %s", rn)
+func TestAccUser_Optional(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{
+		Name:           data.RandomString(),
+		Password:       data.RandomString(),
+		Tags:           []string{"management"},
+		MaxConnections: data.RandomIntegerString(),
+		MaxChannels:    data.RandomIntegerString(),
 	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.OptionalCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
+					check.That(data.ResourceName).Key("tags.0").HasValue(r.Tags[0]),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_channels").HasValue(r.MaxChannels),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalUpdateTags(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
+					check.That(data.ResourceName).Key("tags.0").HasValue(r.Tags[0]),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_channels").HasValue(r.MaxChannels),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalUpdateLimits(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
+					check.That(data.ResourceName).Key("tags.0").HasValue(r.Tags[0]),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_channels").HasValue(r.MaxChannels),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalRemove(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
+					check.That(data.ResourceName).Key("max_connections").IsEmpty(),
+					check.That(data.ResourceName).Key("max_channels").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+		},
+	})
 }
 
-func testAccUserConnect(username, password string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		client, err := rabbithole.NewClient("http://localhost:15672", username, password)
-		if err != nil {
-			return fmt.Errorf("could not create rmq client: %v", err)
-		}
+func TestAccUser_Login(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{Name: data.RandomString(), Password: data.RandomString(), Tags: []string{"management"}}
 
-		_, err = client.Whoami()
-		if err != nil {
-			return fmt.Errorf("could not call whoami with username %s: %v", username, err)
-		}
-		return nil
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.LoginCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
+					check.That(data.ResourceName).Key("tags.0").HasValue(r.Tags[0]),
+					r.CheckLoginInRabbitMQ(),
+				),
+			},
+			{
+				Config: r.LoginUpdate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("password").HasValue(r.Password),
+					check.That(data.ResourceName).Key("tags").Count(len(r.Tags)),
+					check.That(data.ResourceName).Key("tags.0").HasValue(r.Tags[0]),
+					r.CheckLoginInRabbitMQ(),
+				),
+			},
+		},
+	})
+}
+
+func TestAccUser_ImportRequired(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{Name: data.RandomString(), Password: data.RandomString()}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				ResourceName:            data.ResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
+func TestAccUser_ImportOptional(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{
+		Name:           data.RandomString(),
+		Password:       data.RandomString(),
+		Tags:           []string{"management"},
+		MaxConnections: data.RandomIntegerString(),
+		MaxChannels:    data.RandomIntegerString(),
 	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.OptionalCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				ResourceName:            data.ResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
 }
 
-func testAccUserCheckTagCount(name *string, tagCount int) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
-		user, err := rmqc.GetUser(*name)
-		if err != nil {
-			return fmt.Errorf("Error retrieving user: %s", err)
-		}
+func TestAccUser_AlredayExist(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{Name: os.Getenv("RABBITMQ_USERNAME"), Password: os.Getenv("RABBITMQ_PASSWORD")}
 
-		var tagList []string
-		for _, v := range user.Tags {
-			if v != "" {
-				tagList = append(tagList, v)
-			}
-		}
-
-		if len(tagList) != tagCount {
-			return fmt.Errorf("Expected %d tags, user has %d", tagCount, len(tagList))
-		}
-
-		return nil
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.RequiredCreate(data),
+				ExpectError: regexp.MustCompile("user already exists"),
+			},
+		},
+	})
 }
 
-func testAccUserCheckDestroy(name string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rmqc := testAccProvider.Meta().(*rabbithole.Client)
-		users, err := rmqc.ListUsers()
-		if err != nil {
-			return fmt.Errorf("Error retrieving users: %s", err)
-		}
+func TestAccUser_ErrorConvertingMaxConnections(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{Name: data.RandomString(), Password: data.RandomString(), MaxConnections: data.RandomString()}
 
-		for _, user := range users {
-			if user.Name == name {
-				return fmt.Errorf("user still exists: %s", name)
-			}
-		}
-
-		return nil
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorConvertingCreate(data),
+				ExpectError: regexp.MustCompile("error converting 'max_connections' to int"),
+			},
+			{
+				Config: r.ErrorConvertingUpdate(data, data.RandomIntegerString(), r.MaxChannels),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_channels").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config:      r.ErrorConvertingUpdate(data, data.RandomString(), r.MaxChannels),
+				ExpectError: regexp.MustCompile("error converting 'max_connections' to int"),
+			},
+		},
+	})
 }
 
-const testAccUserConfig_basic = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-    tags = ["administrator", "management"]
-}`
+func TestAccUser_ErrorConvertingMaxChannels(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_user", "test")
+	r := acceptance.UserResource{Name: data.RandomString(), Password: data.RandomString(), MaxChannels: data.RandomString()}
 
-const testAccUserConfig_update = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobarry"
-    tags = ["management"]
-}`
-
-const testUpdateTagsCreate = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-    tags = ["management"]
-}`
-
-const testUpdateTagsUpdate = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-    tags = ["monitoring"]
-}`
-
-const testAccUserConfig_emptyTag_1 = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-    tags = [""]
-}`
-
-const testAccUserConfig_emptyTag_2 = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-    tags = ["administrator"]
-}`
-
-const testAccUserConfig_noTags_1 = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-}`
-
-const testAccUserConfig_noTags_2 = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-    tags = ["administrator"]
-}`
-
-const testAccUserConfig_passwordChange_1 = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobar"
-    tags = ["administrator", "management"]
-}`
-
-const testAccUserConfig_passwordChange_2 = `
-resource "rabbitmq_user" "test" {
-    name = "mctest"
-    password = "foobarry"
-    tags = ["administrator", "management"]
-}`
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorConvertingCreate(data),
+				ExpectError: regexp.MustCompile("error converting 'max_channels' to int"),
+			},
+			{
+				Config: r.ErrorConvertingUpdate(data, r.MaxConnections, data.RandomIntegerString()),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("max_channels").HasValue(r.MaxChannels),
+					check.That(data.ResourceName).Key("max_connections").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config:      r.ErrorConvertingUpdate(data, r.MaxConnections, data.RandomString()),
+				ExpectError: regexp.MustCompile("error converting 'max_channels' to int"),
+			},
+		},
+	})
+}

@@ -2,11 +2,10 @@ package rabbitmq
 
 import (
 	"fmt"
-	"log"
-
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
 )
 
 func resourceUser() *schema.Resource {
@@ -25,17 +24,25 @@ func resourceUser() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-
 			"password": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
-
 			"tags": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"max_connections": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"max_channels": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
 			},
 		},
 	}
@@ -46,31 +53,52 @@ func CreateUser(d *schema.ResourceData, meta interface{}) error {
 
 	name := d.Get("name").(string)
 
+	// Check if already exists
+	_, not_found := rmqc.GetUser(name)
+	if not_found == nil {
+		return fmt.Errorf("error creating RabbitMQ user '%s': user already exists", name)
+	}
+
 	userSettings := rabbithole.UserSettings{
 		Password: d.Get("password").(string),
 		Tags:     userTagsToString(d),
 	}
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to create user %s", name)
+	limits := make(rabbithole.UserLimitsValues)
 
-	// Check if already exists
-	_, not_found := rmqc.GetUser(name)
-	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ user '%s': user already exists", name)
+	if v, ok := d.GetOk("max_connections"); ok {
+		if (len(v.(string))) > 0 {
+			v_int, err := strconv.Atoi(v.(string))
+			if err != nil {
+				return fmt.Errorf("error converting 'max_connections' to int: %#v", v)
+			}
+			limits["max-connections"] = v_int
+		}
+	}
+
+	if v, ok := d.GetOk("max_channels"); ok {
+		if (len(v.(string))) > 0 {
+			v_int, err := strconv.Atoi(v.(string))
+			if err != nil {
+				return fmt.Errorf("error converting 'max_channels' to int: %#v", v)
+			}
+			limits["max-channels"] = v_int
+		}
 	}
 
 	resp, err := rmqc.PutUser(name, userSettings)
-	log.Printf("[DEBUG] RabbitMQ: user creation response: %#v", resp)
-	if err != nil {
-		return err
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "creating", "user")
 	}
 
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error creating RabbitMQ user: %s", resp.Status)
+	if len(limits) > 0 {
+		resp, err = rmqc.PutUserLimits(name, limits)
+		if err != nil || resp.StatusCode >= 400 {
+			return failApiResponse(err, resp, "creating", "user limits")
+		}
 	}
 
 	d.SetId(name)
-
 	return ReadUser(d, meta)
 }
 
@@ -81,9 +109,6 @@ func ReadUser(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return checkDeleted(d, err)
 	}
-
-	log.Printf("[DEBUG] RabbitMQ: User retrieved: %#v", user)
-
 	d.Set("name", user.Name)
 
 	if len(user.Tags) > 0 {
@@ -98,31 +123,88 @@ func ReadUser(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
+	myUserLimits, err := rmqc.GetUserLimits(d.Id())
+	if err != nil {
+		return checkDeleted(d, err)
+	}
+
+	if len(myUserLimits) > 0 {
+		if val, ok := myUserLimits[0].Value["max-connections"]; ok {
+			d.Set("max_connections", strconv.Itoa(val))
+		} else {
+			d.Set("max_connections", nil)
+		}
+
+		if val, ok := myUserLimits[0].Value["max-channels"]; ok {
+			d.Set("max_channels", strconv.Itoa(val))
+		} else {
+			d.Set("max_channels", nil)
+		}
+	}
+
 	return nil
 }
 
 func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
-
 	name := d.Id()
-	tags := userTagsToString(d)
-	password := d.Get("password").(string)
 
 	userSettings := rabbithole.UserSettings{
-		Password: password,
-		Tags:     tags,
+		Password: d.Get("password").(string),
+		Tags:     userTagsToString(d),
+	}
+	myUserLimits, err := rmqc.GetUserLimits(d.Id())
+	if err != nil {
+		return checkDeleted(d, err)
 	}
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to update user %s", name)
+	limits := make(rabbithole.UserLimitsValues)
+
+	if _, ok := d.GetOk("max_connections"); ok {
+		if d.HasChange("max_connections") {
+			_, newMaxConnections := d.GetChange("max_connections")
+
+			if v, ok := newMaxConnections.(string); ok {
+				limits["max-connections"], err = strconv.Atoi(v)
+				if err != nil {
+					return fmt.Errorf("error converting 'max_connections' to int: %#v", v)
+				}
+			}
+		} else {
+			limits["max-connections"] = myUserLimits[0].Value["max-connections"]
+		}
+	}
+
+	if _, ok := d.GetOk("max_channels"); ok {
+		if d.HasChange("max_channels") {
+			_, newMaxQueues := d.GetChange("max_channels")
+
+			if v, ok := newMaxQueues.(string); ok {
+				limits["max-channels"], err = strconv.Atoi(v)
+				if err != nil {
+					return fmt.Errorf("error converting 'max_channels' to int: %#v", v)
+				}
+			}
+		} else {
+			limits["max-channels"] = myUserLimits[0].Value["max-channels"]
+		}
+	}
 
 	resp, err := rmqc.PutUser(name, userSettings)
-	log.Printf("[DEBUG] RabbitMQ: User update response: %#v", resp)
-	if err != nil {
-		return err
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "updating", "user")
 	}
 
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error updating RabbitMQ user: %s", resp.Status)
+	resp, err = rmqc.DeleteUserLimits(name, rabbithole.UserLimits{"max-connections", "max-channels"})
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "updating", "user limits")
+	}
+
+	if len(limits) > 0 {
+		resp, err = rmqc.PutUserLimits(name, limits)
+		if err != nil || resp.StatusCode >= 400 {
+			return failApiResponse(err, resp, "updating", "user limits")
+		}
 	}
 
 	return ReadUser(d, meta)
@@ -130,23 +212,16 @@ func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 
 func DeleteUser(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
-
 	name := d.Id()
-	log.Printf("[DEBUG] RabbitMQ: Attempting to delete user %s", name)
 
-	resp, err := rmqc.DeleteUser(name)
-	log.Printf("[DEBUG] RabbitMQ: User delete response: %#v", resp)
-	if err != nil {
-		return err
+	resp, err := rmqc.DeleteUserLimits(name, rabbithole.UserLimits{"max-connections", "max-channels"})
+	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
+		return failApiResponse(err, resp, "deleting", "user limits")
 	}
 
-	if resp.StatusCode == 404 {
-		// the user was automatically deleted
-		return nil
-	}
-
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ user '%s': %s", name, resp.Status)
+	resp, err = rmqc.DeleteUser(name)
+	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
+		return failApiResponse(err, resp, "deleting", "user limits")
 	}
 
 	return nil
@@ -154,6 +229,7 @@ func DeleteUser(d *schema.ResourceData, meta interface{}) error {
 
 func userTagsToString(d *schema.ResourceData) rabbithole.UserTags {
 	tagList := rabbithole.UserTags{}
+
 	for _, v := range d.Get("tags").([]interface{}) {
 		if tag, ok := v.(string); ok {
 			tagList = append(tagList, tag)
