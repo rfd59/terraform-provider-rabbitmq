@@ -15,56 +15,65 @@ import (
 
 func resourceBinding() *schema.Resource {
 	return &schema.Resource{
-		Create: CreateBinding,
-		Read:   ReadBinding,
-		Delete: DeleteBinding,
+		Description: "The `rabbitmq_binding` resource creates and manages a binding relationship between a queue an exchange.",
+		Create:      CreateBinding,
+		Read:        ReadBinding,
+		Delete:      DeleteBinding,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"source": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The source exchange.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"vhost": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The vhost to create the resource in.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"destination": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The destination queue or exchange.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"destination_type": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The type of destination. Possible values are `queue` and `exchange`.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"properties_key": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Description: "A unique key to refer to the binding.",
+				Type:        schema.TypeString,
+				Computed:    true,
 			},
 
 			"routing_key": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Description: "A routing key for the binding.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
 			},
 
 			"arguments": {
+				Description:   "Additional key/value arguments for the binding.\n~> **Note:** Either this or `arguments` must be specified but not both.",
 				Type:          schema.TypeMap,
 				Optional:      true,
 				ForceNew:      true,
 				ConflictsWith: []string{"arguments_json"},
 			},
 			"arguments_json": {
+				Description:      "A nested JSON string which contains additional settings for the binding. This is useful for when the arguments contain non-string values.\n~> **Note:** Either this or `arguments` must be specified but not both.",
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,

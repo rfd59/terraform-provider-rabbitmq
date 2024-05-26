@@ -11,47 +11,54 @@ import (
 
 func resourcePermissions() *schema.Resource {
 	return &schema.Resource{
-		Create: CreatePermissions,
-		Update: UpdatePermissions,
-		Read:   ReadPermissions,
-		Delete: DeletePermissions,
+		Description: "The `rabbitmq_permissions` resource creates and manages a user's set of permissions.",
+		Create:      CreatePermissions,
+		Update:      UpdatePermissions,
+		Read:        ReadPermissions,
+		Delete:      DeletePermissions,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
 			"user": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Description: "The user to apply the permissions to.",
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
 			},
 
 			"vhost": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "/",
-				ForceNew: true,
+				Description: "The vhost to create the resource in. Defaults to `/`.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "/",
+				ForceNew:    true,
 			},
 
 			"permissions": {
-				Type:     schema.TypeList,
-				Required: true,
-				MaxItems: 1,
+				Description: "The settings of the permissions. The structure is described below.",
+				Type:        schema.TypeList,
+				Required:    true,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"configure": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The _configure_ ACL",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 
 						"write": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The _write_ ACL",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 
 						"read": {
-							Type:     schema.TypeString,
-							Required: true,
+							Description: "The _read_ ACL",
+							Type:        schema.TypeString,
+							Required:    true,
 						},
 					},
 				},

@@ -17,6 +17,7 @@ func New() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
+				Description: "The HTTP URL of the management plugin on the RabbitMQ server. This can also be sourced from the `RABBITMQ_ENDPOINT` Environment Variable.",
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_ENDPOINT", nil),
@@ -31,6 +32,7 @@ func New() *schema.Provider {
 			},
 
 			"username": {
+				Description: "Username to use to authenticate with the server. This can also be sourced from the `RABBITMQ_USERNAME` Environment Variable.",
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_USERNAME", nil),
@@ -45,6 +47,7 @@ func New() *schema.Provider {
 			},
 
 			"password": {
+				Description: "Password for the given user. This can also be sourced from the `RABBITMQ_PASSWORD` Environment Variable.",
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_PASSWORD", nil),
@@ -59,30 +62,35 @@ func New() *schema.Provider {
 			},
 
 			"insecure": {
+				Description: "Trust self-signed certificates. This can also be sourced from the `RABBITMQ_INSECURE` Environment Variable.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_INSECURE", nil),
 			},
 
 			"cacert_file": {
+				Description: "The path to a custom CA / intermediate certificate. This can also be sourced from the `RABBITMQ_CACERT` Environment Variable.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_CACERT", ""),
 			},
 
 			"clientcert_file": {
+				Description: "The path to the X.509 client certificate. This can also be sourced from the `RABBITMQ_CLIENTCERT` Environment Variable.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_CLIENTCERT", ""),
 			},
 
 			"clientkey_file": {
+				Description: "The path to the private key. This can also be sourced from the `RABBITMQ_CLIENTKEY` Environment Variable.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_CLIENTKEY", ""),
 			},
 
 			"proxy": {
+				Description: "The URL of a proxy through which to send HTTP requests to the RabbitMQ server. This can also be sourced from the `RABBITMQ_PROXY` Environment Variable. If not set, the default `HTTP_PROXY`/`HTTPS_PROXY` will be used instead.",
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_PROXY", ""),
