@@ -1,4 +1,4 @@
-GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+TOOLS_BIN?=${PWD}/tools/bin
 
 default: build
 
@@ -10,6 +10,12 @@ test: build
 
 testacc: build
 	scripts/testacc.sh
+
+doc: tools-install
+	${TOOLS_BIN}/tfplugindocs
+
+tools-install: 
+	GOBIN=${TOOLS_BIN} go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 vet:
 	@echo "go vet ."
