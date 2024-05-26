@@ -15,6 +15,12 @@ provider "rabbitmq" {
 }
 
 # Create a user
+resource "rabbitmq_user" "required" {
+  name     = "UserRequired"
+  password = "foobar"
+}
+
+# Create a user
 resource "rabbitmq_user" "test" {
   name     = "UserTest"
   password = "foobar"

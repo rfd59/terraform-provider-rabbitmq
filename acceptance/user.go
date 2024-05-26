@@ -129,12 +129,16 @@ func (u UserResource) ExistsInRabbitMQ() error {
 	if len(myUser.PasswordHash) <= 0 {
 		return fmt.Errorf("user password is empty")
 	}
-	if len(myUser.Tags) != len(u.Tags) {
-		return fmt.Errorf("user tags number is not equal. Actual: '%d' Expected: %d", len(myUser.Tags), len(u.Tags))
+	if len(myUser.Tags) == 1 && myUser.Tags[0] == "" && len(u.Tags) == 0 {
+		// RabbitMQ 3.8 : Test OK
 	} else {
-		for i := 0; i < len(u.Tags); i++ {
-			if !slices.Contains(myUser.Tags, myUser.Tags[i]) {
-				return fmt.Errorf("user tags '%s' is not contained. Actual: '%#v' Expected: %#v", myUser.Tags, myUser.Tags, u.Tags[i])
+		if len(myUser.Tags) != len(u.Tags) {
+			return fmt.Errorf("user tags number is not equal %s - %s. Actual: '%d' Expected: %d", u.Name, myUser.Tags[0], len(myUser.Tags), len(u.Tags))
+		} else {
+			for i := 0; i < len(u.Tags); i++ {
+				if !slices.Contains(myUser.Tags, u.Tags[i]) {
+					return fmt.Errorf("user tags '%s' is not contained. Actual: '%#v' Expected: %#v", u.Tags[i], myUser.Tags, u.Tags)
+				}
 			}
 		}
 	}
