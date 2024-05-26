@@ -95,6 +95,27 @@ func (u *UserResource) ErrorConvertingUpdate(data TestData, connections string, 
 	return u.ErrorConvertingCreate(data)
 }
 
+func (u *UserResource) DataSource(data TestData) string {
+	return fmt.Sprintf(`
+	data "%s" "%s" {
+		name = "%s"
+	}`, data.ResourceType, data.ResourceLabel, u.Name)
+}
+
+func (u *UserResource) DataSourceLimits(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		password = "%s"
+		max_connections = "%s"
+		max_channels = "%s"
+	}
+
+	data "%s" "%s" {
+		name = %s.%s.name
+	}`, data.ResourceType, data.ResourceLabel, u.Name, u.Password, u.MaxConnections, u.MaxChannels, data.ResourceType, data.ResourceLabel, data.ResourceType, data.ResourceLabel)
+}
+
 func (u UserResource) ExistsInRabbitMQ() error {
 
 	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)

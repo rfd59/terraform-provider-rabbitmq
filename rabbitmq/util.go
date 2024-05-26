@@ -45,7 +45,7 @@ func parseResourceId(d *schema.ResourceData) (name, vhost string, err error) {
 func parseId(resourceId string) (name, vhost string, err error) {
 	parts := strings.Split(resourceId, "@")
 	if len(parts) != 2 {
-		err = fmt.Errorf("Unable to parse resource id: %s", resourceId)
+		err = fmt.Errorf("unable to parse resource id: %s", resourceId)
 		return
 	}
 	name = parts[0]
@@ -55,8 +55,8 @@ func parseId(resourceId string) (name, vhost string, err error) {
 
 func failApiResponse(err error, resp *http.Response, action string, name string) error {
 	if err != nil {
-		return fmt.Errorf("Error %s RabbitMQ %s: %#v", action, name, err)
+		return fmt.Errorf("error %s RabbitMQ %s: %#v", action, name, err)
 	} else {
-		return fmt.Errorf("Error %s RabbitMQ %s: %s", action, name, resp.Status)
+		return fmt.Errorf("error %s RabbitMQ %s: %s", action, name, resp.Status)
 	}
 }

@@ -56,7 +56,7 @@ func CreateUser(d *schema.ResourceData, meta interface{}) error {
 	// Check if already exists
 	_, not_found := rmqc.GetUser(name)
 	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ user '%s': user already exists!", name)
+		return fmt.Errorf("error creating RabbitMQ user '%s': user already exists", name)
 	}
 
 	userSettings := rabbithole.UserSettings{

@@ -2,17 +2,16 @@ package rabbitmq
 
 import (
 	"context"
-	"log"
-
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
 )
 
 func dataSourcesUser() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourcesReadUser,
+		ReadContext: dsRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -27,24 +26,26 @@ func dataSourcesUser() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
+			"max_connections": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"max_channels": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
-func dataSourcesReadUser(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-
-	rmqc := meta.(*rabbithole.Client)
-
+func dsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	name := d.Get("name").(string)
+	rmqc := meta.(*rabbithole.Client)
 
 	user, err := rmqc.GetUser(name)
 	if err != nil {
-		return diag.FromErr(checkDeleted(d, err))
+		return diag.Errorf("user '%s' is not found: %#v", name, err)
 	}
-
-	log.Printf("[DEBUG] RabbitMQ: User retrieved: %#v", user)
-
 	d.Set("name", user.Name)
 
 	if len(user.Tags) > 0 {
@@ -59,7 +60,21 @@ func dataSourcesReadUser(ctx context.Context, d *schema.ResourceData, meta inter
 		}
 	}
 
-	d.SetId(name)
+	myUserLimits, err := rmqc.GetUserLimits(name)
+	if err != nil {
+		return diag.Errorf("error to get user limits for '%s': %#v", name, err)
+	}
 
-	return diags
+	if len(myUserLimits) > 0 {
+		if val, ok := myUserLimits[0].Value["max-connections"]; ok {
+			d.Set("max_connections", strconv.Itoa(val))
+		}
+
+		if val, ok := myUserLimits[0].Value["max-channels"]; ok {
+			d.Set("max_channels", strconv.Itoa(val))
+		}
+	}
+
+	d.SetId(user.Name)
+	return nil
 }
