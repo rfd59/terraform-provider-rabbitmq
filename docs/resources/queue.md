@@ -3,12 +3,12 @@
 page_title: "rabbitmq_queue Resource - terraform-provider-rabbitmq"
 subcategory: ""
 description: |-
-  
+  The rabbitmq_queue resource creates and manages a queue.
 ---
 
 # rabbitmq_queue (Resource)
 
-
+The rabbitmq_queue resource creates and manages a queue.
 
 ## Example Usage
 
