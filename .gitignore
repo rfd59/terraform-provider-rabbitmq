@@ -27,6 +27,7 @@ website/node_modules
 *.test
 *.iml
 coverage.out
+coverage.html
 website/vendor
 
 # Test exclusions

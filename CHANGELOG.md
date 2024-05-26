@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.0 (May 26, 2024)
+
+FEATURES:
+
+* Manage the user limits - @rfavreau
+  ([#10](https://github.com/rfd59/terraform-provider-rabbitmq/pull/10))
+
+BUILD / DEV:
+
+* New repository structure - @rfavreau
+  ([#11](https://github.com/rfd59/terraform-provider-rabbitmq/pull/11))
+
+* Build task for Provider documentation - @rfavreau
+  ([#12](https://github.com/rfd59/terraform-provider-rabbitmq/pull/12))
+
 ## 2.0.0 (May 20, 2024)
 
 FEATURES:

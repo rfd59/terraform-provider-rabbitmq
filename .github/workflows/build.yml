@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - develop
+    - feature/.*
     - '!master'   # excludes master
   pull_request:
 
@@ -27,7 +28,7 @@ jobs:
         run: go build -v .
 
       - name: Unit Testing
-        run: go test -cover -v ./...
+        run: go test -v ./...
 
       - name: Run linters
         uses: golangci/golangci-lint-action@v6
