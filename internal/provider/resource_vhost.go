@@ -32,19 +32,19 @@ func resourceVhost() *schema.Resource {
 				Description: "A friendly description.",
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    false,
+				ForceNew:    true,
 			},
 			"default_queue_type": {
 				Description: "Default queue type for new queues. The available values are `classic`, `quorum` or `stream`.",
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    false,
+				ForceNew:    true,
 			},
 			"tracing": {
 				Description: "To enable/disable tracing.",
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    false,
+				ForceNew:    true,
 			},
 			"max_connections": {
 				Description: "To limit the total number of concurrent client connections in vhost.",
