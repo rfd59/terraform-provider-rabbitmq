@@ -240,6 +240,11 @@ func ReadVhost(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("name", vhost.Name)
 	d.Set("description", vhost.Description)
+
+	if vhost.DefaultQueueType != "" && vhost.DefaultQueueType != "undefined" {
+		d.Set("default_queue_type", vhost.DefaultQueueType)
+	}
+
 	// d.Set("tags", vhost.Tags)
 	d.Set("tracing", vhost.Tracing)
 

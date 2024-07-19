@@ -136,6 +136,7 @@ const testAccVhostConfig_settings = `
 resource "rabbitmq_vhost" "test" {
     name = "test"
 	description = "test description"
+	default_queue_type = "quorum"
 	tracing = true
 	max_connections = 100
 	max_queues = 200
