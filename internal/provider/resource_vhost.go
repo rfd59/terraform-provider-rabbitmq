@@ -45,6 +45,7 @@ func resourceVhost() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
+				Default:     false,
 			},
 			"max_connections": {
 				Description: "To limit the total number of concurrent client connections in vhost.",
