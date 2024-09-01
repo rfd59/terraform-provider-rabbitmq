@@ -25,7 +25,7 @@ The provider supports versions `3.13.x`, `3.12.x` and `3.11.x` of RabbitMQ. It m
 # 1. Specify the version of the RabbitMQ Provider to use
 terraform {
   required_providers {
-    azurerm = {
+    rabbitmq = {
       source = "rfd59/rabbitmq"
       version = "2.1.0"
     }
@@ -33,12 +33,12 @@ terraform {
 }
 
 # 2. Configure the RabbitMQ Provider
-provider "azurerm" {
+provider "rabbi" {
   # The RabbitMQ management plugin must be enabled on the server, to use this provider.
   # You can enable the plugin by doing something similar to `$ sudo rabbitmq-plugins enable rabbitmq_management`
   # https://www.rabbitmq.com/docs/management
 
-  endpoint = "http://127.0.0.1"
+  endpoint = "http://127.0.0.1:15672"
   username = "guest"
   password = "guest"
 }
