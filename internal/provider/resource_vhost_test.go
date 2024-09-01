@@ -1,142 +1,262 @@
 package provider_test
 
 import (
-	"fmt"
+	"regexp"
 	"testing"
 
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
 	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance/check"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccVhost_basic(t *testing.T) {
-	var vhost string
+func TestAccVhost_Required(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{Name: data.RandomString()}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
 		Providers:    acceptance.TestAcc.Providers,
-		CheckDestroy: testAccVhostCheckDestroy(vhost),
+		CheckDestroy: r.CheckDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVhostConfig_basic,
-				Check: testAccVhostCheck(
-					"rabbitmq_vhost.test", &vhost,
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("description").DoesNotExist(),
+					check.That(data.ResourceName).Key("default_queue_type").HasValue("classic"),
+					check.That(data.ResourceName).Key("max_connections").DoesNotExist(),
+					check.That(data.ResourceName).Key("max_channels").DoesNotExist(),
+					check.That(data.ResourceName).Key("tracing").HasValue("false"),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 			{
-				// Test that, once a vhost has been created and stored in the
-				// state, even if it disappears from the RabbitMQ cluster, it
-				// would be created without error.
-				PreConfig: forceDropVhost(&vhost),
-				Config:    testAccVhostConfig_basic,
-				Check: testAccVhostCheck(
-					"rabbitmq_vhost.test", &vhost,
+				Config: r.RequiredUpdate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("description").HasValue(r.Description),
+					check.That(data.ResourceName).Key("default_queue_type").HasValue(r.DefaultQueueType),
+					check.That(data.ResourceName).Key("max_connections").DoesNotExist(),
+					check.That(data.ResourceName).Key("max_channels").DoesNotExist(),
+					check.That(data.ResourceName).Key("tracing").HasValue("true"),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 		},
 	})
 }
 
-func TestAccVhost_settings(t *testing.T) {
-	var vhost string
+func TestAccVhost_Optional(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{
+		Name:             data.RandomString(),
+		Description:      data.RandomString(),
+		DefaultQueueType: "quorum",
+		MaxConnections:   data.RandomIntegerString(),
+		MaxQueues:        data.RandomIntegerString(),
+		Tracing:          false,
+	}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
 		Providers:    acceptance.TestAcc.Providers,
-		CheckDestroy: testAccVhostCheckDestroy(vhost),
+		CheckDestroy: r.CheckDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccVhostConfig_settings,
-				Check: testAccVhostCheck(
-					"rabbitmq_vhost.test", &vhost,
+				Config: r.OptionalCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("description").HasValue(r.Description),
+					check.That(data.ResourceName).Key("default_queue_type").HasValue(r.DefaultQueueType),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_queues").HasValue(r.MaxQueues),
+					check.That(data.ResourceName).Key("tracing").HasValue("false"),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 			{
-				// Test that, once a vhost has been created and stored in the
-				// state, even if it disappears from the RabbitMQ cluster, it
-				// would be created without error.
-				PreConfig: forceDropVhost(&vhost),
-				Config:    testAccVhostConfig_settings,
-				Check: testAccVhostCheck(
-					"rabbitmq_vhost.test", &vhost,
+				Config: r.OptionalUpdate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("description").HasValue(r.Description),
+					check.That(data.ResourceName).Key("default_queue_type").HasValue(r.DefaultQueueType),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_queues").HasValue(r.MaxQueues),
+					check.That(data.ResourceName).Key("tracing").HasValue("true"),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalUpdateLimits(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("description").HasValue(r.Description),
+					check.That(data.ResourceName).Key("default_queue_type").HasValue(r.DefaultQueueType),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_queues").HasValue(r.MaxQueues),
+					check.That(data.ResourceName).Key("tracing").HasValue("true"),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalRemove(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("description").IsEmpty(),
+					check.That(data.ResourceName).Key("default_queue_type").HasValue("classic"),
+					check.That(data.ResourceName).Key("max_connections").IsEmpty(),
+					check.That(data.ResourceName).Key("max_queues").IsEmpty(),
+					check.That(data.ResourceName).Key("tracing").HasValue("false"),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 		},
 	})
 }
 
-func forceDropVhost(vhost *string) func() {
-	return func() {
-		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
-		resp, err := rmqc.DeleteVhost(*vhost)
-		if err != nil {
-			fmt.Printf("unable to delete vhost: %v", err)
-			return
-		}
+func TestAccVhost_ImportRequired(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{Name: data.RandomString()}
 
-		// Should get 204 when the vhost has been deleted
-		if resp.StatusCode != 204 {
-			panic(fmt.Errorf("unable to delete vhost: %v", resp))
-		}
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				ResourceName:      data.ResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
-func testAccVhostCheck(rn string, name *string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[rn]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", rn)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("vhost id not set")
-		}
-
-		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
-		vhosts, err := rmqc.ListVhosts()
-		if err != nil {
-			return fmt.Errorf("Error retrieving vhosts: %s", err)
-		}
-
-		for _, vhost := range vhosts {
-			if vhost.Name == rs.Primary.ID {
-				*name = rs.Primary.ID
-				return nil
-			}
-		}
-
-		return fmt.Errorf("Unable to find vhost %s", rn)
+func TestAccVhost_ImportOptional(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{
+		Name:             data.RandomString(),
+		Description:      data.RandomString(),
+		DefaultQueueType: "stream",
+		MaxConnections:   data.RandomIntegerString(),
+		MaxQueues:        data.RandomIntegerString(),
+		Tracing:          true,
 	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.OptionalCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				ResourceName:      data.ResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
 }
 
-func testAccVhostCheckDestroy(name string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
-		vhosts, err := rmqc.ListVhosts()
-		if err != nil {
-			return fmt.Errorf("Error retrieving vhosts: %s", err)
-		}
+func TestAccVhost_AlredayExist(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{Name: "/"}
 
-		for _, vhost := range vhosts {
-			if vhost.Name == name {
-				return fmt.Errorf("vhost still exists: %v", vhost)
-			}
-		}
-
-		return nil
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.RequiredCreate(data),
+				ExpectError: regexp.MustCompile("vhost already exists"),
+			},
+		},
+	})
 }
 
-const testAccVhostConfig_basic = `
-resource "rabbitmq_vhost" "test" {
-    name = "test"
-}`
+func TestAccVhost_ErrorConvertingMaxConnections(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{Name: data.RandomString(), MaxConnections: data.RandomString()}
 
-const testAccVhostConfig_settings = `
-resource "rabbitmq_vhost" "test" {
-    name = "test"
-	description = "test description"
-	tracing = true
-	max_connections = 100
-	max_queues = 200
-}`
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorConvertingCreate(data),
+				ExpectError: regexp.MustCompile("error converting 'max_connections' to int"),
+			},
+			{
+				Config: r.ErrorConvertingUpdate(data, data.RandomIntegerString(), r.MaxQueues),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("max_connections").HasValue(r.MaxConnections),
+					check.That(data.ResourceName).Key("max_queues").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config:      r.ErrorConvertingUpdate(data, data.RandomString(), r.MaxQueues),
+				ExpectError: regexp.MustCompile("error converting 'max_connections' to int"),
+			},
+		},
+	})
+}
+
+func TestAccVhost_ErrorConvertingMaxQueues(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{Name: data.RandomString(), MaxQueues: data.RandomString()}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorConvertingCreate(data),
+				ExpectError: regexp.MustCompile("error converting 'max_queues' to int"),
+			},
+			{
+				Config: r.ErrorConvertingUpdate(data, r.MaxConnections, data.RandomIntegerString()),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("max_queues").HasValue(r.MaxQueues),
+					check.That(data.ResourceName).Key("max_connections").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config:      r.ErrorConvertingUpdate(data, r.MaxConnections, data.RandomString()),
+				ExpectError: regexp.MustCompile("error converting 'max_queues' to int"),
+			},
+		},
+	})
+}

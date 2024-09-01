@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -44,7 +45,13 @@ func (t thatType) Exists() resource.TestCheckFunc {
 // // ExistsInAzure validates that the specified resource exists within Azure
 func (t thatType) ExistsInRabbitMQ(any interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		return any.(acceptance.UserResource).ExistsInRabbitMQ()
+		if strings.HasPrefix(t.resourceName, "rabbitmq_user.") {
+			return any.(acceptance.UserResource).ExistsInRabbitMQ()
+		}
+		if strings.HasPrefix(t.resourceName, "rabbitmq_vhost.") {
+			return any.(acceptance.VhostResource).ExistsInRabbitMQ()
+		}
+		return fmt.Errorf("'ExistsInRabbitMQ' method not found for this resource!!!")
 	}
 }
 
