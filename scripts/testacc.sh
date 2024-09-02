@@ -32,7 +32,7 @@ run() {
 }
 
 cleanup() {
-    docker-compose -f "${SCRIPT_DIR}/docker-compose.yml" down
+    docker compose -f "${SCRIPT_DIR}/docker-compose.yml" down
 }
 
 main() {
