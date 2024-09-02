@@ -4,7 +4,7 @@ enhancement:
 
 # Add 'bug' label to bug resolution
 bug:
-  - head-branch: ['^bug', 'bug']
+  - head-branch: ['^bug', 'bug', '^fix', 'fix']
 
 # Add 'release' label to any PR that is opened against the `master` branch
 release:
