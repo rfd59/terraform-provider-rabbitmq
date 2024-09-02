@@ -25,7 +25,7 @@ The provider supports versions `3.13.x`, `3.12.x` and `3.11.x` of RabbitMQ. It m
 # 1. Specify the version of the RabbitMQ Provider to use
 terraform {
   required_providers {
-    azurerm = {
+    rabbitmq = {
       source = "rfd59/rabbitmq"
       version = "2.1.0"
     }
@@ -33,12 +33,12 @@ terraform {
 }
 
 # 2. Configure the RabbitMQ Provider
-provider "azurerm" {
+provider "rabbi" {
   # The RabbitMQ management plugin must be enabled on the server, to use this provider.
   # You can enable the plugin by doing something similar to `$ sudo rabbitmq-plugins enable rabbitmq_management`
   # https://www.rabbitmq.com/docs/management
 
-  endpoint = "http://127.0.0.1"
+  endpoint = "http://127.0.0.1:15672"
   username = "guest"
   password = "guest"
 }
@@ -55,8 +55,8 @@ resource "rabbitmq_vhost" "example" {
 
 - [Terraform](https://www.terraform.io/downloads.html) 1.0.x
 - [Go](https://golang.org/doc/install) 1.21
-- [Docker Engine](https://docs.docker.com/engine/install) >= 24.x
-- [Docker Compose](https://docs.docker.com/compose/install/) >= 1.29.x
+- [Docker Engine](https://docs.docker.com/engine/install) >= 27.2.x
+- [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-compose-plugin) >= 2.29.x
 
 ### Building the Provider
 

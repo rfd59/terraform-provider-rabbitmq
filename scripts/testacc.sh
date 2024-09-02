@@ -8,7 +8,7 @@ TIMEOUT_SETUP=30
 source "${SCRIPT_DIR}/testacc.env"
 
 setup() {
-    docker-compose -f "${SCRIPT_DIR}/docker-compose.yml" up -d
+    docker compose -f "${SCRIPT_DIR}/docker-compose.yml" up -d
 
     echo "Waiting for RabbitMQ to be up"
     i=0
@@ -32,7 +32,7 @@ run() {
 }
 
 cleanup() {
-    docker-compose -f "${SCRIPT_DIR}/docker-compose.yml" down
+    docker compose -f "${SCRIPT_DIR}/docker-compose.yml" down
 }
 
 main() {

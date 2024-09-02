@@ -227,7 +227,7 @@ func DeleteUser(d *schema.ResourceData, meta interface{}) error {
 
 	resp, err = rmqc.DeleteUser(name)
 	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
-		return failApiResponse(err, resp, "deleting", "user limits")
+		return failApiResponse(err, resp, "deleting", "user")
 	}
 
 	return nil
