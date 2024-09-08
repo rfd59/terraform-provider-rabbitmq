@@ -91,6 +91,8 @@ func testAccQueueCheckJsonArguments(rn string, queueInfo *rabbithole.QueueInfo, 
 		if err := json.Unmarshal([]byte(js), &configMap); err != nil {
 			return err
 		}
+		// clean arguments before compare them ("x-queue-type" is added by RabbitMQ)
+		delete(queueInfo.Arguments, "x-queue-type")
 		if !reflect.DeepEqual(configMap, queueInfo.Arguments) {
 			return fmt.Errorf("Passed arguments does not match queue arguments")
 		}

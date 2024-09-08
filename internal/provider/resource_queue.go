@@ -149,6 +149,9 @@ func ReadQueue(d *schema.ResourceData, meta interface{}) error {
 	e["durable"] = queueSettings.Durable
 	e["auto_delete"] = queueSettings.AutoDelete
 
+	// Remove the x-queue-type to keep a clean terraform plan
+	delete(queueSettings.Arguments, "x-queue-type")
+
 	// The user may have used either `arguments` or `arguments_json` to populate this originally.
 	// We need to preserve that decision here so that a subsequent Terraform plan for the
 	// same configuration wouldn't produce an errant diff that moves the value from one
