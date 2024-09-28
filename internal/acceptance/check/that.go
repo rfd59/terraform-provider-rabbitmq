@@ -69,6 +69,9 @@ type thatWithKeyType struct {
 
 	// key being the specific field we're querying e.g. bar or a nested object ala foo.0.bar
 	key string
+
+	// Skip the test
+	skip bool
 }
 
 // JsonAssertionFunc is a function which takes a deserialized JSON object and asserts on it
@@ -123,7 +126,11 @@ func (t thatWithKeyType) Exists() resource.TestCheckFunc {
 
 // IsEmpty returns a TestCheckFunc which validates that the specific key is empty on the resource
 func (t thatWithKeyType) IsEmpty() resource.TestCheckFunc {
-	return resource.TestCheckResourceAttr(t.resourceName, t.key, "")
+	if t.skip {
+		return skipTest()
+	} else {
+		return resource.TestCheckResourceAttr(t.resourceName, t.key, "")
+	}
 }
 
 // IsNotEmpty returns a TestCheckFunc which validates that the specific key is not empty on the resource
@@ -164,4 +171,17 @@ func (t thatWithKeyType) MatchesOtherKey(other string) resource.TestCheckFunc {
 // the given regular expression
 func (t thatWithKeyType) MatchesRegex(r *regexp.Regexp) resource.TestCheckFunc {
 	return resource.TestMatchResourceAttr(t.resourceName, t.key, r)
+}
+
+// Load skip state
+func (t thatWithKeyType) RmqFeature(feature bool) thatWithKeyType {
+	t.skip = !feature
+	return t
+}
+
+// Skip a Test
+func skipTest() resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		return nil
+	}
 }

@@ -53,7 +53,9 @@ func (v *VhostResource) OptionalCreate(data TestData) string {
 }
 
 func (v *VhostResource) OptionalUpdate(data TestData) string {
-	v.Description = data.RandomString()
+	if v.HasDescriptionUpdateFeature() {
+		v.Description = data.RandomString()
+	}
 	v.DefaultQueueType = "stream"
 	v.Tracing = !v.Tracing
 	return v.OptionalCreate(data)
@@ -66,15 +68,26 @@ func (v *VhostResource) OptionalUpdateLimits(data TestData) string {
 }
 
 func (v *VhostResource) OptionalRemove(data TestData) string {
-	v.Description = ""
+	if v.HasDescriptionUpdateFeature() {
+		v.Description = ""
+	}
 	v.DefaultQueueType = ""
 	v.MaxConnections = ""
 	v.MaxQueues = ""
 	v.Tracing = false
-	return fmt.Sprintf(`
-	resource "%s" "%s" {
-		name = "%s"
-	}`, data.ResourceType, data.ResourceLabel, v.Name)
+	if v.HasDescriptionUpdateFeature() {
+		return fmt.Sprintf(`
+		resource "%s" "%s" {
+			name = "%s"
+		}`, data.ResourceType, data.ResourceLabel, v.Name)
+	} else {
+		return fmt.Sprintf(`
+		resource "%s" "%s" {
+			name = "%s"
+			description = "%s"
+		}`, data.ResourceType, data.ResourceLabel, v.Name, v.Description)
+	}
+
 }
 func (v *VhostResource) ErrorConvertingCreate(data TestData) string {
 	return fmt.Sprintf(`
@@ -102,7 +115,9 @@ func (v VhostResource) ExistsInRabbitMQ() error {
 		return fmt.Errorf("vhost name is not equal. Actual: '%s' Expected: %s", myVhost.Name, v.Name)
 	}
 	if myVhost.Description != v.Description {
-		return fmt.Errorf("vhost description is not equal. Actual: '%s' Expected: %s", myVhost.Description, v.Description)
+		if v.HasDescriptionUpdateFeature() {
+			return fmt.Errorf("vhost description is not equal. Actual: '%s' Expected: %s", myVhost.Description, v.Description)
+		}
 	}
 
 	if hasDefaultQueueTypeFeature(rmqc.Overview()) {
@@ -166,11 +181,26 @@ func (v VhostResource) ImportStateVerifyIgnore() []string {
 	}
 }
 
+// Description Field can't bu updated in 3.8. It was fixed in 3.9 and later
+func (v VhostResource) HasDescriptionUpdateFeature() bool {
+	return hasFeature("3.9")
+}
+
 func hasDefaultQueueTypeFeature(overview *rabbithole.Overview, err error) bool {
 	// DefaultQueueType is into RappbitMQ 3.10 and latter
 	if err != nil {
 		return true
 	} else {
 		return semver.Compare("v"+overview.RabbitMQVersion, "v3.10") >= 0
+	}
+}
+
+func hasFeature(miniVersion string) bool {
+	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
+	overview, err := rmqc.Overview()
+	if err != nil {
+		return true
+	} else {
+		return semver.Compare("v"+overview.RabbitMQVersion, "v"+miniVersion) >= 0
 	}
 }
