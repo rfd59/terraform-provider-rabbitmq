@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"golang.org/x/mod/semver"
 )
 
 type VhostResource struct {
@@ -95,7 +96,7 @@ func (v VhostResource) ExistsInRabbitMQ() error {
 	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
 	myVhost, err := rmqc.GetVhost(v.Name)
 	if err != nil {
-		return fmt.Errorf("error retrieving vhsot '%s': %#v", v.Name, err)
+		return fmt.Errorf("error retrieving vhost '%s': %#v", v.Name, err)
 	}
 	if myVhost.Name != v.Name {
 		return fmt.Errorf("vhost name is not equal. Actual: '%s' Expected: %s", myVhost.Name, v.Name)
@@ -104,13 +105,15 @@ func (v VhostResource) ExistsInRabbitMQ() error {
 		return fmt.Errorf("vhost description is not equal. Actual: '%s' Expected: %s", myVhost.Description, v.Description)
 	}
 
-	if len(v.DefaultQueueType) == 0 {
-		if myVhost.DefaultQueueType != "classic" {
-			return fmt.Errorf("vhost default_queue_type is not set to the default value. Actual: '%s' Expected: classic", myVhost.DefaultQueueType)
-		}
-	} else {
-		if myVhost.DefaultQueueType != v.DefaultQueueType {
-			return fmt.Errorf("vhost default_queue_type is not equal. Actual: '%s' Expected: %s", myVhost.DefaultQueueType, v.DefaultQueueType)
+	if hasDefaultQueueTypeFeature(rmqc.Overview()) {
+		if len(v.DefaultQueueType) == 0 {
+			if myVhost.DefaultQueueType != "classic" {
+				return fmt.Errorf("vhost default_queue_type is not set to the default value. Actual: '%s' Expected: classic", myVhost.DefaultQueueType)
+			}
+		} else {
+			if myVhost.DefaultQueueType != v.DefaultQueueType {
+				return fmt.Errorf("vhost default_queue_type is not equal. Actual: '%s' Expected: %s", myVhost.DefaultQueueType, v.DefaultQueueType)
+			}
 		}
 	}
 
@@ -151,5 +154,23 @@ func (v VhostResource) CheckDestroy() resource.TestCheckFunc {
 		}
 
 		return nil
+	}
+}
+
+func (v VhostResource) ImportStateVerifyIgnore() []string {
+	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
+	if hasDefaultQueueTypeFeature(rmqc.Overview()) {
+		return []string{}
+	} else {
+		return []string{"default_queue_type"}
+	}
+}
+
+func hasDefaultQueueTypeFeature(overview *rabbithole.Overview, err error) bool {
+	// DefaultQueueType is into RappbitMQ 3.10 and latter
+	if err != nil {
+		return true
+	} else {
+		return semver.Compare("v"+overview.RabbitMQVersion, "v3.10") >= 0
 	}
 }

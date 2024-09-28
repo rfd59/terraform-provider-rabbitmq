@@ -144,9 +144,10 @@ func TestAccVhost_ImportRequired(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      data.ResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            data.ResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: r.ImportStateVerifyIgnore(),
 			},
 		},
 	})
@@ -176,9 +177,10 @@ func TestAccVhost_ImportOptional(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      data.ResourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            data.ResourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: r.ImportStateVerifyIgnore(),
 			},
 		},
 	})
