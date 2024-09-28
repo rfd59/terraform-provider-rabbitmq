@@ -26,12 +26,15 @@ setup() {
 
 run() {
     if [ "$GITHUB_ACTIONS" = "true" ]; then
-        echo "Running under GitHub Actions for '$GITHUB_ACTIONS' Workflow..."
-        if [ "$GITHUB_ACTIONS" = "SonarQube" ]; then
+        echo "Running under GitHub Actions for '$GITHUB_WORKFLOW' Workflow..."
+        if [ "$GITHUB_WORKFLOW" = "SonarQube" ]; then
             go test ./internal/provider -timeout 120m -cover -coverprofile coverage.out
         else
             go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
-            go test ./internal/provider -timeout 120m -json | go-ctrf-json-reporter -output ctrf-report.json
+            go test ./internal/provider -timeout 120m -json > go-test.json
+            $RC=$?
+            go-ctrf-json-reporter -input go-test.json -output ctrf-report.json
+            return $RC
         fi        
     else
         echo "Running locally..."

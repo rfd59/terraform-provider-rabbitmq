@@ -32,12 +32,9 @@ jobs:
       - name: Tests
         id: test
         run: make testacc
-        continue-on-error: true
 
       - name: Publish Test Summary Results
-        run: npx github-actions-ctrf ctrf-report.json
-      
-      - name: Handle failure
-        if: ${{ steps.test.outcome == 'failure' }}
-        run: echo "Tests failed for RabbitMQ v${{ matrix.node }}." && exit 90
+        run: npx github-actions-ctrf summary ctrf-report.json
+        if: always()
+
         
