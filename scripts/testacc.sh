@@ -25,6 +25,14 @@ setup() {
 }
 
 run() {
+    if [ "$GITHUB_ACTIONS" = "true" ]; then
+        echo "Running under GitHub Actions"
+        echo "Workflow: $GITHUB_WORKFLOW"
+        echo "Run ID: $GITHUB_RUN_ID"
+    else
+        echo "Running locally"
+    fi
+
     go test -cover -count=1 ./internal/provider -v -timeout 120m -coverprofile coverage.out
 
     # keep the return value for the scripts to fail and clean properly
