@@ -7,6 +7,8 @@ require (
 	golang.org/x/mod v0.17.0
 )
 
+replace github.com/michaelklishin/rabbit-hole/v2 => github.com/rfavreau/rabbit-hole/v2 v2.16.1
+
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Kunde21/markdownfmt/v3 v3.1.0 // indirect
