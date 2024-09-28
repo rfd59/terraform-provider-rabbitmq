@@ -32,7 +32,7 @@ run() {
         else
             go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
             go test ./internal/provider -timeout 120m -json > go-test.json
-            $RC=$?
+            RC=$?
             go-ctrf-json-reporter -input go-test.json -output ctrf-report.json
             return $RC
         fi        
