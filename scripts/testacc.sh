@@ -33,7 +33,7 @@ run() {
             go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
             go test ./internal/provider -timeout 120m -json > go-test.json
             RC=$?
-            go-ctrf-json-reporter -input go-test.json -output ctrf-report.json
+            cat go-test.json | go-ctrf-json-reporter -output ctrf-report.json -osPlatform "RabbitMQ" -osVersion $RABBITMQ_VERSION
             return $RC
         fi        
     else
