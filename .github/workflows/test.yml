@@ -6,16 +6,13 @@ on:
     - develop
   pull_request:
 
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: false  # This ensures running jobs are not canceled
-
 jobs:
   acceptance:
     name: Acceptance Tests
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         rmq_version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "4.0"]
 
