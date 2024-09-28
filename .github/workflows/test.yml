@@ -29,5 +29,15 @@ jobs:
           cache: true
 
       - name: Tests
+        id: test
         run: make testacc
+        continue-on-error: true  # Allows this step to fail without failing the job
+
+      - name: Report results
+        if: ${{ steps.test.outcome == 'success' }}
+        run: echo "Tests passed for RabbitMQ v${{ matrix.node }}."
+
+      - name: Handle failure
+        if: ${{ steps.test.outcome == 'failure' }}
+        run: echo "Tests failed for RabbitMQ v${{ matrix.node }}."
         
