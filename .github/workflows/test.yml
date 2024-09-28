@@ -34,7 +34,9 @@ jobs:
         run: make testacc
 
       - name: Publish Test Summary Results
-        run: npx github-actions-ctrf summary ctrf-report.json
+        run: |
+          npx github-actions-ctrf summary ctrf-report.json
+          npx github-actions-ctrf failed ctrf-report.json
         if: always()
 
         
