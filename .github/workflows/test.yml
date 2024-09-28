@@ -35,6 +35,7 @@ jobs:
 
       - name: Publish Test Summary Results
         run: |
+          echo "### RabbitMQ $RABBITMQ_VERSION" >> $GITHUB_STEP_SUMMARY
           npx github-actions-ctrf summary ctrf-report.json
           npx github-actions-ctrf failed ctrf-report.json
         if: always()
