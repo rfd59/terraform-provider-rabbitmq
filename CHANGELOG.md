@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.2.0 (September 29, 2024)
+
+FIX:
+
+* Fix vhost resource - @rfavreau
+  ([#16](https://github.com/rfd59/terraform-provider-rabbitmq/pull/16))
+  > - Import `default_queue_type` when reading vhost resource ([#14](https://github.com/rfd59/terraform-provider-rabbitmq/pull/14))
+  > - Fix `default_queue_type` for _RabbitMQ 3.10_
+  > - Validate function for `default_queue_type` attribute
+  > - Set default value for `default_queue_type`
+  > - Update the Acceptance Tests
+
+BUILD / DEV:
+
+* GitHub settings - @rfavreau
+  ([#18](https://github.com/rfd59/terraform-provider-rabbitmq/pull/18))
+
 ## 2.1.0 (May 26, 2024)
 
 FEATURES:

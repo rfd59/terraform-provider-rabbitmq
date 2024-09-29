@@ -16,7 +16,7 @@
 
 [RabbitMQ](https://rabbitmq.com) is an AMQP message broker server. The **RabbitMQ provider** exposes resources used to manage the configuration of resources in a RabbitMQ server.
 
-The provider supports versions `3.13.x`, `3.12.x` and `3.11.x` of RabbitMQ. It may still work with versions `3.10.x`, `3.9.x` and `3.8.x`, however these versions are no longer officialy supported.
+The provider supports versions `4.0.x`, `3.13.x` and `3.12.x` of RabbitMQ. It may still work with versions `3.11.x`, `3.10.x`, `3.9.x` and `3.8.x`, however these versions are no longer officialy supported.
 > For information on RabbitMQ versions, see the RabbitMQ [Release Information](https://www.rabbitmq.com/release-information).
 
 ## Usage Example
