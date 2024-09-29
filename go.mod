@@ -1,7 +1,7 @@
 module github.com/rfd59/terraform-provider-rabbitmq
 
 require (
-	github.com/hashicorp/terraform-plugin-docs v0.19.2
+	github.com/hashicorp/terraform-plugin-docs v0.19.4
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.34.0
 	github.com/michaelklishin/rabbit-hole/v2 v2.16.0
 	golang.org/x/mod v0.17.0
