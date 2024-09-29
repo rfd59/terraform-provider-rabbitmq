@@ -35,16 +35,19 @@ func resourceVhost() *schema.Resource {
 				ForceNew:    false,
 			},
 			"default_queue_type": {
-				Description: "Default queue type for new queues. The available values are `classic`, `quorum` or `stream`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    false,
+				Description:  "Default queue type for new queues. The available values are `classic`, `quorum` or `stream`. Defaults to `classic`.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     false,
+				Default:      "classic",
+				ValidateFunc: validateDefaultQueueTypeAttribute,
 			},
 			"tracing": {
-				Description: "To enable/disable tracing.",
+				Description: "To enable/disable tracing. Defaults to `false`.",
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    false,
+				Default:     false,
 			},
 			"max_connections": {
 				Description: "To limit the total number of concurrent client connections in vhost.",
@@ -62,12 +65,34 @@ func resourceVhost() *schema.Resource {
 	}
 }
 
+func validateDefaultQueueTypeAttribute(val interface{}, key string) (warns []string, errs []error) {
+	value := val.(string)
+
+	// Define the allowed values
+	allowedValues := map[string]struct{}{
+		"classic": {},
+		"quorum":  {},
+		"stream":  {},
+	}
+
+	// Check if the value is in the allowed values
+	if _, ok := allowedValues[value]; !ok {
+		errs = append(errs, fmt.Errorf("%q must be one of [classic, quorum, stream], got: %s", key, value))
+	}
+
+	return warns, errs
+}
+
 func CreateVhost(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
 	vhost := d.Get("name").(string)
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to create vhost %s", vhost)
+	// Check if already exists
+	_, not_found := rmqc.GetVhost(vhost)
+	if not_found == nil {
+		return fmt.Errorf("Error creating RabbitMQ vhost '%s': vhost already exists", vhost)
+	}
 
 	var settings rabbithole.VhostSettings
 
@@ -86,42 +111,80 @@ func CreateVhost(d *schema.ResourceData, meta interface{}) error {
 	limits := make(rabbithole.VhostLimitsValues)
 
 	if v, ok := d.GetOk("max_connections"); ok {
-		v_int, err := strconv.Atoi(v.(string))
-		if err != nil {
-			log.Printf("[ERROR] RabbitMQ: Error converting max_connections to int: %#v", err)
+		if (len(v.(string))) > 0 {
+			v_int, err := strconv.Atoi(v.(string))
+			if err != nil {
+				return fmt.Errorf("error converting 'max_connections' to int: %#v", v)
+			}
+			limits["max-connections"] = v_int
 		}
-		limits["max-connections"] = v_int
 	}
 
 	if v, ok := d.GetOk("max_queues"); ok {
-		v_int, err := strconv.Atoi(v.(string))
-		if err != nil {
-			log.Printf("[ERROR] RabbitMQ: Error converting max_queues to int: %#v", err)
+		if (len(v.(string))) > 0 {
+			v_int, err := strconv.Atoi(v.(string))
+			if err != nil {
+				return fmt.Errorf("error converting 'max_queues' to int: %#v", v)
+			}
+			limits["max-queues"] = v_int
 		}
-		limits["max-queues"] = v_int
-	}
-
-	// Check if already exists
-	_, not_found := rmqc.GetVhost(vhost)
-	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ vhost '%s': vhost already exists", vhost)
 	}
 
 	resp, err := rmqc.PutVhost(vhost, settings)
-	log.Printf("[DEBUG] RabbitMQ: vhost creation response: %#v", resp)
-	if err != nil {
-		return err
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "creating", "vhost")
 	}
 
-	resp, err = rmqc.PutVhostLimits(vhost, limits)
-	log.Printf("[DEBUG] RabbitMQ: vhost creation response: %#v", resp)
-	if err != nil {
-		return err
+	if len(limits) > 0 {
+		resp, err = rmqc.PutVhostLimits(vhost, limits)
+		if err != nil || resp.StatusCode >= 400 {
+			return failApiResponse(err, resp, "creating", "vhost limits")
+		}
 	}
 
 	d.SetId(vhost)
-
 	return ReadVhost(d, meta)
+}
+
+func ReadVhost(d *schema.ResourceData, meta interface{}) error {
+	rmqc := meta.(*rabbithole.Client)
+
+	vhost, err := rmqc.GetVhost(d.Id())
+	if err != nil {
+		return checkDeleted(d, err)
+	}
+	d.Set("name", vhost.Name)
+
+	if len(vhost.DefaultQueueType) > 0 && vhost.DefaultQueueType != "undefined" {
+		d.Set("default_queue_type", vhost.DefaultQueueType)
+	}
+
+	if len(vhost.Description) > 0 {
+		d.Set("description", vhost.Description)
+	}
+
+	myVhostLimits, err := rmqc.GetVhostLimits(d.Id())
+	if err != nil {
+		return checkDeleted(d, err)
+	}
+
+	if len(myVhostLimits) > 0 {
+		if val, ok := myVhostLimits[0].Value["max-connections"]; ok {
+			d.Set("max_connections", strconv.Itoa(val))
+		} else {
+			d.Set("max_connections", "") // set as unlimited
+		}
+
+		if val, ok := myVhostLimits[0].Value["max-queues"]; ok {
+			d.Set("max_queues", strconv.Itoa(val))
+		} else {
+			d.Set("max_queues", "") // set as unlimited
+		}
+	}
+
+	d.Set("tracing", vhost.Tracing)
+
+	return nil
 }
 
 func UpdateVhost(d *schema.ResourceData, meta interface{}) error {
@@ -132,7 +195,7 @@ func UpdateVhost(d *schema.ResourceData, meta interface{}) error {
 		return checkDeleted(d, err)
 	}
 
-	vhost_limits_info, err := rmqc.GetVhostLimits(d.Id())
+	myVhostLimits, err := rmqc.GetVhostLimits(d.Id())
 	if err != nil {
 		return checkDeleted(d, err)
 	}
@@ -177,11 +240,11 @@ func UpdateVhost(d *schema.ResourceData, meta interface{}) error {
 			if v, ok := newMaxConnections.(string); ok {
 				limits["max-connections"], err = strconv.Atoi(v)
 				if err != nil {
-					log.Printf("[ERROR] RabbitMQ: Error converting max_connections to int: %#v", err)
+					return fmt.Errorf("error converting 'max_connections' to int: %#v", v)
 				}
 			}
 		} else {
-			limits["max-connections"] = vhost_limits_info[0].Value["max-connections"]
+			limits["max-connections"] = myVhostLimits[0].Value["max-connections"]
 		}
 	}
 
@@ -192,93 +255,41 @@ func UpdateVhost(d *schema.ResourceData, meta interface{}) error {
 			if v, ok := newMaxQueues.(string); ok {
 				limits["max-queues"], err = strconv.Atoi(v)
 				if err != nil {
-					log.Printf("[ERROR] RabbitMQ: Error converting max_queues to int: %#v", err)
+					return fmt.Errorf("error converting 'max_queues' to int: %#v", v)
 				}
 			}
 		} else {
-			limits["max-queues"] = vhost_limits_info[0].Value["max-queues"]
+			limits["max-queues"] = myVhostLimits[0].Value["max-queues"]
 		}
 	}
 
 	resp, err := rmqc.PutVhost(vhost.Name, settings)
 	log.Printf("[DEBUG] RabbitMQ: vhost creation response: %#v", resp)
-	if err != nil {
-		return err
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "updating", "vhost")
 	}
 
 	resp, err = rmqc.DeleteVhostLimits(vhost.Name, rabbithole.VhostLimits{"max-connections", "max-queues"})
-	log.Printf("[DEBUG] RabbitMQ: vhost limits deletion response: %#v", resp)
-	if err != nil {
-		return err
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "updating", "vhost limits")
 	}
 
-	resp, err = rmqc.PutVhostLimits(vhost.Name, limits)
-	log.Printf("[DEBUG] RabbitMQ: vhost limits creation response: %#v", resp)
-	if err != nil {
-		return err
+	if len(limits) > 0 {
+		resp, err = rmqc.PutVhostLimits(vhost.Name, limits)
+		if err != nil || resp.StatusCode >= 400 {
+			return failApiResponse(err, resp, "updating", "vhost limits")
+		}
 	}
 
 	return ReadVhost(d, meta)
 }
 
-func ReadVhost(d *schema.ResourceData, meta interface{}) error {
-	rmqc := meta.(*rabbithole.Client)
-
-	vhost, err := rmqc.GetVhost(d.Id())
-	if err != nil {
-		return checkDeleted(d, err)
-	}
-
-	log.Printf("[DEBUG] RabbitMQ: Vhost retrieved: %#v", vhost)
-
-	vhost_limits_info, err := rmqc.GetVhostLimits(d.Id())
-	if err != nil {
-		return checkDeleted(d, err)
-	}
-
-	log.Printf("[DEBUG] RabbitMQ: Vhost retrieved: %#v", vhost)
-
-	d.Set("name", vhost.Name)
-	d.Set("description", vhost.Description)
-	// d.Set("tags", vhost.Tags)
-	d.Set("tracing", vhost.Tracing)
-
-	if len(vhost_limits_info) > 0 {
-		if val, ok := vhost_limits_info[0].Value["max-connections"]; ok {
-			d.Set("max_connections", strconv.Itoa(val))
-		} else {
-			d.Set("max_connections", "") // set as unlimited
-		}
-
-		if val, ok := vhost_limits_info[0].Value["max-queues"]; ok {
-			d.Set("max_queues", strconv.Itoa(val))
-		} else {
-			d.Set("max_queues", "") // set as unlimited
-		}
-
-	}
-
-	return nil
-}
-
 func DeleteVhost(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to delete vhost %s", d.Id())
-
 	resp, err := rmqc.DeleteVhost(d.Id())
-	log.Printf("[DEBUG] RabbitMQ: vhost deletion response: %#v", resp)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode == 404 {
-		// the vhost was automatically deleted
-		return nil
-	}
-
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ vhost: %s': %s", d.Id(), resp.Status)
+	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
+		return failApiResponse(err, resp, "deleting", "vhost limits")
 	}
 
 	return nil

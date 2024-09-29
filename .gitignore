@@ -7,6 +7,7 @@ terraform.tfplan
 terraform.tfstate
 bin/
 dist/
+local/
 modules-dev/
 /pkg/
 website/.vagrant
@@ -36,3 +37,5 @@ website/vendor
 
 # Keep windows files with windows line endings
 *.winfile eol=crlf
+
+.vscode

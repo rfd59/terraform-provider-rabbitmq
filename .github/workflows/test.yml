@@ -12,8 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        rmq_version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        rmq_version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "4.0"]
 
     env:
       RABBITMQ_VERSION: ${{ matrix.rmq_version }}
@@ -29,5 +30,14 @@ jobs:
           cache: true
 
       - name: Tests
+        id: test
         run: make testacc
+
+      - name: Publish Test Summary Results
+        run: |
+          echo "### RabbitMQ $RABBITMQ_VERSION" >> $GITHUB_STEP_SUMMARY
+          npx github-actions-ctrf summary ctrf-report.json
+          npx github-actions-ctrf failed ctrf-report.json
+        if: always()
+
         

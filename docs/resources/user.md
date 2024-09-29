@@ -39,3 +39,12 @@ resource "rabbitmq_user" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# User can be imported by specifying its name.
+terraform import rabbitmq_user.example myuser
+```
