@@ -25,8 +25,21 @@ setup() {
 }
 
 run() {
-    go test -cover -count=1 ./internal/provider -v -timeout 120m -coverprofile coverage.out
-
+    if [ "$GITHUB_ACTIONS" = "true" ]; then
+        echo "Running under GitHub Actions for '$GITHUB_WORKFLOW' Workflow..."
+        if [ "$GITHUB_WORKFLOW" = "SonarQube" ]; then
+            go test ./internal/provider -timeout 120m -cover -coverprofile coverage.out
+        else
+            go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
+            go test ./internal/provider -timeout 120m -json > go-test.json
+            RC=$?
+            cat go-test.json | go-ctrf-json-reporter -output ctrf-report.json -osPlatform "RabbitMQ" -osVersion $RABBITMQ_VERSION
+            return $RC
+        fi        
+    else
+        echo "Running locally..."
+        go test ./internal/provider -v
+    fi
     # keep the return value for the scripts to fail and clean properly
     return $?
 }

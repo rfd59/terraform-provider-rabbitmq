@@ -16,7 +16,7 @@ Use the navigation to the left to read about the available resources.
 ```terraform
 # Configure the RabbitMQ provider
 provider "rabbitmq" {
-  endpoint = "http://127.0.0.1"
+  endpoint = "http://127.0.0.1:15672"
   username = "guest"
   password = "guest"
 }
