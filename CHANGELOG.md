@@ -19,6 +19,9 @@ FIX:
 
 BUILD / DEV:
 
+* Update GitHub Actions - @rfavreau
+  ([#15](https://github.com/rfd59/terraform-provider-rabbitmq/pull/15))
+
 * GitHub settings - @rfavreau
   ([#18](https://github.com/rfd59/terraform-provider-rabbitmq/pull/18))
 
