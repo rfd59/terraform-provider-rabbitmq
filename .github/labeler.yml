@@ -8,4 +8,5 @@ bug:
 
 # Add 'release' label to any PR that is opened against the `master` branch
 release:
+  - head-branch: 'develop'
   - base-branch: 'master'
