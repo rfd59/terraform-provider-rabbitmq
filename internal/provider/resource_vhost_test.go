@@ -116,7 +116,7 @@ func TestAccVhost_Optional(t *testing.T) {
 					check.That(data.ResourceName).Key("id").MatchesOtherKey("name"),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("description").RmqFeature(r.HasDescriptionUpdateFeature()).IsEmpty(),
-					check.That(data.ResourceName).Key("default_queue_type").HasValue("classic"),
+					check.That(data.ResourceName).Key("default_queue_type").RmqFeature(r.HasDefaultQueueTypeUpdateFeature()).HasValue("classic"),
 					check.That(data.ResourceName).Key("max_connections").IsEmpty(),
 					check.That(data.ResourceName).Key("max_queues").IsEmpty(),
 					check.That(data.ResourceName).Key("tracing").HasValue("false"),

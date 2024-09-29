@@ -158,7 +158,11 @@ func (t thatWithKeyType) IsUUID() resource.TestCheckFunc {
 // HasValue returns a TestCheckFunc which validates that the specific key has the
 // specified value on the resource
 func (t thatWithKeyType) HasValue(value string) resource.TestCheckFunc {
-	return resource.TestCheckResourceAttr(t.resourceName, t.key, value)
+	if t.skip {
+		return skipTest()
+	} else {
+		return resource.TestCheckResourceAttr(t.resourceName, t.key, value)
+	}
 }
 
 // MatchesOtherKey returns a TestCheckFunc which validates that the key on this resource

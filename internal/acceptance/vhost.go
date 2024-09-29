@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
-	"golang.org/x/mod/semver"
 )
 
 type VhostResource struct {
@@ -28,7 +27,12 @@ func (v *VhostResource) RequiredCreate(data TestData) string {
 
 func (v *VhostResource) RequiredUpdate(data TestData) string {
 	v.Description = data.RandomString()
-	v.DefaultQueueType = "quorum"
+	if v.HasDefaultQueueTypeUpdateFeature() {
+		v.DefaultQueueType = "quorum"
+	} else {
+		//Set the default value that was set during Create step
+		v.DefaultQueueType = "classic"
+	}
 	v.Tracing = true
 
 	return fmt.Sprintf(`
@@ -56,7 +60,9 @@ func (v *VhostResource) OptionalUpdate(data TestData) string {
 	if v.HasDescriptionUpdateFeature() {
 		v.Description = data.RandomString()
 	}
-	v.DefaultQueueType = "stream"
+	if v.HasDefaultQueueTypeUpdateFeature() {
+		v.DefaultQueueType = "stream"
+	}
 	v.Tracing = !v.Tracing
 	return v.OptionalCreate(data)
 }
@@ -71,21 +77,33 @@ func (v *VhostResource) OptionalRemove(data TestData) string {
 	if v.HasDescriptionUpdateFeature() {
 		v.Description = ""
 	}
-	v.DefaultQueueType = ""
+	if v.HasDefaultQueueTypeUpdateFeature() {
+		v.DefaultQueueType = ""
+	}
 	v.MaxConnections = ""
 	v.MaxQueues = ""
 	v.Tracing = false
-	if v.HasDescriptionUpdateFeature() {
+	if v.HasDescriptionUpdateFeature() && v.HasDefaultQueueTypeUpdateFeature() {
 		return fmt.Sprintf(`
 		resource "%s" "%s" {
 			name = "%s"
 		}`, data.ResourceType, data.ResourceLabel, v.Name)
 	} else {
-		return fmt.Sprintf(`
-		resource "%s" "%s" {
-			name = "%s"
-			description = "%s"
-		}`, data.ResourceType, data.ResourceLabel, v.Name, v.Description)
+		if !v.HasDescriptionUpdateFeature() {
+			return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "%s"
+				description = "%s"
+			}`, data.ResourceType, data.ResourceLabel, v.Name, v.Description)
+		} else {
+			//So No HasDefaultQueueTypeUpdateFeature
+			return fmt.Sprintf(`
+			resource "%s" "%s" {
+				name = "%s"
+				default_queue_type = "%s"
+			}`, data.ResourceType, data.ResourceLabel, v.Name, v.DefaultQueueType)
+		}
+
 	}
 
 }
@@ -120,10 +138,12 @@ func (v VhostResource) ExistsInRabbitMQ() error {
 		}
 	}
 
-	if hasDefaultQueueTypeFeature(rmqc.Overview()) {
+	if hasDefaultQueueTypeFeature() {
 		if len(v.DefaultQueueType) == 0 {
 			if myVhost.DefaultQueueType != "classic" {
-				return fmt.Errorf("vhost default_queue_type is not set to the default value. Actual: '%s' Expected: classic", myVhost.DefaultQueueType)
+				if v.HasDefaultQueueTypeUpdateFeature() {
+					return fmt.Errorf("vhost default_queue_type is not set to the default value. Actual: '%s' Expected: classic", myVhost.DefaultQueueType)
+				}
 			}
 		} else {
 			if myVhost.DefaultQueueType != v.DefaultQueueType {
@@ -152,7 +172,6 @@ func (v VhostResource) ExistsInRabbitMQ() error {
 			return fmt.Errorf("vhost limit 'max-queues' is not equal. Actual: '%d' Expected: %s", myVhostLimits[0].Value["max-queues"], v.MaxQueues)
 		}
 	}
-
 	return nil
 }
 
@@ -173,34 +192,24 @@ func (v VhostResource) CheckDestroy() resource.TestCheckFunc {
 }
 
 func (v VhostResource) ImportStateVerifyIgnore() []string {
-	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
-	if hasDefaultQueueTypeFeature(rmqc.Overview()) {
+	if hasDefaultQueueTypeFeature() {
 		return []string{}
 	} else {
 		return []string{"default_queue_type"}
 	}
 }
 
-// Description Field can't bu updated in 3.8. It was fixed in 3.9 and later
+// 'Description' field can't be updated in 3.8. It was fixed in 3.9 and later
 func (v VhostResource) HasDescriptionUpdateFeature() bool {
-	return hasFeature("3.9")
+	return TestAcc.ValidFeature("3.9")
 }
 
-func hasDefaultQueueTypeFeature(overview *rabbithole.Overview, err error) bool {
-	// DefaultQueueType is into RappbitMQ 3.10 and latter
-	if err != nil {
-		return true
-	} else {
-		return semver.Compare("v"+overview.RabbitMQVersion, "v3.10") >= 0
-	}
+// 'DefaultQueueType' field can't be updated in 3.10. It was fixed in 3.11 and later
+func (v VhostResource) HasDefaultQueueTypeUpdateFeature() bool {
+	return TestAcc.ValidFeature("3.11")
 }
 
-func hasFeature(miniVersion string) bool {
-	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
-	overview, err := rmqc.Overview()
-	if err != nil {
-		return true
-	} else {
-		return semver.Compare("v"+overview.RabbitMQVersion, "v"+miniVersion) >= 0
-	}
+// 'DefaultQueueType' field is present into RappbitMQ 3.10 and latter
+func hasDefaultQueueTypeFeature() bool {
+	return TestAcc.ValidFeature("3.10")
 }
