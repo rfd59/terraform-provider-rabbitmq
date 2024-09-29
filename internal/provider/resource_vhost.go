@@ -35,11 +35,12 @@ func resourceVhost() *schema.Resource {
 				ForceNew:    false,
 			},
 			"default_queue_type": {
-				Description: "Default queue type for new queues. The available values are `classic`, `quorum` or `stream`. Defaults to `classic`.",
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    false,
-				Default:     "classic",
+				Description:  "Default queue type for new queues. The available values are `classic`, `quorum` or `stream`. Defaults to `classic`.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     false,
+				Default:      "classic",
+				ValidateFunc: validateDefaultQueueTypeAttribute,
 			},
 			"tracing": {
 				Description: "To enable/disable tracing. Defaults to `false`.",
@@ -62,6 +63,24 @@ func resourceVhost() *schema.Resource {
 			},
 		},
 	}
+}
+
+func validateDefaultQueueTypeAttribute(val interface{}, key string) (warns []string, errs []error) {
+	value := val.(string)
+
+	// Define the allowed values
+	allowedValues := map[string]struct{}{
+		"classic": {},
+		"quorum":  {},
+		"stream":  {},
+	}
+
+	// Check if the value is in the allowed values
+	if _, ok := allowedValues[value]; !ok {
+		errs = append(errs, fmt.Errorf("%q must be one of [classic, quorum, stream], got: %s", key, value))
+	}
+
+	return warns, errs
 }
 
 func CreateVhost(d *schema.ResourceData, meta interface{}) error {

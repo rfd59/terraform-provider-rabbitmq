@@ -107,6 +107,7 @@ func (v *VhostResource) OptionalRemove(data TestData) string {
 	}
 
 }
+
 func (v *VhostResource) ErrorConvertingCreate(data TestData) string {
 	return fmt.Sprintf(`
 	resource "%s" "%s" {
@@ -120,6 +121,14 @@ func (u *VhostResource) ErrorConvertingUpdate(data TestData, connections string,
 	u.MaxConnections = connections
 	u.MaxQueues = queues
 	return u.ErrorConvertingCreate(data)
+}
+
+func (v *VhostResource) ErrorDefaultQueueTypeAttribute(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		default_queue_type = "%s"
+	}`, data.ResourceType, data.ResourceLabel, v.Name, v.DefaultQueueType)
 }
 
 func (v VhostResource) ExistsInRabbitMQ() error {

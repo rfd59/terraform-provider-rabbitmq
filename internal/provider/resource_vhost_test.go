@@ -262,3 +262,20 @@ func TestAccVhost_ErrorConvertingMaxQueues(t *testing.T) {
 		},
 	})
 }
+
+func TestAccVhost_ErrorDefaultQueueTypeAttribute(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_vhost", "test")
+	r := acceptance.VhostResource{Name: data.RandomString(), DefaultQueueType: data.RandomString()}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorDefaultQueueTypeAttribute(data),
+				ExpectError: regexp.MustCompile("must be one of"),
+			},
+		},
+	})
+}
