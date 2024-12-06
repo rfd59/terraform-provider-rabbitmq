@@ -27,13 +27,13 @@ terraform {
   required_providers {
     rabbitmq = {
       source = "rfd59/rabbitmq"
-      version = "2.1.0"
+      version = "2.3.0"
     }
   }
 }
 
 # 2. Configure the RabbitMQ Provider
-provider "rabbi" {
+provider "rabbitmq" {
   # The RabbitMQ management plugin must be enabled on the server, to use this provider.
   # You can enable the plugin by doing something similar to `$ sudo rabbitmq-plugins enable rabbitmq_management`
   # https://www.rabbitmq.com/docs/management
@@ -54,7 +54,7 @@ resource "rabbitmq_vhost" "example" {
 ### Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) 1.0.x
-- [Go](https://golang.org/doc/install) 1.21
+- [Go](https://golang.org/doc/install) 1.23
 - [Docker Engine](https://docs.docker.com/engine/install) >= 27.2.x
 - [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-compose-plugin) >= 2.29.x
 

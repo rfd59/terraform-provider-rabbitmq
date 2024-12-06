@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.3.0 (December 06, 2024)
+
+FEATURES:
+
+* Add custom headers to _RabbitMQ_ Api - @Dbzman
+  ([#27](https://github.com/rfd59/terraform-provider-rabbitmq/pull/27))
+
+BUILD / DEV:
+
+* Upgrade to Golang 1.23 - @rfavreau
+
+* Update dependencies - @rfavreau
+  ([#23](https://github.com/rfd59/terraform-provider-rabbitmq/pull/23), [#25](https://github.com/rfd59/terraform-provider-rabbitmq/pull/25), [#26](https://github.com/rfd59/terraform-provider-rabbitmq/pull/26))
+
+
 ## 2.2.0 (September 29, 2024)
 
 FIX:
