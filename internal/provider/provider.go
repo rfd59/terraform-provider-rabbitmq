@@ -8,10 +8,21 @@ import (
 	"net/url"
 	"os"
 
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
 )
+
+type customHeaderRoundTripper struct {
+	headers   map[string]string
+	transport http.RoundTripper
+}
+
+func (c *customHeaderRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	for key, value := range c.headers {
+		req.Header.Add(key, value)
+	}
+	return c.transport.RoundTrip(req)
+}
 
 func New() *schema.Provider {
 	return &schema.Provider{
@@ -95,6 +106,13 @@ func New() *schema.Provider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RABBITMQ_PROXY", ""),
 			},
+
+			"headers": {
+				Description: "Custom headers to include in HTTP requests. This should be a map of header names to values.",
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -130,6 +148,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	var clientcertFile = d.Get("clientcert_file").(string)
 	var clientkeyFile = d.Get("clientkey_file").(string)
 	var proxy = d.Get("proxy").(string)
+	var headers = d.Get("headers").(map[string]interface{})
 
 	// Configure TLS/SSL:
 	// Ignore self-signed cert warnings
@@ -166,7 +185,11 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 
-	// Connect to RabbitMQ management interface
+	customHeaders := make(map[string]string)
+	for k, v := range headers {
+		customHeaders[k] = v.(string)
+	}
+
 	transport := &http.Transport{
 		TLSClientConfig: tlsConfig,
 		Proxy: func(req *http.Request) (*url.URL, error) {
@@ -178,7 +201,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		},
 	}
 
-	rmqc, err := rabbithole.NewTLSClient(endpoint, username, password, transport)
+	customTransport := &customHeaderRoundTripper{
+		headers:   customHeaders,
+		transport: transport,
+	}
+
+	rmqc, err := rabbithole.NewTLSClient(endpoint, username, password, customTransport)
 	if err != nil {
 		return nil, err
 	}
