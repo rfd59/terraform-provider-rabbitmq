@@ -54,7 +54,7 @@ resource "rabbitmq_vhost" "example" {
 ### Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) 1.0.x
-- [Go](https://golang.org/doc/install) 1.21
+- [Go](https://golang.org/doc/install) 1.23
 - [Docker Engine](https://docs.docker.com/engine/install) >= 27.2.x
 - [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-compose-plugin) >= 2.29.x
 
