@@ -2,7 +2,13 @@ TOOLS_BIN?=${PWD}/tools/bin
 
 default: build
 
-build: 
+download:
+	go mod download
+
+build: download
+	go build
+
+install:
 	go install
 
 test: build
@@ -26,4 +32,4 @@ vet:
 		exit 1; \
 	fi
 
-.PHONY: build test testacc vet
+.PHONY: download build install test testacc vet
