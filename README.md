@@ -27,13 +27,13 @@ terraform {
   required_providers {
     rabbitmq = {
       source = "rfd59/rabbitmq"
-      version = "2.1.0"
+      version = "2.3.0"
     }
   }
 }
 
 # 2. Configure the RabbitMQ Provider
-provider "rabbi" {
+provider "rabbitmq" {
   # The RabbitMQ management plugin must be enabled on the server, to use this provider.
   # You can enable the plugin by doing something similar to `$ sudo rabbitmq-plugins enable rabbitmq_management`
   # https://www.rabbitmq.com/docs/management
