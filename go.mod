@@ -4,7 +4,7 @@ require (
 	github.com/hashicorp/terraform-plugin-docs v0.20.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.36.1
 	github.com/michaelklishin/rabbit-hole/v2 v2.16.0
-	golang.org/x/mod v0.22.0
+	golang.org/x/mod v0.23.0
 )
 
 replace github.com/michaelklishin/rabbit-hole/v2 => github.com/rfavreau/rabbit-hole/v2 v2.16.1
