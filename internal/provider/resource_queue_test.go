@@ -55,6 +55,25 @@ func TestAccQueue_jsonArguments(t *testing.T) {
 	})
 }
 
+func TestAccQueue_xQueueType(t *testing.T) {
+	var queueInfo rabbithole.QueueInfo
+	js := `{"x-queue-type": "classic"}`
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: testAccQueueCheckDestroy(&queueInfo),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccQueueConfig_jsonArguments(js),
+				Check: resource.ComposeTestCheckFunc(
+					testAccQueueCheck("rabbitmq_queue.test", &queueInfo),
+					testAccQueueCheckJsonArguments("rabbitmq_queue.test", &queueInfo, js),
+				),
+			},
+		},
+	})
+}
+
 func testAccQueueCheck(rn string, queueInfo *rabbithole.QueueInfo) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[rn]
@@ -91,8 +110,10 @@ func testAccQueueCheckJsonArguments(rn string, queueInfo *rabbithole.QueueInfo, 
 		if err := json.Unmarshal([]byte(js), &configMap); err != nil {
 			return err
 		}
-		// clean arguments before compare them ("x-queue-type" is added by RabbitMQ)
-		delete(queueInfo.Arguments, "x-queue-type")
+		// clean arguments before compare them ("x-queue-type" is added by RabbitMQ by default so delete it if not defined in config)
+		if _, xQueueTypeDefined := configMap["x-queue-type"]; !xQueueTypeDefined {
+			delete(queueInfo.Arguments, "x-queue-type")
+		}
 		if !reflect.DeepEqual(configMap, queueInfo.Arguments) {
 			return fmt.Errorf("Passed arguments does not match queue arguments")
 		}
