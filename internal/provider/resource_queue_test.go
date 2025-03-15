@@ -129,6 +129,85 @@ func TestAccQueue_XQueueType(t *testing.T) {
 	})
 }
 
+func TestAccQueue_ErrorBothArgumentsType(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_queue", "test")
+	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorBothArgumentsType(data),
+				ExpectError: regexp.MustCompile("Conflicting configuration arguments"),
+			},
+		},
+	})
+}
+
+func TestAccQueue_VhostDefaultQueueType(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_queue", "test")
+	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: data.RandomString(), Durable: true}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.VhostDefaultQueueType_Step1(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+					r.CheckQueueTypeInRabbitMQ("quorum"),
+				),
+			},
+			{
+				Config: r.VhostDefaultQueueType_Step2(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+					r.CheckQueueTypeInRabbitMQ("stream"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccQueue_AlredayExist(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_queue", "test")
+	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config:      r.AlredayExist(data),
+				ExpectError: regexp.MustCompile("queue already exists"),
+			},
+		},
+	})
+}
+
 func TestAccQueue_ImportRequired(t *testing.T) {
 	data := acceptance.BuildTestData("rabbitmq_queue", "test")
 	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/"}

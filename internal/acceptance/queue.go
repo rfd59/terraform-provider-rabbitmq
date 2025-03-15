@@ -85,10 +85,77 @@ func (q *QueueResource) XQueueTypeArgument(data TestData) string {
 	}`, data.ResourceType, data.ResourceLabel, q.Name, arg, q.Arguments[arg])
 }
 
-func (q QueueResource) ExistsInRabbitMQ() error {
+func (q *QueueResource) ErrorBothArgumentsType(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		settings {
+			arguments = {
+				"k1" = "v1"
+			}
+			durable = true
+			arguments_json = jsonencode({
+      			"k2" = "v2"
+    		})
+		}
+	}`, data.ResourceType, data.ResourceLabel, q.Name)
+}
 
+func (q *QueueResource) VhostDefaultQueueType_Step1(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		vhost = rabbitmq_vhost.test.name
+		settings {
+			durable = %t
+		}
+	}
+	
+	resource "rabbitmq_vhost" "test" {
+ 		name = "%s"
+		default_queue_type = "quorum"
+	}`, data.ResourceType, data.ResourceLabel, q.Name, q.Durable, q.Vhost)
+}
+
+func (q *QueueResource) VhostDefaultQueueType_Step2(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		vhost = rabbitmq_vhost.test.name
+		settings {
+			auto_delete = %t
+			durable = %t
+			arguments = {
+				"x-queue-type" = "stream"
+			}
+		}
+	}
+
+	resource "rabbitmq_vhost" "test" {
+ 		name = "%s"
+		default_queue_type = "quorum"
+	}`, data.ResourceType, data.ResourceLabel, q.Name, q.AutoDelete, q.Durable, q.Vhost)
+}
+
+func (q *QueueResource) AlredayExist(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		settings {}
+	}
+	
+	resource "%s" "already_exist" {
+		name = "%s"
+		settings {}
+	}
+	
+	`, data.ResourceType, data.ResourceLabel, q.Name, data.ResourceType, q.Name)
+}
+
+func (q QueueResource) ExistsInRabbitMQ() error {
 	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
 	myQueue, err := rmqc.GetQueue(q.Vhost, q.Name)
+
 	if err != nil {
 		return fmt.Errorf("error retrieving queue '%s@%s': %#v", q.Name, q.Vhost, err)
 	}
@@ -120,6 +187,20 @@ func (q QueueResource) ExistsInRabbitMQ() error {
 	}
 
 	return nil
+}
+
+func (q QueueResource) CheckQueueTypeInRabbitMQ(queue_type string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
+		myQueue, err := rmqc.GetQueue(q.Vhost, q.Name)
+		if err != nil {
+			return fmt.Errorf("error retrieving queue '%s@%s': %#v", q.Name, q.Vhost, err)
+		}
+		if myQueue.Type != queue_type {
+			return fmt.Errorf("[%s@%s] queue type is not correct. Actual: '%s' Expected: %s", q.Name, q.Vhost, myQueue.Type, queue_type)
+		}
+		return nil
+	}
 }
 
 func (q QueueResource) CheckDestroy() resource.TestCheckFunc {
