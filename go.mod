@@ -4,7 +4,7 @@ require (
 	github.com/hashicorp/terraform-plugin-docs v0.21.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.36.1
 	github.com/michaelklishin/rabbit-hole/v2 v2.16.0
-	golang.org/x/mod v0.23.0
+	golang.org/x/mod v0.24.0
 )
 
 replace github.com/michaelklishin/rabbit-hole/v2 => github.com/rfavreau/rabbit-hole/v2 v2.16.1
@@ -84,5 +84,4 @@ require (
 )
 
 go 1.23
-
 toolchain go1.23.4
