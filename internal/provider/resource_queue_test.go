@@ -103,3 +103,28 @@ func TestAccQueue_Optional(t *testing.T) {
 		},
 	})
 }
+
+func TestAccQueue_XQueueType(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_queue", "test")
+	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.XQueueTypeArgument(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("settings.0.arguments.x-queue-type").HasValue("classic"),
+					check.That(data.ResourceName).Key("settings.0.arguments_json").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+		},
+	})
+}

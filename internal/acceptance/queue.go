@@ -70,6 +70,21 @@ func (q *QueueResource) OptionalUpdateArgumentJson(data TestData) string {
 	}`, data.ResourceType, data.ResourceLabel, q.Name, q.AutoDelete, q.Durable, arg, q.Arguments[arg])
 }
 
+func (q *QueueResource) XQueueTypeArgument(data TestData) string {
+	arg := "x-queue-type"
+	q.Arguments = map[string]interface{}{arg: "classic"}
+
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		settings {
+			arguments = {
+				"%s" = "%s"
+			}
+		}
+	}`, data.ResourceType, data.ResourceLabel, q.Name, arg, q.Arguments[arg])
+}
+
 func (q QueueResource) ExistsInRabbitMQ() error {
 
 	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
@@ -94,7 +109,7 @@ func (q QueueResource) ExistsInRabbitMQ() error {
 	}
 	if len(q.Arguments) != 0 {
 		if len(myQueue.Arguments) != len(q.Arguments) {
-			return fmt.Errorf("queue arguments length is not equal. Actual: '%d' Expected: %d", len(myQueue.Arguments), len(q.Arguments))
+			return fmt.Errorf("queue arguments length is not equal. Actual: '%d' Expected: %d [%v]", len(myQueue.Arguments), len(q.Arguments), myQueue.Arguments)
 		}
 
 		for k := range myQueue.Arguments {
