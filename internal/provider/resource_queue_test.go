@@ -128,3 +128,28 @@ func TestAccQueue_XQueueType(t *testing.T) {
 		},
 	})
 }
+
+func TestAccQueue_ImportRequired(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_queue", "test")
+	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/"}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				ResourceName:      data.ResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
