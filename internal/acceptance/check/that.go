@@ -51,6 +51,9 @@ func (t thatType) ExistsInRabbitMQ(any interface{}) resource.TestCheckFunc {
 		if strings.HasPrefix(t.resourceName, "rabbitmq_vhost.") {
 			return any.(acceptance.VhostResource).ExistsInRabbitMQ()
 		}
+		if strings.HasPrefix(t.resourceName, "rabbitmq_queue.") {
+			return any.(acceptance.QueueResource).ExistsInRabbitMQ()
+		}
 		return fmt.Errorf("'ExistsInRabbitMQ' method not found for this resource!!!")
 	}
 }
@@ -162,6 +165,14 @@ func (t thatWithKeyType) HasValue(value string) resource.TestCheckFunc {
 		return skipTest()
 	} else {
 		return resource.TestCheckResourceAttr(t.resourceName, t.key, value)
+	}
+}
+
+func (t thatWithKeyType) IsBool(value bool) resource.TestCheckFunc {
+	if t.skip {
+		return skipTest()
+	} else {
+		return resource.TestCheckResourceAttr(t.resourceName, t.key, strconv.FormatBool(value))
 	}
 }
 

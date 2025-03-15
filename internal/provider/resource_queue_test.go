@@ -1,214 +1,105 @@
 package provider_test
 
 import (
-	"encoding/json"
-	"fmt"
-	"reflect"
-	"strings"
+	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
 	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance/check"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccQueue_basic(t *testing.T) {
-	var queueInfo rabbithole.QueueInfo
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
-		Providers:    acceptance.TestAcc.Providers,
-		CheckDestroy: testAccQueueCheckDestroy(&queueInfo),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccQueueConfig_basic,
-				Check: testAccQueueCheck(
-					"rabbitmq_queue.test", &queueInfo,
-				),
-			},
-			{
-				Config: testAccQueueConfig_update,
-				Check: testAccQueueCheck(
-					"rabbitmq_queue.test", &queueInfo,
-				),
-			},
-		},
-	})
-}
+func TestAccQueue_Required(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_queue", "test")
+	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/", AutoDelete: false, Durable: false}
 
-func TestAccQueue_jsonArguments(t *testing.T) {
-	var queueInfo rabbithole.QueueInfo
-	js := `{"x-message-ttl": 5000,"foo": "bar","baz": 50}`
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
 		Providers:    acceptance.TestAcc.Providers,
-		CheckDestroy: testAccQueueCheckDestroy(&queueInfo),
+		CheckDestroy: r.CheckDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccQueueConfig_jsonArguments(js),
+				Config: r.RequiredCreate(data),
 				Check: resource.ComposeTestCheckFunc(
-					testAccQueueCheck("rabbitmq_queue.test", &queueInfo),
-					testAccQueueCheckJsonArguments("rabbitmq_queue.test", &queueInfo, js),
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("settings").Count(1),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
+					check.That(data.ResourceName).Key("settings.0.durable").IsBool(r.Durable),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 		},
 	})
 }
 
-func testAccQueueCheck(rn string, queueInfo *rabbithole.QueueInfo) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[rn]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", rn)
-		}
+func TestAccQueue_Optional(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_queue", "test")
+	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/", AutoDelete: false, Durable: false}
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("queue id not set")
-		}
-
-		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
-		queueParts := strings.Split(rs.Primary.ID, "@")
-
-		queues, err := rmqc.ListQueuesIn(queueParts[1])
-		if err != nil {
-			return fmt.Errorf("Error retrieving queue: %s", err)
-		}
-
-		for _, queue := range queues {
-			if queue.Name == queueParts[0] && queue.Vhost == queueParts[1] {
-				*queueInfo = queue
-				return nil
-			}
-		}
-
-		return fmt.Errorf("Unable to find queue %s", rn)
-	}
-}
-
-func testAccQueueCheckJsonArguments(rn string, queueInfo *rabbithole.QueueInfo, js string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		var configMap map[string]interface{}
-		if err := json.Unmarshal([]byte(js), &configMap); err != nil {
-			return err
-		}
-		// clean arguments before compare them ("x-queue-type" is added by RabbitMQ)
-		delete(queueInfo.Arguments, "x-queue-type")
-		if !reflect.DeepEqual(configMap, queueInfo.Arguments) {
-			return fmt.Errorf("Passed arguments does not match queue arguments")
-		}
-
-		rs, ok := s.RootModule().Resources[rn]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", rn)
-		}
-		var configMap2 map[string]interface{}
-		if err := json.Unmarshal([]byte(rs.Primary.Attributes["settings.0.arguments_json"]), &configMap2); err != nil {
-			return err
-		}
-		if !reflect.DeepEqual(configMap2, queueInfo.Arguments) {
-			return fmt.Errorf("Arguments in state does not match queue arguments")
-		}
-
-		return nil
-	}
-}
-
-func testAccQueueCheckDestroy(queueInfo *rabbithole.QueueInfo) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
-
-		queues, err := rmqc.ListQueuesIn(queueInfo.Vhost)
-		if err != nil && !strings.Contains(strings.ToLower(err.Error()), "not found") {
-			return fmt.Errorf("Error retrieving queues: %s", err)
-		}
-
-		for _, queue := range queues {
-			if queue.Name == queueInfo.Name && queue.Vhost == queueInfo.Vhost {
-				return fmt.Errorf("Queue %s@%s still exist", queueInfo.Name, queueInfo.Vhost)
-			}
-		}
-
-		return nil
-	}
-}
-
-const testAccQueueConfig_basic = `
-resource "rabbitmq_vhost" "test" {
-    name = "test"
-}
-
-resource "rabbitmq_permissions" "guest" {
-    user = "guest"
-    vhost = "${rabbitmq_vhost.test.name}"
-    permissions {
-        configure = ".*"
-        write = ".*"
-        read = ".*"
-    }
-}
-
-resource "rabbitmq_queue" "test" {
-    name = "test"
-    vhost = "${rabbitmq_permissions.guest.vhost}"
-    settings {
-        durable = false
-        auto_delete = true
-    }
-}`
-
-const testAccQueueConfig_update = `
-resource "rabbitmq_vhost" "test" {
-    name = "test"
-}
-
-resource "rabbitmq_permissions" "guest" {
-    user = "guest"
-    vhost = "${rabbitmq_vhost.test.name}"
-    permissions {
-        configure = ".*"
-        write = ".*"
-        read = ".*"
-    }
-}
-
-resource "rabbitmq_queue" "test" {
-    name = "test"
-    vhost = "${rabbitmq_permissions.guest.vhost}"
-    settings {
-        durable = true
-        auto_delete = false
-    }
-}`
-
-func testAccQueueConfig_jsonArguments(j string) string {
-	return fmt.Sprintf(`
-variable "arguments" {
-	default = <<EOF
-%s
-EOF
-}
-
-resource "rabbitmq_vhost" "test" {
-	name = "test"
-}
-
-resource "rabbitmq_permissions" "guest" {
-	user = "guest"
-	vhost = "${rabbitmq_vhost.test.name}"
-	permissions {
-		configure = ".*"
-		write = ".*"
-		read = ".*"
-	}
-}
-
-resource "rabbitmq_queue" "test" {
-	name = "test"
-	vhost = "${rabbitmq_permissions.guest.vhost}"
-	settings {
-		durable = false
-		auto_delete = true
-		arguments_json = "${var.arguments}"
-	}
-}`, j)
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("settings").Count(1),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
+					check.That(data.ResourceName).Key("settings.0.durable").IsBool(r.Durable),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalUpdate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
+					check.That(data.ResourceName).Key("settings.0.durable").IsBool(r.Durable),
+					check.That(data.ResourceName).Key("settings.0.arguments").DoesNotExist(),
+					check.That(data.ResourceName).Key("settings.0.arguments_json").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalUpdateArgument(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
+					check.That(data.ResourceName).Key("settings.0.durable").IsBool(r.Durable),
+					check.That(data.ResourceName).Key("settings.0.arguments.myKey").HasValue("myValue"),
+					check.That(data.ResourceName).Key("settings.0.arguments_json").IsEmpty(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalUpdateArgumentJson(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
+					check.That(data.ResourceName).Key("settings.0.durable").IsBool(r.Durable),
+					check.That(data.ResourceName).Key("settings.0.arguments").DoesNotExist(),
+					check.That(data.ResourceName).Key("settings.0.arguments_json").HasValue("{\"myKey\":\"myValue\"}"),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+		},
+	})
 }
