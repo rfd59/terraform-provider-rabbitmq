@@ -1,6 +1,7 @@
 package provider_test
 
 import (
+	"os"
 	"regexp"
 	"testing"
 
@@ -11,9 +12,14 @@ import (
 )
 
 func TestAccQueue_DataSource(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
+	}
+
 	data := acceptance.BuildTestData("rabbitmq_queue", "test")
 	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: "/"}
 
+	// Create a queue to test the datasource
 	r.SetDataSourceQueue(t)
 
 	resource.Test(t, resource.TestCase{
@@ -34,6 +40,7 @@ func TestAccQueue_DataSource(t *testing.T) {
 		},
 	})
 
+	// Remove the test queue
 	r.DelDataSourceQueue(t)
 }
 
