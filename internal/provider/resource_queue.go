@@ -81,6 +81,12 @@ func resourceQueue() *schema.Resource {
 					},
 				},
 			},
+
+			"type": {
+				Description: "The queue type created. The value are `classic`, `quorum` or `stream`.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -144,6 +150,7 @@ func ReadQueue(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("name", queueSettings.Name)
 	d.Set("vhost", queueSettings.Vhost)
+	d.Set("type", queueSettings.Type)
 
 	e := make(map[string]interface{})
 	e["durable"] = queueSettings.Durable

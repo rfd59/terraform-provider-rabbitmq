@@ -67,6 +67,7 @@ resource "rabbitmq_queue" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `type` (String) The queue type created. The value are `classic`, `quorum` or `stream`
 
 <a id="nestedblock--settings"></a>
 ### Nested Schema for `settings`
