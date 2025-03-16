@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.4.0 (March 16, 2025)
+
+FEATURE:
+
+* Add `type` read only field for `rabbitmq_queue` resource - @rfavreau
+
+* Add `rabbitmq_queue` datasource - @rfavreau
+
+FIX:
+
+* `x-queue-type` argument causing always queue recreation [#32](https://github.com/rfd59/terraform-provider-rabbitmq/issues/32) - @pnowy
+  ([#35](https://github.com/rfd59/terraform-provider-rabbitmq/pull/35))
+
+* Datasource _vhost_ returns no error message when the vhost doesn't exist [#36](https://github.com/rfd59/terraform-provider-rabbitmq/issues/36) - @rfavreau
+
+BUILD / DEV:
+
+* Update dependencies - @rfavreau
+  ([#29](https://github.com/rfd59/terraform-provider-rabbitmq/pull/29), [#31](https://github.com/rfd59/terraform-provider-rabbitmq/pull/31), [#33](https://github.com/rfd59/terraform-provider-rabbitmq/pull/33), [#34](https://github.com/rfd59/terraform-provider-rabbitmq/pull/34))
+
+* Upgrade _resource_queue_ unit tests - @rfavreau
+
+* Fix golangci-lint - @rfavreau
+
 ## 2.3.0 (December 06, 2024)
 
 FEATURES:
@@ -44,7 +68,7 @@ BUILD / DEV:
 
 FEATURES:
 
-* Manage the user limits - @rfavreau
+* Manage the user limits [#10](https://github.com/rfd59/terraform-provider-rabbitmq/issues/10) - @rfavreau
   ([#10](https://github.com/rfd59/terraform-provider-rabbitmq/pull/10))
 
 BUILD / DEV:

@@ -27,7 +27,7 @@ terraform {
   required_providers {
     rabbitmq = {
       source = "rfd59/rabbitmq"
-      version = "2.3.0"
+      version = "2.4.0"
     }
   }
 }
