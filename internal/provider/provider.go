@@ -130,6 +130,7 @@ func New() *schema.Provider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"rabbitmq_exchange": dataSourcesExchange(),
+			"rabbitmq_queue":    dataSourcesQueue(),
 			"rabbitmq_user":     dataSourcesUser(),
 			"rabbitmq_vhost":    dataSourcesVhost(),
 		},

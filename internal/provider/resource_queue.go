@@ -81,6 +81,12 @@ func resourceQueue() *schema.Resource {
 					},
 				},
 			},
+
+			"type": {
+				Description: "The queue type created. The value are `classic`, `quorum` or `stream`.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 		},
 	}
 }
@@ -144,13 +150,33 @@ func ReadQueue(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("name", queueSettings.Name)
 	d.Set("vhost", queueSettings.Vhost)
+	d.Set("type", queueSettings.Type)
 
 	e := make(map[string]interface{})
 	e["durable"] = queueSettings.Durable
 	e["auto_delete"] = queueSettings.AutoDelete
 
-	// Remove the x-queue-type to keep a clean terraform plan
-	delete(queueSettings.Arguments, "x-queue-type")
+	// Check if "x-queue-type" was explicitly defined in Terraform configuration
+	xQueueTypeDefined := false
+	if args, ok := d.GetOk("settings.0.arguments"); ok {
+		argsMap := args.(map[string]interface{})
+		if _, exists := argsMap["x-queue-type"]; exists {
+			xQueueTypeDefined = true
+		}
+	}
+	if argsJson, ok := d.GetOk("settings.0.arguments_json"); ok {
+		var jsonArgs map[string]interface{}
+		if err := json.Unmarshal([]byte(argsJson.(string)), &jsonArgs); err == nil {
+			if _, exists := jsonArgs["x-queue-type"]; exists {
+				xQueueTypeDefined = true
+			}
+		}
+	}
+
+	// Delete "x-queue-type" if it was not defined in Terraform configuration to keep a clean terraform plan
+	if !xQueueTypeDefined {
+		delete(queueSettings.Arguments, "x-queue-type")
+	}
 
 	// The user may have used either `arguments` or `arguments_json` to populate this originally.
 	// We need to preserve that decision here so that a subsequent Terraform plan for the

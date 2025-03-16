@@ -3,6 +3,7 @@ package acceptance
 import (
 	"fmt"
 	"strconv"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -131,6 +132,13 @@ func (v *VhostResource) ErrorDefaultQueueTypeAttribute(data TestData) string {
 	}`, data.ResourceType, data.ResourceLabel, v.Name, v.DefaultQueueType)
 }
 
+func (v *VhostResource) DataSource(data TestData) string {
+	return fmt.Sprintf(`
+	data "%s" "%s" {
+		name = "%s"
+	}`, data.ResourceType, data.ResourceLabel, v.Name)
+}
+
 func (v VhostResource) ExistsInRabbitMQ() error {
 
 	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
@@ -205,6 +213,25 @@ func (v VhostResource) ImportStateVerifyIgnore() []string {
 		return []string{}
 	} else {
 		return []string{"default_queue_type"}
+	}
+}
+
+func (v VhostResource) SetDataSourceVhost(t *testing.T) {
+	settings := rabbithole.VhostSettings{}
+	rmqc := TestAcc.Client(t)
+
+	resp, err := rmqc.PutVhost(v.Name, settings)
+	if err != nil || resp.StatusCode >= 400 {
+		t.Errorf("Failed to init the test!")
+	}
+}
+
+func (v VhostResource) DelDataSourceVhost(t *testing.T) {
+	rmqc := TestAcc.Client(t)
+
+	resp, err := rmqc.DeleteVhost(v.Name)
+	if err != nil || resp.StatusCode >= 400 {
+		t.Errorf("Failed to reset the test!")
 	}
 }
 
