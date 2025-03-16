@@ -2,10 +2,12 @@ package acceptance
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	"golang.org/x/mod/semver"
 )
 
 type QueueResource struct {
@@ -217,5 +219,12 @@ func (q QueueResource) CheckDestroy() resource.TestCheckFunc {
 		}
 
 		return nil
+	}
+}
+
+// The 'default_queue_type' settings, for a virtual host, is implemented since RabbitMQ 3.10.
+func (q QueueResource) SkipTestVhostDefaultQueueType(t *testing.T) {
+	if semver.Compare("v"+TestAcc.Version, "v3.10") < 0 {
+		t.Skip("Skipping testing: 'default_queue_type' settings (for a virtual host) is implemented since RabbitMQ 3.10!")
 	}
 }

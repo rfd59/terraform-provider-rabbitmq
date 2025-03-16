@@ -150,6 +150,9 @@ func TestAccQueue_VhostDefaultQueueType(t *testing.T) {
 	data := acceptance.BuildTestData("rabbitmq_queue", "test")
 	r := acceptance.QueueResource{Name: data.RandomString(), Vhost: data.RandomString(), Durable: true}
 
+	// Skip the test for RabbitMQ 3.8 & 3.9 : the default queue type is not implemented
+	r.SkipTestVhostDefaultQueueType(t)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
 		Providers:    acceptance.TestAcc.Providers,
