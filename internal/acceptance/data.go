@@ -71,18 +71,18 @@ func (td *TestData) BuildArrayString(array []string) string {
 	return fmt.Sprintf("[%s]", str)
 }
 
-func (td *TestData) RandomIntOfLength(len int) int {
-	return rand.Intn(len)
+func (td *TestData) RandomIntOfLength(length int) int {
+	return rand.Intn(length)
 }
 
 // RandomStringOfLength is a random 1 to 1024 character string which is unique to this test case
-func (td *TestData) RandomStringOfLength(len int) string {
+func (td *TestData) RandomStringOfLength(length int) string {
 	// len should not be less then 1 or greater than 1024
-	if 1 > len || len > 1024 {
+	if 1 > length || length > 1024 {
 		panic("Invalid Test: RandomStringOfLength: length argument must be between 1 and 1024 characters")
 	}
 
-	return randString(len)
+	return randString(length)
 }
 
 // randString generates a random alphanumeric string of the length specified

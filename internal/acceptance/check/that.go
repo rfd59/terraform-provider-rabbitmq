@@ -43,16 +43,16 @@ func (t thatType) Exists() resource.TestCheckFunc {
 }
 
 // // ExistsInAzure validates that the specified resource exists within Azure
-func (t thatType) ExistsInRabbitMQ(any interface{}) resource.TestCheckFunc {
+func (t thatType) ExistsInRabbitMQ(r interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if strings.HasPrefix(t.resourceName, "rabbitmq_user.") {
-			return any.(acceptance.UserResource).ExistsInRabbitMQ()
+			return r.(acceptance.UserResource).ExistsInRabbitMQ()
 		}
 		if strings.HasPrefix(t.resourceName, "rabbitmq_vhost.") {
-			return any.(acceptance.VhostResource).ExistsInRabbitMQ()
+			return r.(acceptance.VhostResource).ExistsInRabbitMQ()
 		}
 		if strings.HasPrefix(t.resourceName, "rabbitmq_queue.") {
-			return any.(acceptance.QueueResource).ExistsInRabbitMQ()
+			return r.(acceptance.QueueResource).ExistsInRabbitMQ()
 		}
 		return fmt.Errorf("'ExistsInRabbitMQ' method not found for this resource!!!")
 	}

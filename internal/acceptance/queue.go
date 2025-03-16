@@ -171,9 +171,10 @@ func (q QueueResource) ExistsInRabbitMQ() error {
 	if myQueue.Durable != q.Durable {
 		return fmt.Errorf("queue durable is not equal. Actual: '%t' Expected: %t", myQueue.Durable, q.Durable)
 	}
-	if myQueue.Status != "running" {
-		return fmt.Errorf("queue status is not running. Actual: '%s'", myQueue.Status)
-	}
+	// Comment this check because for RabbitMQ < 3.13, the state is set some seconds after to have created the queue.
+	// if myQueue.Status != "running" {
+	// 	return fmt.Errorf("queue status is not running. Actual: '%s'", myQueue.Status)
+	// }
 	if len(q.Arguments) != 0 {
 		if len(myQueue.Arguments) != len(q.Arguments) {
 			return fmt.Errorf("queue arguments length is not equal. Actual: '%d' Expected: %d [%v]", len(myQueue.Arguments), len(q.Arguments), myQueue.Arguments)

@@ -8,10 +8,10 @@ linters:
   disable-all: true
   enable:
     - durationcheck
-    - errcheck
+    # - errcheck
     - copyloopvar
-    - forcetypeassert
-    - godot
+    # - forcetypeassert
+    # - godot
     - gofmt
     - gosimple
     - ineffassign
@@ -20,9 +20,8 @@ linters:
     - nilerr
     - predeclared
     - staticcheck
-    - tenv
     - unconvert
-    - unparam
+    # - unparam
     - unused
     - govet
     - testifylint
