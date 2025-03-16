@@ -154,6 +154,13 @@ func (q *QueueResource) AlredayExist(data TestData) string {
 	`, data.ResourceType, data.ResourceLabel, q.Name, data.ResourceType, q.Name)
 }
 
+func (q *QueueResource) DataSource(data TestData) string {
+	return fmt.Sprintf(`
+	data "%s" "%s" {
+		name = "%s"
+	}`, data.ResourceType, data.ResourceLabel, q.Name)
+}
+
 func (q QueueResource) ExistsInRabbitMQ() error {
 	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
 	myQueue, err := rmqc.GetQueue(q.Vhost, q.Name)
@@ -209,7 +216,7 @@ func (q QueueResource) CheckQueueTypeInRabbitMQ(queue_type string) resource.Test
 func (q QueueResource) CheckDestroy() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
-		vhost, err := rmqc.GetQueue("/", q.Name)
+		vhost, err := rmqc.GetQueue(q.Vhost, q.Name)
 		if err != nil && err.(rabbithole.ErrorResponse).StatusCode != 404 {
 			return fmt.Errorf("error retrieving queue '%s@%s': %#v", q.Name, q.Vhost, err)
 		}
@@ -219,6 +226,25 @@ func (q QueueResource) CheckDestroy() resource.TestCheckFunc {
 		}
 
 		return nil
+	}
+}
+
+func (q QueueResource) SetDataSourceQueue(t *testing.T) {
+	info := rabbithole.QueueSettings{}
+	rmqc := TestAcc.Client(t)
+
+	resp, err := rmqc.DeclareQueue(q.Vhost, q.Name, info)
+	if err != nil || resp.StatusCode >= 400 {
+		t.Errorf("Failed to init the test!")
+	}
+}
+
+func (q QueueResource) DelDataSourceQueue(t *testing.T) {
+	rmqc := TestAcc.Client(t)
+
+	resp, err := rmqc.DeleteQueue(q.Vhost, q.Name)
+	if err != nil || resp.StatusCode >= 400 {
+		t.Errorf("Failed to reset the test!")
 	}
 }
 

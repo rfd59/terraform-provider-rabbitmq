@@ -26,6 +26,17 @@ func init() {
 }
 
 func (RMQ) PreCheck(t *testing.T) {
+	rmqc := TestAcc.Client(t)
+
+	overview, _ := rmqc.Overview()
+	TestAcc.Version = overview.RabbitMQVersion
+}
+
+func (RMQ) ValidFeature(miniVersion string) bool {
+	return semver.Compare("v"+TestAcc.Version, "v"+miniVersion) >= 0
+}
+
+func (RMQ) Client(t *testing.T) *rabbithole.Client {
 	for _, name := range []string{"RABBITMQ_ENDPOINT", "RABBITMQ_USERNAME", "RABBITMQ_PASSWORD"} {
 		if v := os.Getenv(name); v == "" {
 			t.Fatal("RABBITMQ_ENDPOINT, RABBITMQ_USERNAME and RABBITMQ_PASSWORD must be set for acceptance tests")
@@ -37,10 +48,5 @@ func (RMQ) PreCheck(t *testing.T) {
 		t.Fatal("Can't connect to RabbitMQ!")
 	}
 
-	overview, _ := rmqc.Overview()
-	TestAcc.Version = overview.RabbitMQVersion
-}
-
-func (RMQ) ValidFeature(miniVersion string) bool {
-	return semver.Compare("v"+TestAcc.Version, "v"+miniVersion) >= 0
+	return rmqc
 }
