@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"time"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
 
@@ -60,6 +61,18 @@ func dataSourcesReadQueue(ctx context.Context, d *schema.ResourceData, meta inte
 	d.Set("name", queue.Name)
 	d.Set("vhost", queue.Vhost)
 	d.Set("type", queue.Type)
+
+	// If the queue is just created, waitting some seconds to have the status
+	i := 0
+	for {
+		if queue.Status != "" || i >= 10 {
+			break
+		}
+		time.Sleep(time.Second)
+		i++
+		queue, _ = rmqc.GetQueue(vhost, name)
+	}
+
 	d.Set("status", queue.Status)
 
 	d.SetId(fmt.Sprintf("%s@%s", name, vhost))

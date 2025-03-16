@@ -34,7 +34,7 @@ func TestAccQueue_DataSource(t *testing.T) {
 					check.That("data."+data.ResourceName).Key("name").HasValue(r.Name),
 					check.That("data."+data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That("data."+data.ResourceName).Key("type").HasValue("classic"),
-					check.That("data."+data.ResourceName).Key("status").IsNotEmpty(),
+					check.That("data."+data.ResourceName).Key("status").HasValue("running"),
 				),
 			},
 		},
