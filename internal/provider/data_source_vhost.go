@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"log"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
 
@@ -37,10 +36,8 @@ func dataSourcesReadVhost(ctx context.Context, d *schema.ResourceData, meta inte
 
 	vhost, err := rmqc.GetVhost(name)
 	if err != nil {
-		return diag.FromErr(checkDeleted(d, err))
+		return diag.Errorf("vhost '%s' is not found: %#v", name, err)
 	}
-
-	log.Printf("[DEBUG] RabbitMQ: Vhost retrieved: %#v", vhost)
 
 	d.Set("name", vhost.Name)
 
