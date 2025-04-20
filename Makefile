@@ -11,6 +11,9 @@ build: download
 install:
 	go install
 
+lint:
+	golangci-lint run
+
 test: build
 	go test -cover ./rabbitmq
 
@@ -32,4 +35,4 @@ vet:
 		exit 1; \
 	fi
 
-.PHONY: download build install test testacc vet
+.PHONY: download build install lint test testacc vet

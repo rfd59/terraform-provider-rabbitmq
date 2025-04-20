@@ -1,104 +1,229 @@
 package provider_test
 
 import (
-	"fmt"
-	"strings"
+	"regexp"
+	"strconv"
 	"testing"
 
-	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
 	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance/check"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccExchange(t *testing.T) {
-	var exchangeInfo rabbithole.ExchangeInfo
+func TestAccExchange_Required(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_exchange", "test")
+	r := acceptance.ExchangeResource{Name: data.RandomString(), Vhost: "/", Settings: acceptance.ExchangeSettings{Type: "direct", Durable: true}}
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
 		Providers:    acceptance.TestAcc.Providers,
-		CheckDestroy: testAccExchangeCheckDestroy(&exchangeInfo),
+		CheckDestroy: r.CheckDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccExchangeConfig_basic,
-				Check: testAccExchangeCheck(
-					"rabbitmq_exchange.test", &exchangeInfo,
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").IsNotEmpty(),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
+					check.That(data.ResourceName).Key("settings").Count(1),
+					check.That(data.ResourceName).Key("settings.0.type").HasValue(r.Settings.Type),
+					check.That(data.ResourceName).Key("settings.0.durable").HasValue(strconv.FormatBool(r.Settings.Durable)),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").HasValue(strconv.FormatBool(r.Settings.AutoDelete)),
+					check.That(data.ResourceName).Key("settings.0.internal").HasValue(strconv.FormatBool(r.Settings.Internal)),
+					check.That(data.ResourceName).Key("settings.0.alternate_exchange").IsEmpty(),
+					check.That(data.ResourceName).Key("settings.0.arguments").DoesNotExist(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.RequiredUpdate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").IsNotEmpty(),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
+					check.That(data.ResourceName).Key("settings").Count(1),
+					check.That(data.ResourceName).Key("settings.0.type").HasValue(r.Settings.Type),
+					check.That(data.ResourceName).Key("settings.0.durable").HasValue(strconv.FormatBool(r.Settings.Durable)),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").HasValue(strconv.FormatBool(r.Settings.AutoDelete)),
+					check.That(data.ResourceName).Key("settings.0.internal").HasValue(strconv.FormatBool(r.Settings.Internal)),
+					check.That(data.ResourceName).Key("settings.0.alternate_exchange").IsEmpty(),
+					check.That(data.ResourceName).Key("settings.0.arguments").DoesNotExist(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
 				),
 			},
 		},
 	})
 }
 
-func testAccExchangeCheck(rn string, exchangeInfo *rabbithole.ExchangeInfo) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[rn]
-		if !ok {
-			return fmt.Errorf("resource not found: %s", rn)
-		}
+func TestAccExchange_Optional(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_exchange", "test")
+	r := acceptance.ExchangeResource{Name: data.RandomString(), Vhost: data.RandomString(), Settings: acceptance.ExchangeSettings{Type: "topic", Durable: false, AutoDelete: true, Internal: true, AlternateExchange: data.RandomString()}}
 
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("exchange id not set")
-		}
-
-		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
-		exchParts := strings.Split(rs.Primary.ID, "@")
-
-		exchanges, err := rmqc.ListExchangesIn(exchParts[1])
-		if err != nil {
-			return fmt.Errorf("Error retrieving exchange: %s", err)
-		}
-
-		for _, exchange := range exchanges {
-			if exchange.Name == exchParts[0] && exchange.Vhost == exchParts[1] {
-				exchangeInfo = &exchange
-				return nil
-			}
-		}
-
-		return fmt.Errorf("Unable to find exchange %s", rn)
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.OptionalCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").IsNotEmpty(),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
+					check.That(data.ResourceName).Key("settings").Count(1),
+					check.That(data.ResourceName).Key("settings.0.type").HasValue(r.Settings.Type),
+					check.That(data.ResourceName).Key("settings.0.durable").HasValue(strconv.FormatBool(r.Settings.Durable)),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").HasValue(strconv.FormatBool(r.Settings.AutoDelete)),
+					check.That(data.ResourceName).Key("settings.0.internal").HasValue(strconv.FormatBool(r.Settings.Internal)),
+					check.That(data.ResourceName).Key("settings.0.alternate_exchange").HasValue(r.Settings.AlternateExchange),
+					check.That(data.ResourceName).Key("settings.0.arguments").DoesNotExist(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config: r.OptionalUpdate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").IsNotEmpty(),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
+					check.That(data.ResourceName).Key("settings").Count(1),
+					check.That(data.ResourceName).Key("settings.0.type").HasValue(r.Settings.Type),
+					check.That(data.ResourceName).Key("settings.0.durable").HasValue(strconv.FormatBool(r.Settings.Durable)),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").HasValue(strconv.FormatBool(r.Settings.AutoDelete)),
+					check.That(data.ResourceName).Key("settings.0.internal").HasValue(strconv.FormatBool(r.Settings.Internal)),
+					check.That(data.ResourceName).Key("settings.0.alternate_exchange").HasValue(r.Settings.AlternateExchange),
+					check.That(data.ResourceName).Key("settings.0.arguments").DoesNotExist(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+		},
+	})
 }
 
-func testAccExchangeCheckDestroy(exchangeInfo *rabbithole.ExchangeInfo) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
+func TestAccExchange_Arguments(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_exchange", "test")
+	r := acceptance.ExchangeResource{Name: data.RandomString(), Vhost: "/", Settings: acceptance.ExchangeSettings{Type: "direct", Durable: true, Arguments: map[string]interface{}{"key1": data.RandomString()}}}
 
-		exchanges, err := rmqc.ListExchangesIn(exchangeInfo.Vhost)
-		if err != nil {
-			return fmt.Errorf("Error retrieving exchange: %s", err)
-		}
-
-		for _, exchange := range exchanges {
-			if exchange.Name == exchangeInfo.Name && exchange.Vhost == exchangeInfo.Vhost {
-				return fmt.Errorf("Exchange %s@%s still exist", exchangeInfo.Name, exchangeInfo.Vhost)
-			}
-		}
-
-		return nil
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.OptionalArguments(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).Key("id").IsNotEmpty(),
+					check.That(data.ResourceName).Key("name").HasValue(r.Name),
+					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
+					check.That(data.ResourceName).Key("settings").Count(1),
+					check.That(data.ResourceName).Key("settings.0.type").HasValue(r.Settings.Type),
+					check.That(data.ResourceName).Key("settings.0.durable").HasValue(strconv.FormatBool(r.Settings.Durable)),
+					check.That(data.ResourceName).Key("settings.0.auto_delete").HasValue(strconv.FormatBool(r.Settings.AutoDelete)),
+					check.That(data.ResourceName).Key("settings.0.internal").HasValue(strconv.FormatBool(r.Settings.Internal)),
+					check.That(data.ResourceName).Key("settings.0.alternate_exchange").HasValue(r.Settings.AlternateExchange),
+					check.That(data.ResourceName).Key("settings.0.arguments.%").IsNotEmpty(),
+					check.That(data.ResourceName).Key("settings.0.arguments.key1").HasValue(r.Settings.Arguments["key1"].(string)),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+		},
+	})
 }
 
-const testAccExchangeConfig_basic = `
-resource "rabbitmq_vhost" "test" {
-    name = "test"
+func TestAccExchange_ErrorSettingsBlock(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_exchange", "test")
+	r := acceptance.ExchangeResource{Name: data.RandomString()}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorSettingsBlockStep1(data),
+				ExpectError: regexp.MustCompile("Insufficient settings blocks"),
+			},
+			{
+				Config:      r.ErrorSettingsBlockStep2(data),
+				ExpectError: regexp.MustCompile("Too many settings blocks"),
+			},
+		},
+	})
 }
 
-resource "rabbitmq_permissions" "guest" {
-    user = "guest"
-    vhost = "${rabbitmq_vhost.test.name}"
-    permissions {
-        configure = ".*"
-        write = ".*"
-        read = ".*"
-    }
+func TestAccExchange_ErrorVhostNotExist(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_exchange", "test")
+	r := acceptance.ExchangeResource{Name: data.RandomString(), Vhost: data.RandomString()}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.ErrorVhostNotExist(data),
+				ExpectError: regexp.MustCompile("vhost_not_found"),
+			},
+		},
+	})
 }
 
-resource "rabbitmq_exchange" "test" {
-    name = "test"
-    vhost = "${rabbitmq_permissions.guest.vhost}"
-    settings {
-        type = "fanout"
-        durable = false
-        auto_delete = true
-    }
-}`
+func TestAccExchange_AlredayExist(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_exchange", "test")
+	r := acceptance.ExchangeResource{Name: data.RandomString(), Vhost: "/", Settings: acceptance.ExchangeSettings{Type: "direct", Durable: true}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				Config:      r.ErrorAlredayExist(data),
+				ExpectError: regexp.MustCompile("exchange already exists"),
+			},
+		},
+	})
+}
+
+func TestAccExchange_ImportRequired(t *testing.T) {
+	data := acceptance.BuildTestData("rabbitmq_exchange", "test")
+	r := acceptance.ExchangeResource{Name: data.RandomString(), Vhost: "/", Settings: acceptance.ExchangeSettings{Type: "direct", Durable: true}}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance.TestAcc.PreCheck(t) },
+		Providers:    acceptance.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: r.RequiredCreate(data),
+				Check: resource.ComposeTestCheckFunc(
+					check.That(data.ResourceName).Exists(),
+					check.That(data.ResourceName).ExistsInRabbitMQ(r),
+				),
+			},
+			{
+				ResourceName:      data.ResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}

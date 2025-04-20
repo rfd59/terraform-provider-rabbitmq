@@ -2,11 +2,11 @@ package provider
 
 import (
 	"fmt"
-	"log"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceExchange() *schema.Resource {
@@ -44,23 +44,43 @@ func resourceExchange() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Description: "The type of exchange.",
-							Type:        schema.TypeString,
-							Required:    true,
+							Description:  "The type of exchange. Possible values are `direct`, `fanout`, `headers` and `topic`. Defaults to `direct`.",
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Default:      "direct",
+							ValidateFunc: validation.StringInSlice([]string{"direct", "fanout", "headers", "topic"}, true),
 						},
 
 						"durable": {
-							Description: "Whether the exchange survives server restarts. Defaults to `false`.",
+							Description: "Whether the exchange survives server restarts. Defaults to `true`.",
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Default:     false,
+							ForceNew:    true,
+							Default:     true,
 						},
 
 						"auto_delete": {
-							Description: "Whether the exchange will self-delete when all queues have finished using it. Defaults to `false`.",
+							Description: "If `true`, the exchange will delete itself after at least one queue or exchange has been bound to this one, and then all queues or exchanges have been unbound. Defaults to `false`.",
 							Type:        schema.TypeBool,
 							Optional:    true,
+							ForceNew:    true,
 							Default:     false,
+						},
+
+						"internal": {
+							Description: "If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings. Defaults to `false`.",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							ForceNew:    true,
+							Default:     false,
+						},
+
+						"alternate_exchange": {
+							Description: "If messages to this exchange cannot otherwise be routed, send them to the alternate exchange named here.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
 						},
 
 						"arguments": {
@@ -84,17 +104,11 @@ func CreateExchange(d *schema.ResourceData, meta interface{}) error {
 	// Check if already exists
 	_, not_found := rmqc.GetExchange(vhost, name)
 	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ exchange '%s': exchange already exists", name)
+		return fmt.Errorf("error creating RabbitMQ exchange '%s': exchange already exists", name)
 	}
 
-	settingsList := d.Get("settings").([]interface{})
-
-	settingsMap, ok := settingsList[0].(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("Unable to parse settings")
-	}
-
-	if err := declareExchange(rmqc, vhost, name, settingsMap); err != nil {
+	settings := d.Get("settings").([]interface{})[0].(map[string]interface{})
+	if err := declareExchange(rmqc, vhost, name, settings); err != nil {
 		return err
 	}
 
@@ -117,19 +131,22 @@ func ReadExchange(d *schema.ResourceData, meta interface{}) error {
 		return checkDeleted(d, err)
 	}
 
-	log.Printf("[DEBUG] RabbitMQ: Exchange retrieved %s: %#v", d.Id(), exchangeSettings)
-
 	d.Set("name", exchangeSettings.Name)
 	d.Set("vhost", exchangeSettings.Vhost)
 
-	exchange := make([]map[string]interface{}, 1)
-	e := make(map[string]interface{})
-	e["type"] = exchangeSettings.Type
-	e["durable"] = exchangeSettings.Durable
-	e["auto_delete"] = exchangeSettings.AutoDelete
-	e["arguments"] = exchangeSettings.Arguments
-	exchange[0] = e
-	d.Set("settings", exchange)
+	settingsList := make([]map[string]interface{}, 1)
+
+	settings := make(map[string]interface{})
+	settings["type"] = exchangeSettings.Type
+	settings["durable"] = exchangeSettings.Durable
+	settings["auto_delete"] = exchangeSettings.AutoDelete
+	settings["internal"] = exchangeSettings.Internal
+	settings["alternate_exchange"] = exchangeSettings.Arguments["alternate-exchange"]
+	delete(exchangeSettings.Arguments, "alternate-exchange")
+	settings["arguments"] = exchangeSettings.Arguments
+
+	settingsList[0] = settings
+	d.Set("settings", settingsList)
 
 	return nil
 }
@@ -142,55 +159,44 @@ func DeleteExchange(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to delete exchange %s", d.Id())
-
 	resp, err := rmqc.DeleteExchange(vhost, name)
-	log.Printf("[DEBUG] RabbitMQ: Exchange delete response: %#v", resp)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode == 404 {
-		// The exchange was automatically deleted
-		return nil
-	}
-
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ exchange '%s': %s", name, resp.Status)
+	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
+		return failApiResponse(err, resp, "deleting", "exchange")
 	}
 
 	return nil
 }
 
-func declareExchange(rmqc *rabbithole.Client, vhost string, name string, settingsMap map[string]interface{}) error {
+func declareExchange(rmqc *rabbithole.Client, vhost string, name string, settings map[string]interface{}) error {
 	exchangeSettings := rabbithole.ExchangeSettings{}
 
-	if v, ok := settingsMap["type"].(string); ok {
+	if v, ok := settings["type"].(string); ok {
 		exchangeSettings.Type = v
 	}
 
-	if v, ok := settingsMap["durable"].(bool); ok {
+	if v, ok := settings["durable"].(bool); ok {
 		exchangeSettings.Durable = v
 	}
 
-	if v, ok := settingsMap["auto_delete"].(bool); ok {
+	if v, ok := settings["auto_delete"].(bool); ok {
 		exchangeSettings.AutoDelete = v
 	}
 
-	if v, ok := settingsMap["arguments"].(map[string]interface{}); ok {
+	if v, ok := settings["internal"].(bool); ok {
+		exchangeSettings.Internal = v
+	}
+
+	if v, ok := settings["arguments"].(map[string]interface{}); ok {
 		exchangeSettings.Arguments = v
 	}
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to declare exchange %s@%s: %#v", name, vhost, exchangeSettings)
-
-	resp, err := rmqc.DeclareExchange(vhost, name, exchangeSettings)
-	log.Printf("[DEBUG] RabbitMQ: Exchange declare response: %#v", resp)
-	if err != nil {
-		return err
+	if v, ok := settings["alternate_exchange"].(string); ok && len(v) > 0 {
+		exchangeSettings.Arguments["alternate-exchange"] = v
 	}
 
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error declaring RabbitMQ exchange '%s': %s", name, resp.Status)
+	resp, err := rmqc.DeclareExchange(vhost, name, exchangeSettings)
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "creating", "exchange")
 	}
 
 	return nil

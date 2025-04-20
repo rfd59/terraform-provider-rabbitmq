@@ -54,6 +54,9 @@ func (t thatType) ExistsInRabbitMQ(r interface{}) resource.TestCheckFunc {
 		if strings.HasPrefix(t.resourceName, "rabbitmq_queue.") {
 			return r.(acceptance.QueueResource).ExistsInRabbitMQ()
 		}
+		if strings.HasPrefix(t.resourceName, "rabbitmq_exchange.") {
+			return r.(acceptance.ExchangeResource).ExistsInRabbitMQ()
+		}
 		return fmt.Errorf("'ExistsInRabbitMQ' method not found for this resource!!!")
 	}
 }

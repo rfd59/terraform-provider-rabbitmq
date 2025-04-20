@@ -33,14 +33,16 @@ data "rabbitmq_exchange" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `settings` (List of Object) The settings of the exchange. The structure is described below. (see [below for nested schema](#nestedatt--settings))
+- `settings` (List of Object) The settings of the exchange. (see [below for nested schema](#nestedatt--settings))
 
 <a id="nestedatt--settings"></a>
 ### Nested Schema for `settings`
 
 Read-Only:
 
+- `alternate_exchange` (String)
 - `arguments` (Map of String)
 - `auto_delete` (Boolean)
 - `durable` (Boolean)
+- `internal` (Boolean)
 - `type` (String)
