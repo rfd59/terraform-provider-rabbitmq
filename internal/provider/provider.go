@@ -35,7 +35,7 @@ func New() *schema.Provider {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 					if value == "" {
-						errors = append(errors, fmt.Errorf("Endpoint must not be an empty string"))
+						errors = append(errors, fmt.Errorf("endpoint must not be an empty string"))
 					}
 
 					return
@@ -50,7 +50,7 @@ func New() *schema.Provider {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 					if value == "" {
-						errors = append(errors, fmt.Errorf("Username must not be an empty string"))
+						errors = append(errors, fmt.Errorf("username must not be an empty string"))
 					}
 
 					return
@@ -65,7 +65,7 @@ func New() *schema.Provider {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 					if value == "" {
-						errors = append(errors, fmt.Errorf("Password must not be an empty string"))
+						errors = append(errors, fmt.Errorf("password must not be an empty string"))
 					}
 
 					return

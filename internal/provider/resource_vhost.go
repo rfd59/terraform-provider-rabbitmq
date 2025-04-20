@@ -91,7 +91,7 @@ func CreateVhost(d *schema.ResourceData, meta interface{}) error {
 	// Check if already exists
 	_, not_found := rmqc.GetVhost(vhost)
 	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ vhost '%s': vhost already exists", vhost)
+		return fmt.Errorf("error creating RabbitMQ vhost '%s': vhost already exists", vhost)
 	}
 
 	var settings rabbithole.VhostSettings
