@@ -36,7 +36,7 @@ func resourceExchange() *schema.Resource {
 			},
 
 			"settings": {
-				Description: "The settings of the exchange. The structure is described below.",
+				Description: "The settings of the exchange.",
 				Type:        schema.TypeList,
 				Required:    true,
 				ForceNew:    true,

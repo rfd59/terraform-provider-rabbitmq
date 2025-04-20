@@ -55,7 +55,7 @@ func dataSourcesExchange() *schema.Resource {
 						},
 
 						"internal": {
-							Description: "If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings. Defaults to `false`.",
+							Description: "If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings.",
 							Type:        schema.TypeBool,
 							Computed:    true,
 						},

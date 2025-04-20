@@ -37,7 +37,7 @@ resource "rabbitmq_exchange" "example" {
 ### Required
 
 - `name` (String) The name of the exchange.
-- `settings` (Block List, Min: 1, Max: 1) The settings of the exchange. The structure is described below. (see [below for nested schema](#nestedblock--settings))
+- `settings` (Block List, Min: 1, Max: 1) The settings of the exchange. (see [below for nested schema](#nestedblock--settings))
 
 ### Optional
 
@@ -58,3 +58,12 @@ Optional:
 - `durable` (Boolean) Whether the exchange survives server restarts. Defaults to `true`.
 - `internal` (Boolean) If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings. Defaults to `false`.
 - `type` (String) The type of exchange. Possible values are `direct`, `fanout`, `headers` and `topic`. Defaults to `direct`.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# Exchange can be imported by specifying its name and its vhost (with a '@' between the both value).
+terraform import rabbitmq_exchange.example myexchange@myvhost
+```
