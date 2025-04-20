@@ -21,6 +21,7 @@ func TestAccQueue_DataSource(t *testing.T) {
 
 	// Create a queue to test the datasource
 	r.SetDataSourceQueue(t)
+	defer r.DelDataSourceQueue(t)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { acceptance.TestAcc.PreCheck(t) },
@@ -30,7 +31,7 @@ func TestAccQueue_DataSource(t *testing.T) {
 				Config: r.DataSource(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That("data."+data.ResourceName).Exists(),
-					check.That("data."+data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That("data."+data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That("data."+data.ResourceName).Key("name").HasValue(r.Name),
 					check.That("data."+data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That("data."+data.ResourceName).Key("type").HasValue("classic"),
@@ -39,9 +40,6 @@ func TestAccQueue_DataSource(t *testing.T) {
 			},
 		},
 	})
-
-	// Remove the test queue
-	r.DelDataSourceQueue(t)
 }
 
 func TestAccQueue_DataSourceNotExist(t *testing.T) {
