@@ -56,6 +56,9 @@ Optional:
 - `arguments` (Map of String) Additional key/value settings for the exchange.
 - `auto_delete` (Boolean) If `true`, the exchange will delete itself after at least one queue or exchange has been bound to this one, and then all queues or exchanges have been unbound. Defaults to `false`.
 - `durable` (Boolean) Whether the exchange survives server restarts. Defaults to `true`.
+  
+~> The default value of `durable` field has been updated since version **2.5.0**. Before it was `false`!
+
 - `internal` (Boolean) If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings. Defaults to `false`.
 - `type` (String) The type of exchange. Possible values are `direct`, `fanout`, `headers` and `topic`. Defaults to `direct`.
 
