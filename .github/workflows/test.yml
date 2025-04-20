@@ -3,6 +3,7 @@ name: Tests
 on:
   push:
     branches:
+    - '**'        # matches every branch
     - '!master'   # excludes master
   pull_request:
 
