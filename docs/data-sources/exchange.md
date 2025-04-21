@@ -15,7 +15,8 @@ Use this data source to access information about an existing _exchange_.
 ```terraform
 # Read the exchange settings
 data "rabbitmq_exchange" "example" {
-  name                = "myexchange"
+  name  = "myexchange"
+  vhost = "myvhost"
 }
 ```
 
@@ -33,14 +34,16 @@ data "rabbitmq_exchange" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `settings` (List of Object) The settings of the exchange. The structure is described below. (see [below for nested schema](#nestedatt--settings))
+- `settings` (List of Object) The settings of the exchange. (see [below for nested schema](#nestedatt--settings))
 
 <a id="nestedatt--settings"></a>
 ### Nested Schema for `settings`
 
 Read-Only:
 
-- `arguments` (Map of String)
-- `auto_delete` (Boolean)
-- `durable` (Boolean)
-- `type` (String)
+- `alternate_exchange` (String) If messages to this exchange cannot otherwise be routed, send them to the alternate exchange named here.
+- `arguments` (Map of String) Additional key/value settings for the exchange.
+- `auto_delete` (Boolean) If `true`, the exchange will delete itself after at least one queue or exchange has been bound to this one, and then all queues or exchanges have been unbound.
+- `durable` (Boolean) Whether the exchange survives server restarts.
+- `internal` (Boolean) If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings.
+- `type` (String) The type of exchange. Possible values are `direct`, `fanout`, `headers` and `topic`.

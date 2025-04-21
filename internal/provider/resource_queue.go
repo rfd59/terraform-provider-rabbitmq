@@ -3,12 +3,11 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
 )
 
 func resourceQueue() *schema.Resource {
@@ -100,14 +99,14 @@ func CreateQueue(d *schema.ResourceData, meta interface{}) error {
 	// Check if already exists
 	_, not_found := rmqc.GetQueue(vhost, name)
 	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ queue '%s': queue already exists", name)
+		return fmt.Errorf("error creating RabbitMQ queue '%s': queue already exists", name)
 	}
 
 	settingsList := d.Get("settings").([]interface{})
 
 	settingsMap, ok := settingsList[0].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("Unable to parse settings")
+		return fmt.Errorf("unable to parse settings")
 	}
 
 	// If arguments_json is used, unmarshal it into a generic interface
@@ -145,8 +144,6 @@ func ReadQueue(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return checkDeleted(d, err)
 	}
-
-	log.Printf("[DEBUG] RabbitMQ: Queue retrieved for %s: %#v", d.Id(), queueSettings)
 
 	d.Set("name", queueSettings.Name)
 	d.Set("vhost", queueSettings.Vhost)
@@ -210,21 +207,9 @@ func DeleteQueue(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to delete queue for %s", d.Id())
-
 	resp, err := rmqc.DeleteQueue(vhost, name)
-	log.Printf("[DEBUG] RabbitMQ: Queue delete response: %#v", resp)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode == 404 {
-		// the queue was automatically deleted
-		return nil
-	}
-
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ queue '%s': %s", name, resp.Status)
+	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
+		return failApiResponse(err, resp, "deleting", "queue")
 	}
 
 	return nil
@@ -245,16 +230,9 @@ func declareQueue(rmqc *rabbithole.Client, vhost string, name string, settingsMa
 		queueSettings.Arguments = v
 	}
 
-	log.Printf("[DEBUG] RabbitMQ: Attempting to declare queue for %s@%s: %#v", name, vhost, queueSettings)
-
 	resp, err := rmqc.DeclareQueue(vhost, name, queueSettings)
-	log.Printf("[DEBUG] RabbitMQ: Queue declare response: %#v", resp)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error declaring RabbitMQ queue '%s': %s", name, resp.Status)
+	if err != nil || resp.StatusCode >= 400 {
+		return failApiResponse(err, resp, "creating", "queue")
 	}
 
 	return nil

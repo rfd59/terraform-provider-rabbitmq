@@ -23,7 +23,7 @@ func TestAccQueue_Required(t *testing.T) {
 				Config: r.RequiredCreate(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("type").HasValue("classic"),
@@ -50,7 +50,7 @@ func TestAccQueue_Optional(t *testing.T) {
 				Config: r.RequiredCreate(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("type").HasValue("classic"),
@@ -64,7 +64,7 @@ func TestAccQueue_Optional(t *testing.T) {
 				Config: r.OptionalUpdate(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
@@ -78,7 +78,7 @@ func TestAccQueue_Optional(t *testing.T) {
 				Config: r.OptionalUpdateArgument(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
@@ -92,7 +92,7 @@ func TestAccQueue_Optional(t *testing.T) {
 				Config: r.OptionalUpdateArgumentJson(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("settings.0.auto_delete").IsBool(r.AutoDelete),
@@ -119,7 +119,7 @@ func TestAccQueue_XQueueType(t *testing.T) {
 				Config: r.XQueueTypeArgument(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("type").HasValue("classic"),
@@ -165,7 +165,7 @@ func TestAccQueue_VhostDefaultQueueType(t *testing.T) {
 				Config: r.VhostDefaultQueueType_Step1(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("type").HasValue("quorum"),
@@ -177,7 +177,7 @@ func TestAccQueue_VhostDefaultQueueType(t *testing.T) {
 				Config: r.VhostDefaultQueueType_Step2(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).Key("type").HasValue("stream"),
@@ -202,7 +202,7 @@ func TestAccQueue_AlredayExist(t *testing.T) {
 				Config: r.RequiredCreate(data),
 				Check: resource.ComposeTestCheckFunc(
 					check.That(data.ResourceName).Exists(),
-					check.That(data.ResourceName).Key("id").MatchesRegex(regexp.MustCompile(r.Name+"@"+r.Vhost)),
+					check.That(data.ResourceName).Key("id").HasValue(r.Name+"@"+r.Vhost),
 					check.That(data.ResourceName).Key("name").HasValue(r.Name),
 					check.That(data.ResourceName).Key("vhost").HasValue(r.Vhost),
 					check.That(data.ResourceName).ExistsInRabbitMQ(r),

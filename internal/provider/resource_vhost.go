@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -91,7 +91,7 @@ func CreateVhost(d *schema.ResourceData, meta interface{}) error {
 	// Check if already exists
 	_, not_found := rmqc.GetVhost(vhost)
 	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ vhost '%s': vhost already exists", vhost)
+		return fmt.Errorf("error creating RabbitMQ vhost '%s': vhost already exists", vhost)
 	}
 
 	var settings rabbithole.VhostSettings

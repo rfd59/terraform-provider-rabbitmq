@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"testing"
 
-	rabbithole "github.com/michaelklishin/rabbit-hole/v2"
+	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
 	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
