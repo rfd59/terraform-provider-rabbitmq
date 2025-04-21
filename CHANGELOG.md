@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.5.0 (April 21, 2025)
+
+FEATURE:
+
+* Add `internal` and `alternate_exchange` fields for `rabbitmq_exchange` resource - @rfavreau
+
+* Modify the default value for `durable` field for `rabbitmq_exchange` resource - @rfavreau
+
+* Add an input check to `type` field for `rabbitmq_exchange` resource and set its optional - @rfavreau
+
+* Force the `rabbitmq_exchange` resource to be recreated when a field is updated - @rfavreau
+
+* Add `internal` and `alternate_exchange` fields for `rabbitmq_exchange` datasource - @rfavreau
+
+BUILD / DEV:
+
+* Update _rabbit-hole_ dependency - @rfavreau
+
+* Refactor `rabbitmq_queue` resource - @rfavreau
+
+* Add _RabbitMQ 4.1_ into unit tests - @rfavreau
+
+* Upgrade _resource_exchange_ unit tests - @rfavreau
+
+
 ## 2.4.0 (March 16, 2025)
 
 FEATURE:
