@@ -37,7 +37,7 @@ func dataSourcesExchange() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Description: "The type of exchange. Possible values are `direct`, `fanout`, `headers` and `topic`.",
+							Description: "The type of exchange. Possible values are `direct`, `fanout`, `headers`, `topic`, `x-consistent-hash`, `x-delayed-message` and `x-local-random`.",
 							Type:        schema.TypeString,
 							Computed:    true,
 						},
