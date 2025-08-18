@@ -1,15 +1,16 @@
-name: CI
+name: Build
 
 on:
   push:
-    branches:
-    - develop
-    - feature/.*
-    - '!master'   # excludes master
+    branches-ignore: 
+      - main
   pull_request:
+  workflow_dispatch: 
 
 jobs:
-  ContinousIntegration:
+
+  ci:
+    name: Continous Integration
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,16 +22,44 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       
-      - name: Download modules
-        run: go mod download
+      - name: Install dependencies
+        run: |
+          go mod download
+          go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
       
       - name: Build
         run: go build -v .
 
-      - name: Unit Testing
-        run: go test -v ./...
+      - name: Run Uniting-Tests
+        run: go test -json ./... > go-test.json
+      
+      - name: Publish Uniting-Tests
+        run: |
+            cat go-test.json | go-ctrf-json-reporter -output ctrf-report.json
+            npx github-actions-ctrf summary ctrf-report.json
+            npx github-actions-ctrf failed ctrf-report.json
+        if: always()
 
-      - name: Run linters
-        uses: golangci/golangci-lint-action@v6
+  cd-assets:
+    name: Continous Delivry - Assets
+    needs: ci
+    if: github.ref_name == 'develop' || github.event_name == 'pull_request' || github.event == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          version: latest
+          args: release --clean --snapshot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-linky
+          path: |
+            dist/*.tar.gz
+            dist/*.zip

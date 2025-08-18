@@ -1,0 +1,16 @@
+name: 'Check PR'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_branch:
+    name: Check PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check origin branch
+        if: github.head_ref != 'develop'
+        run: |
+          echo "::error::You can only merge to 'main' from 'develop'!" && exit 1

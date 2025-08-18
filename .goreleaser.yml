@@ -5,7 +5,6 @@
 # behavior.
 before:
   hooks:
-    # this is just an example and not a requirement for provider building/publishing
     - go mod tidy
 builds:
 - env:
@@ -53,11 +52,36 @@ signs:
       - "${signature}"
       - "--detach-sign"
       - "${artifact}"
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?bug(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: "Securities"
+      regexp: '^.*?dependabot(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^skip:"
+      - "^release:"
 release:
   extra_files:
     - glob: 'terraform-registry-manifest.json'
       name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
-changelog:
-  skip: true
+  footer: >-
+
+    ---
+
+    📦 The **RabbitMQ Provider** has been also uploaded into [Terraform Registry](https://registry.terraform.io/providers/rfd59/rabbitmq/latest/docs).
+

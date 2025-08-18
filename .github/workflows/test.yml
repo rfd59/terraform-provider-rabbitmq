@@ -2,10 +2,10 @@ name: Tests
 
 on:
   push:
-    branches:
-    - '**'        # matches every branch
-    - '!master'   # excludes master
+    branches-ignore: 
+      - main
   pull_request:
+  workflow_dispatch: 
 
 jobs:
   acceptance:
