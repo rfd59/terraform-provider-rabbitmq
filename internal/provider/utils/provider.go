@@ -29,7 +29,7 @@ func ParseResourceId(resourceId string) (name, vhost string, err error) {
 
 func FailApiResponse(err error, resp *http.Response, action string, name string) error {
 	if err != nil {
-		return fmt.Errorf("error %s RabbitMQ %s: %#v", action, name, err)
+		return fmt.Errorf("error %s RabbitMQ %s: %v", action, name, err)
 	} else {
 		return fmt.Errorf("error %s RabbitMQ %s: %s", action, name, resp.Status)
 	}
