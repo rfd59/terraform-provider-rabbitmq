@@ -9,6 +9,7 @@ import (
 )
 
 func resourceExchangeDelayedMessage() *schema.Resource {
+	// Load and customize the resource schema
 	mySchema := core.SchemaExchange()
 	mySchema["delayed_type"] = &schema.Schema{
 		Description:  "The type of delayed exchange. Possible values are `direct`, `fanout`, `headers`, `topic`, `x-random` and `x-consistent-hash`. Defaults to `direct`.",
@@ -27,12 +28,12 @@ func resourceExchangeDelayedMessage() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-
 		Schema: mySchema,
 	}
 }
 
 func CreateExchangeDelayedMessage(d *schema.ResourceData, meta interface{}) error {
+	// Set the exchange type
 	d.Set("type", "x-delayed-message")
 
 	// Add specific argument

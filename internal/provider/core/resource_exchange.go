@@ -80,7 +80,7 @@ func SchemaExchange() map[string]*schema.Schema {
 					"value": {
 						Description: "The argument value.",
 						Type:        schema.TypeString,
-						Optional:    true,
+						Required:    true,
 					},
 					"type": {
 						Description:  "The value type. Possible values are `string`, `numeric`, `boolean` and `list`. Defaults to `string`.",
