@@ -44,12 +44,12 @@ func resourceExchange() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"type": {
-							Description:  "The type of exchange. Possible values are `direct`, `fanout`, `headers` and `topic`. Defaults to `direct`.",
+							Description:  "The type of exchange. Possible values are `direct`, `fanout`, `headers`, `topic` , `x-consistent-hash`, `x-delayed-message` and `x-local-random`. Defaults to `direct`.",
 							Type:         schema.TypeString,
 							Optional:     true,
 							ForceNew:     true,
 							Default:      "direct",
-							ValidateFunc: validation.StringInSlice([]string{"direct", "fanout", "headers", "topic"}, true),
+							ValidateFunc: validation.StringInSlice([]string{"direct", "fanout", "headers", "topic", "x-consistent-hash", "x-delayed-message", "x-local-random"}, true),
 						},
 
 						"durable": {
