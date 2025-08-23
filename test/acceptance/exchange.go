@@ -16,7 +16,7 @@ type ExchangeResource struct {
 	AutoDelete        bool
 	Internal          bool
 	AlternateExchange string
-	Arguments         map[string]interface{}
+	Arguments         []map[string]interface{}
 }
 
 func (e *ExchangeResource) RequiredCreate(data TestData) string {
@@ -55,18 +55,44 @@ func (e *ExchangeResource) OptionalUpdate(data TestData) string {
 	return e.OptionalCreate(data)
 }
 
-// func (e *ExchangeResource) OptionalArguments(data TestData) string {
-// 	return fmt.Sprintf(`
-// 	resource "%s" "%s" {
-// 		name = "%s"
+func (e *ExchangeResource) OptionalArgumentsString(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
 
-// 		argument {
-// 			key = "%s"
-// 			value = "%s"
-// 		    type = "%s"
-// 		}
-// 	}`, data.ResourceType, data.ResourceLabel, e.Name, e.Arguments[0]["key"], e.Arguments[0]["value"], e.Arguments[0]["type"])
-// }
+		argument {
+			key = "%s"
+			value = "%s"
+		    type = "%s"
+		}
+	}`, data.ResourceType, data.ResourceLabel, e.Name, e.Arguments[0]["key"], e.Arguments[0]["value"], e.Arguments[0]["type"])
+}
+
+func (e *ExchangeResource) OptionalArgumentsNumeric(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+
+		argument {
+			key = "%s"
+			value = "%d"
+		    type = "%s"
+		}
+	}`, data.ResourceType, data.ResourceLabel, e.Name, e.Arguments[0]["key"], e.Arguments[0]["value"], e.Arguments[0]["type"])
+}
+
+func (e *ExchangeResource) OptionalArgumentsBoolean(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+
+		argument {
+			key = "%s"
+			value = "%t"
+		    type = "%s"
+		}
+	}`, data.ResourceType, data.ResourceLabel, e.Name, e.Arguments[0]["key"], e.Arguments[0]["value"], e.Arguments[0]["type"])
+}
 
 func (e *ExchangeResource) ErrorVhostNotExist(data TestData) string {
 	return fmt.Sprintf(`
@@ -129,9 +155,9 @@ func (e ExchangeResource) ExistsInRabbitMQ(argsChecked bool) (*rabbithole.Detail
 				return nil, fmt.Errorf("exchange arguments size is not equal: expected '%d', got '%d'", len(e.Arguments), lenArg)
 			}
 
-			for key, val := range e.Arguments {
-				if myExchange.Arguments[key] != val {
-					return nil, fmt.Errorf("exchange 'argument %q is not equal: expected: '%s', got '%s'", val, key, myExchange.Arguments[key])
+			for _, v := range e.Arguments {
+				if myExchange.Arguments[v["key"].(string)] != v["value"] {
+					return nil, fmt.Errorf("exchange 'argument %q is not equal: expected: '%s', got '%s'", v["key"], v["value"], myExchange.Arguments[v["key"].(string)])
 				}
 			}
 		}
