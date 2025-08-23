@@ -111,8 +111,7 @@ func resourceExchangeDelayedMessage() *schema.Resource {
 }
 
 func CreateExchangeDelayedMessage(d *schema.ResourceData, meta interface{}) error {
-	//d.Set("type", "x-delayed-message")
-	d.Set("type", "direct")
+	d.Set("type", "x-delayed-message")
 
 	// Add specific argument
 	args := d.Get("argument").(*schema.Set)
