@@ -3,16 +3,99 @@ package core
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
 
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/infras"
 	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func CreateExchange(d *schema.ResourceData, meta interface{}) error {
-	rmqc := meta.(*rabbithole.Client)
+func SchemaExchange() map[string]*schema.Schema {
+	return map[string]*schema.Schema{
+		"name": {
+			Description: "The name of the exchange.",
+			Type:        schema.TypeString,
+			Required:    true,
+			ForceNew:    true,
+		},
 
+		"vhost": {
+			Description: "The vhost to create the resource in. Defaults to `/`.",
+			Type:        schema.TypeString,
+			Optional:    true,
+			Default:     "/",
+			ForceNew:    true,
+		},
+
+		"type": {
+			Description: "The exchange type.",
+			Type:        schema.TypeString,
+			Computed:    true,
+		},
+
+		"durable": {
+			Description: "Whether the exchange survives server restarts. Defaults to `true`.",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			ForceNew:    true,
+			Default:     true,
+		},
+
+		"auto_delete": {
+			Description: "If `true`, the exchange will delete itself after at least one queue or exchange has been bound to this one, and then all queues or exchanges have been unbound. Defaults to `false`.",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			ForceNew:    true,
+			Default:     false,
+		},
+
+		"internal": {
+			Description: "If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings. Defaults to `false`.",
+			Type:        schema.TypeBool,
+			Optional:    true,
+			ForceNew:    true,
+			Default:     false,
+		},
+
+		"alternate_exchange": {
+			Description: "If messages to this exchange cannot otherwise be routed, send them to the alternate exchange named here.",
+			Type:        schema.TypeString,
+			Optional:    true,
+			ForceNew:    true,
+		},
+
+		"argument": {
+			Description: "The custom argument of the exchange.",
+			Type:        schema.TypeSet,
+			Optional:    true,
+			ForceNew:    true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"key": {
+						Description: "The argument key.",
+						Type:        schema.TypeString,
+						Required:    true,
+					},
+					"value": {
+						Description: "The argument value.",
+						Type:        schema.TypeString,
+						Optional:    true,
+					},
+					"type": {
+						Description:  "The value type. Possible values are `string`, `numeric`, `boolean` and `list`. Defaults to `string`.",
+						Type:         schema.TypeString,
+						Optional:     true,
+						Default:      "string",
+						ValidateFunc: validation.StringInSlice([]string{"string", "numeric", "boolean", "list"}, true),
+					},
+				},
+			},
+		},
+	}
+}
+
+func CreateExchange(d *schema.ResourceData, rmqc infras.IRabbitMQInfra) error {
 	name := d.Get("name").(string)
 	vhost := d.Get("vhost").(string)
 
@@ -40,9 +123,7 @@ func CreateExchange(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func ReadExchange(d *schema.ResourceData, meta interface{}) error {
-	rmqc := meta.(*rabbithole.Client)
-
+func ReadExchange(d *schema.ResourceData, rmqc infras.IRabbitMQInfra) error {
 	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
@@ -76,9 +157,7 @@ func ReadExchange(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func DeleteExchange(d *schema.ResourceData, meta interface{}) error {
-	rmqc := meta.(*rabbithole.Client)
-
+func DeleteExchange(d *schema.ResourceData, rmqc infras.IRabbitMQInfra) error {
 	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
