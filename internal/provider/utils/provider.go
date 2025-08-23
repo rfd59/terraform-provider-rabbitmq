@@ -66,3 +66,16 @@ func GetArgumentValue(arg map[string]interface{}) (interface{}, error) {
 		return arg["value"].(string), nil
 	}
 }
+
+func GetArgumentType(value interface{}) string {
+	switch value.(type) {
+	case int:
+		return "numeric"
+	case float64:
+		return "numeric"
+	case bool:
+		return "boolean"
+	default:
+		return "string"
+	}
+}
