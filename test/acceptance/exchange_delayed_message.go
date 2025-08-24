@@ -2,6 +2,7 @@ package acceptance_test
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -60,4 +61,16 @@ func (e ExchangeDelayedMessageResource) ExistsInRabbitMQ() resource.TestCheckFun
 			return nil
 		}
 	}
+}
+
+func (e *ExchangeDelayedMessageResource) SetDataSourceExchange(t *testing.T) {
+	// Add x-delayed-type argument
+	arg := map[string]interface{}{
+		"key":   "x-delayed-type",
+		"value": e.DelayedType,
+		"type":  "string",
+	}
+	e.Arguments = append(e.Arguments, arg)
+	// Create the exchange
+	e.ExchangeResource.SetDataSourceExchange(t)
 }

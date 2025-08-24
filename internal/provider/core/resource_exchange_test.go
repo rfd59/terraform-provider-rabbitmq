@@ -206,7 +206,7 @@ func getTestResourseDataExchange_Basic(t *testing.T) *schema.ResourceData {
 		"type":  "direct",
 	}
 
-	return schema.TestResourceDataRaw(t, core.SchemaExchange(), raw)
+	return schema.TestResourceDataRaw(t, core.ResourceExchange(), raw)
 }
 
 func getTestResourseDataExchange_Full(t *testing.T) *schema.ResourceData {
@@ -225,7 +225,7 @@ func getTestResourseDataExchange_Full(t *testing.T) *schema.ResourceData {
 		}},
 	}
 
-	return schema.TestResourceDataRaw(t, core.SchemaExchange(), raw)
+	return schema.TestResourceDataRaw(t, core.ResourceExchange(), raw)
 }
 
 func getTestResourseDataExchange_ArgumentError(t *testing.T) *schema.ResourceData {
@@ -240,9 +240,9 @@ func getTestResourseDataExchange_ArgumentError(t *testing.T) *schema.ResourceDat
 		}},
 	}
 
-	return schema.TestResourceDataRaw(t, core.SchemaExchange(), raw)
+	return schema.TestResourceDataRaw(t, core.ResourceExchange(), raw)
 }
 
 func getTestResourseDataExchange_Empty(t *testing.T) *schema.ResourceData {
-	return schema.TestResourceDataRaw(t, core.SchemaExchange(), map[string]interface{}{})
+	return schema.TestResourceDataRaw(t, core.ResourceExchange(), map[string]interface{}{})
 }

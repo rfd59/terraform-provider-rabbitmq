@@ -2,10 +2,12 @@ package acceptance_test
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 )
 
 type ExchangeResource struct {
@@ -113,6 +115,13 @@ func (e *ExchangeResource) ErrorAlredayExist(data TestData) string {
 	}`, data.ResourceType, data.ResourceLabel, e.Name, data.ResourceType, "same", e.Name)
 }
 
+func (e *ExchangeResource) DataSource(data TestData) string {
+	return fmt.Sprintf(`
+	data "%s" "%s" {
+		name = "%s"
+	}`, data.ResourceType, data.ResourceLabel, e.Name)
+}
+
 func (e ExchangeResource) ExistsInRabbitMQ(argsChecked bool) (*rabbithole.DetailedExchangeInfo, error) {
 	rmqc := TestAcc.Provider.Meta().(*rabbithole.Client)
 	myExchange, err := rmqc.GetExchange(e.Vhost, e.Name)
@@ -179,5 +188,40 @@ func (e *ExchangeResource) CheckDestroy() resource.TestCheckFunc {
 		}
 
 		return nil
+	}
+}
+
+func (e *ExchangeResource) SetDataSourceExchange(t *testing.T) {
+	settings := rabbithole.ExchangeSettings{
+		Type:       e.Type,
+		Durable:    e.Durable,
+		AutoDelete: e.AutoDelete,
+		Internal:   e.Internal,
+		Arguments:  map[string]interface{}{},
+	}
+
+	if e.AlternateExchange != "" {
+		settings.Arguments["alternate-exchange"] = e.AlternateExchange
+	}
+
+	for _, v := range e.Arguments {
+		if value, err := utils.GetArgumentValue(v); err == nil {
+			settings.Arguments[v["key"].(string)] = value
+		}
+	}
+
+	rmqc := TestAcc.Client(t)
+	resp, err := rmqc.DeclareExchange(e.Vhost, e.Name, settings)
+	if err != nil || resp.StatusCode >= 400 {
+		t.Errorf("Failed to init the test! [%v]", err)
+	}
+}
+
+func (e *ExchangeResource) DelDataSourceExchange(t *testing.T) {
+	rmqc := TestAcc.Client(t)
+
+	resp, err := rmqc.DeleteExchange(e.Vhost, e.Name)
+	if err != nil || resp.StatusCode >= 400 {
+		t.Errorf("Failed to reset the test!")
 	}
 }

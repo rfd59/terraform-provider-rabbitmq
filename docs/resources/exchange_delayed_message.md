@@ -7,8 +7,8 @@ description: |-
 ---
 
 # rabbitmq_exchange_delayed_message (Resource)
-The `rabbitmq_exchange_delayed_message` resource creates and manages an _exchange_ of type 'x-delayed-message'.
 
+The `rabbitmq_exchange_delayed_message` resource creates and manages an _exchange_ of type 'x-delayed-message'.
 
 ## Example Usage
 

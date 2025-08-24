@@ -130,10 +130,11 @@ func New() *schema.Provider {
 			"rabbitmq_shovel":                   resourceShovel(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"rabbitmq_exchange": dataSourcesExchange(),
-			"rabbitmq_queue":    dataSourcesQueue(),
-			"rabbitmq_user":     dataSourcesUser(),
-			"rabbitmq_vhost":    dataSourcesVhost(),
+			"rabbitmq_exchange":                 dataSourcesExchange(),
+			"rabbitmq_exchange_delayed_message": datasourceExchangeDelayedMessage(),
+			"rabbitmq_queue":                    dataSourcesQueue(),
+			"rabbitmq_user":                     dataSourcesUser(),
+			"rabbitmq_vhost":                    dataSourcesVhost(),
 		},
 
 		ConfigureFunc: providerConfigure,
