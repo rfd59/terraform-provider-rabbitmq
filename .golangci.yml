@@ -5,7 +5,7 @@ issues:
   max-same-issues: 0
 
 linters:
-  default: npne
+  default: none
   enable:
     - durationcheck
     # - errcheck
