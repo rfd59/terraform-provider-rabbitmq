@@ -12,7 +12,6 @@ linters:
     - copyloopvar
     # - forcetypeassert
     # - godot
-    - gosimple
     - ineffassign
     - makezero
     - misspell
