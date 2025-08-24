@@ -21,7 +21,7 @@ func resourceExchangeDelayedMessage() *schema.Resource {
 	}
 
 	return &schema.Resource{
-		Description: "The `rabbitmq_exchange_delayed_message` resource creates and manages an _exchange_ of type 'x-delayed-message'.",
+		Description: "Exchange --- The `rabbitmq_exchange_delayed_message` resource creates and manages an _exchange_ of type 'x-delayed-message'.",
 		Create:      CreateExchangeDelayedMessage,
 		Read:        ReadExchangeDelayedMessage,
 		Delete:      DeleteExchangeDelayedMessage,
