@@ -252,6 +252,50 @@ func TestAccExchangeDelayedMessage_ArgumentsBoolean(t *testing.T) {
 	})
 }
 
+func TestAccExchangeDelayedMessage_ArgumentTypeValidation(t *testing.T) {
+	data := acceptance_test.BuildTestData("rabbitmq_exchange_delayed_message", "test")
+	r := acceptance_test.ExchangeDelayedMessageResource{
+		ExchangeResource: acceptance_test.ExchangeResource{
+			Name: data.RandomString(),
+			Arguments: []map[string]interface{}{
+				{"key": data.RandomString(), "value": data.RandomString(), "type": data.RandomString()},
+			}},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance_test.TestAcc.PreCheck(t) },
+		Providers:    acceptance_test.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.OptionalArgumentsString(data),
+				ExpectError: regexp.MustCompile("to be one of"),
+			},
+		},
+	})
+}
+
+func TestAccExchangeDelayedMessage_DelayedTypeValidation(t *testing.T) {
+	data := acceptance_test.BuildTestData("rabbitmq_exchange_delayed_message", "test")
+	r := acceptance_test.ExchangeDelayedMessageResource{
+		ExchangeResource: acceptance_test.ExchangeResource{
+			Name: data.RandomString(),
+		},
+		DelayedType: data.RandomString()}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acceptance_test.TestAcc.PreCheck(t) },
+		Providers:    acceptance_test.TestAcc.Providers,
+		CheckDestroy: r.CheckDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config:      r.DelayedTypeValidation(data),
+				ExpectError: regexp.MustCompile("to be one of"),
+			},
+		},
+	})
+}
+
 func TestAccExchangeDelayedMessage_ErrorVhostNotExist(t *testing.T) {
 	data := acceptance_test.BuildTestData("rabbitmq_exchange_delayed_message", "test")
 	r := acceptance_test.ExchangeDelayedMessageResource{

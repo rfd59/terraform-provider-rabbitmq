@@ -39,6 +39,16 @@ func (e *ExchangeDelayedMessageResource) OptionalUpdate(data TestData) string {
 	return e.OptionalCreate(data)
 }
 
+func (e *ExchangeDelayedMessageResource) DelayedTypeValidation(data TestData) string {
+	return fmt.Sprintf(`
+	resource "%s" "%s" {
+		name = "%s"
+		
+		delayed_type = "%s"
+	}
+	`, data.ResourceType, data.ResourceLabel, e.Name, e.DelayedType)
+}
+
 func (e ExchangeDelayedMessageResource) ExistsInRabbitMQ() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if exchange, err := e.ExchangeResource.ExistsInRabbitMQ(false); err != nil {
