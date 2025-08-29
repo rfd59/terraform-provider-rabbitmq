@@ -1,18 +1,13 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
-package check
+package acceptance_test
 
 import (
 	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/rfd59/terraform-provider-rabbitmq/internal/acceptance"
 )
 
 type thatType struct {
@@ -39,25 +34,6 @@ func (t thatType) Exists() resource.TestCheckFunc {
 		}
 
 		return nil
-	}
-}
-
-// // ExistsInAzure validates that the specified resource exists within Azure
-func (t thatType) ExistsInRabbitMQ(r interface{}) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if strings.HasPrefix(t.resourceName, "rabbitmq_user.") {
-			return r.(acceptance.UserResource).ExistsInRabbitMQ()
-		}
-		if strings.HasPrefix(t.resourceName, "rabbitmq_vhost.") {
-			return r.(acceptance.VhostResource).ExistsInRabbitMQ()
-		}
-		if strings.HasPrefix(t.resourceName, "rabbitmq_queue.") {
-			return r.(acceptance.QueueResource).ExistsInRabbitMQ()
-		}
-		if strings.HasPrefix(t.resourceName, "rabbitmq_exchange.") {
-			return r.(acceptance.ExchangeResource).ExistsInRabbitMQ()
-		}
-		return fmt.Errorf("'ExistsInRabbitMQ' method not found for this resource")
 	}
 }
 

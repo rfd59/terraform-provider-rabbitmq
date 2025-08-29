@@ -49,17 +49,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        id: import_gpg
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           args: release --clean --snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
 
       - name: Upload assets
         uses: actions/upload-artifact@v4
         with:
-          name: go-linky
+          name: terraform-provider-rabbitmq
           path: |
             dist/*.tar.gz
             dist/*.zip

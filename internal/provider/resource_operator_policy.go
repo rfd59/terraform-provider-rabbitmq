@@ -83,7 +83,7 @@ func CreateOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 
 	operatorPolicyMap, ok := operatorPolicyList[0].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("Unable to parse operator policy")
+		return fmt.Errorf("unable to parse operator policy")
 	}
 
 	if err := putOperatorPolicy(rmqc, vhost, name, operatorPolicyMap); err != nil {
@@ -157,7 +157,7 @@ func UpdateOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 		operatorPolicyList := newOperatorPolicy.([]interface{})
 		operatorPolicyMap, ok := operatorPolicyList[0].(map[string]interface{})
 		if !ok {
-			return fmt.Errorf("Unable to parse operator policy")
+			return fmt.Errorf("unable to parse operator policy")
 		}
 
 		if err := putOperatorPolicy(rmqc, vhost, name, operatorPolicyMap); err != nil {
@@ -190,7 +190,7 @@ func DeleteOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ operator policy: %s", resp.Status)
+		return fmt.Errorf("error deleting RabbitMQ operator policy: %s", resp.Status)
 	}
 
 	return nil
@@ -235,7 +235,7 @@ func putOperatorPolicy(rmqc *rabbithole.Client, vhost string, name string, opera
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error declaring RabbitMQ operator policy: %s", resp.Status)
+		return fmt.Errorf("error declaring RabbitMQ operator policy: %s", resp.Status)
 	}
 
 	return nil

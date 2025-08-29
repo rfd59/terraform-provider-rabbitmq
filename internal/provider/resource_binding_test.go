@@ -105,9 +105,9 @@ func testAccBindingCheck(rn string, bindingInfo *rabbithole.BindingInfo) resourc
 		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		bindingParts := strings.Split(rs.Primary.ID, "/")
 
-		bindings, err := rmqc.ListBindingsIn(strings.Replace(strings.Replace(bindingParts[0], "%2F", "/", -1), "%25", "%", -1))
+		bindings, err := rmqc.ListBindingsIn(strings.ReplaceAll(strings.ReplaceAll(bindingParts[0], "%2F", "/"), "%25", "%"))
 		if err != nil {
-			return fmt.Errorf("Error retrieving exchange: %s", err)
+			return fmt.Errorf("error retrieving exchange: %s", err)
 		}
 
 		for _, binding := range bindings {
@@ -117,7 +117,7 @@ func testAccBindingCheck(rn string, bindingInfo *rabbithole.BindingInfo) resourc
 			}
 		}
 
-		return fmt.Errorf("Unable to find binding %s", rn)
+		return fmt.Errorf("unable to find binding %s", rn)
 	}
 }
 
@@ -153,7 +153,7 @@ func testAccBindingCheckDestroy(bindingInfo rabbithole.BindingInfo) resource.Tes
 
 		bindings, err := rmqc.ListBindingsIn(bindingInfo.Vhost)
 		if err != nil {
-			return fmt.Errorf("Error retrieving exchange: %s", err)
+			return fmt.Errorf("error retrieving exchange: %s", err)
 		}
 
 		for _, binding := range bindings {

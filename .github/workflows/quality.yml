@@ -33,7 +33,7 @@ jobs:
  
       - name: Run tests
         run: |
-          go test -v -coverprofile=coverage.out ./cmd/... | go-junit-report -set-exit-code > junit.xml
+          go test -v -coverprofile=coverage.out ./internal/provider/... | go-junit-report -set-exit-code > junit.xml
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
@@ -45,7 +45,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: rfd59/go-linky
+          slug: rfd59/terraform-provider-rabbitmq
 
   golangci-lint:
     name: Source Quality

@@ -244,7 +244,7 @@ func CreateShovel(d *schema.ResourceData, meta interface{}) error {
 
 	shovelMap, ok := shovelInfo[0].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("Unable to parse shovel info")
+		return fmt.Errorf("unable to parse shovel info")
 	}
 
 	shovelDefinition := setShovelDefinition(shovelMap).(rabbithole.ShovelDefinition)
@@ -330,7 +330,7 @@ func UpdateShovel(d *schema.ResourceData, meta interface{}) error {
 		newShovelList := newShovel.([]interface{})
 		infoMap, ok := newShovelList[0].(map[string]interface{})
 		if !ok {
-			return fmt.Errorf("Unable to parse shovel info")
+			return fmt.Errorf("unable to parse shovel info")
 		}
 
 		shovelDefinition := setShovelDefinition(infoMap).(rabbithole.ShovelDefinition)
@@ -362,7 +362,7 @@ func DeleteShovel(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ shovel: %s", resp.Status)
+		return fmt.Errorf("error deleting RabbitMQ shovel: %s", resp.Status)
 	}
 
 	return nil

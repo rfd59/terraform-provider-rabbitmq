@@ -64,10 +64,7 @@ func dataSourcesReadQueue(ctx context.Context, d *schema.ResourceData, meta inte
 
 	// If the queue is just created, waitting some seconds to have the status
 	i := 0
-	for {
-		if queue.Status != "" || i >= 10 {
-			break
-		}
+	for queue.Status == "" && i < 10 {
 		time.Sleep(time.Second)
 		i++
 		queue, _ = rmqc.GetQueue(vhost, name)

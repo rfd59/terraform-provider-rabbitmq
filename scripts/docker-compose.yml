@@ -1,6 +1,9 @@
 services:
     rabbitmq:
-        image: rabbitmq:${RABBITMQ_VERSION:-3.13}-management-alpine
+        build:
+          context: .
+          args:
+            RABBITMQ_VERSION: ${RABBITMQ_VERSION:-3.13}
         environment:
             RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
             RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}

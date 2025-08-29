@@ -62,7 +62,7 @@ func testAccOperatorPolicyCheck(rn string, operatorPolicy *rabbithole.OperatorPo
 
 		operatorPolicies, err := rmqc.ListOperatorPolicies()
 		if err != nil {
-			return fmt.Errorf("Error retrieving operator policies: %s", err)
+			return fmt.Errorf("error retrieving operator policies: %s", err)
 		}
 
 		for _, p := range operatorPolicies {
@@ -72,7 +72,7 @@ func testAccOperatorPolicyCheck(rn string, operatorPolicy *rabbithole.OperatorPo
 			}
 		}
 
-		return fmt.Errorf("Unable to find operator policy %s", rn)
+		return fmt.Errorf("unable to find operator policy %s", rn)
 	}
 }
 
@@ -82,7 +82,7 @@ func testAccOperatorPolicyCheckDestroy(operatorPolicy *rabbithole.OperatorPolicy
 
 		operatorPolicies, err := rmqc.ListOperatorPolicies()
 		if err != nil {
-			return fmt.Errorf("Error retrieving operator policies: %s", err)
+			return fmt.Errorf("error retrieving operator policies: %s", err)
 		}
 
 		for _, p := range operatorPolicies {
