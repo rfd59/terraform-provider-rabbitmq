@@ -67,7 +67,7 @@ jobs:
       - name: Upload assets
         uses: actions/upload-artifact@v4
         with:
-          name: go-linky
+          name: terraform-provider-rabbitmq
           path: |
             dist/*.tar.gz
             dist/*.zip
