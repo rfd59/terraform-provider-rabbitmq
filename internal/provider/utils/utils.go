@@ -11,10 +11,10 @@ import (
 
 func PercentEncodeSlashes(s string) string {
 	// Encode any percent signs, then encode any forward slashes.
-	return strings.Replace(strings.Replace(s, "%", "%25", -1), "/", "%2F", -1)
+	return strings.ReplaceAll(strings.ReplaceAll(s, "%", "%25"), "/", "%2F")
 }
 
 func PercentDecodeSlashes(s string) string {
 	// Decode any forward slashes, then decode any percent signs.
-	return strings.Replace(strings.Replace(s, "%2F", "/", -1), "%25", "%", -1)
+	return strings.ReplaceAll(strings.ReplaceAll(s, "%2F", "/"), "%25", "%")
 }

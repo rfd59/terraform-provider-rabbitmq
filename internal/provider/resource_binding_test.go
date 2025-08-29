@@ -105,7 +105,7 @@ func testAccBindingCheck(rn string, bindingInfo *rabbithole.BindingInfo) resourc
 		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		bindingParts := strings.Split(rs.Primary.ID, "/")
 
-		bindings, err := rmqc.ListBindingsIn(strings.Replace(strings.Replace(bindingParts[0], "%2F", "/", -1), "%25", "%", -1))
+		bindings, err := rmqc.ListBindingsIn(strings.ReplaceAll(strings.ReplaceAll(bindingParts[0], "%2F", "/"), "%25", "%"))
 		if err != nil {
 			return fmt.Errorf("error retrieving exchange: %s", err)
 		}

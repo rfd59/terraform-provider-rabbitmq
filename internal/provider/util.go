@@ -28,12 +28,12 @@ func checkDeleted(d *schema.ResourceData, err error) error {
 
 func percentEncodeSlashes(s string) string {
 	// Encode any percent signs, then encode any forward slashes.
-	return strings.Replace(strings.Replace(s, "%", "%25", -1), "/", "%2F", -1)
+	return strings.ReplaceAll(strings.ReplaceAll(s, "%", "%25"), "/", "%2F")
 }
 
 func percentDecodeSlashes(s string) string {
 	// Decode any forward slashes, then decode any percent signs.
-	return strings.Replace(strings.Replace(s, "%2F", "/", -1), "%25", "%", -1)
+	return strings.ReplaceAll(strings.ReplaceAll(s, "%2F", "/"), "%25", "%")
 }
 
 // get the id of the resource from the ResourceData
