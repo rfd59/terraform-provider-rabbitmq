@@ -31,11 +31,11 @@ func (t thatType) Exists() resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[t.resourceName]
 		if !ok {
-			return fmt.Errorf("Resource not found: %s", t.resourceName)
+			return fmt.Errorf("resource not found: %s", t.resourceName)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("Resource id not set")
+			return fmt.Errorf("resource id not set")
 		}
 
 		return nil

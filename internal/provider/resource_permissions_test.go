@@ -86,7 +86,7 @@ func testAccPermissionsCheck(rn string, permissionInfo *rabbithole.PermissionInf
 		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		perms, err := rmqc.ListPermissions()
 		if err != nil {
-			return fmt.Errorf("Error retrieving permissions: %s", err)
+			return fmt.Errorf("error retrieving permissions: %s", err)
 		}
 
 		userParts := strings.Split(rs.Primary.ID, "@")
@@ -97,7 +97,7 @@ func testAccPermissionsCheck(rn string, permissionInfo *rabbithole.PermissionInf
 			}
 		}
 
-		return fmt.Errorf("Unable to find permissions for user %s", rn)
+		return fmt.Errorf("unable to find permissions for user %s", rn)
 	}
 }
 
@@ -106,7 +106,7 @@ func testAccPermissionsCheckDestroy(permissionInfo *rabbithole.PermissionInfo) r
 		rmqc := acceptance.TestAcc.Provider.Meta().(*rabbithole.Client)
 		perms, err := rmqc.ListPermissions()
 		if err != nil {
-			return fmt.Errorf("Error retrieving permissions: %s", err)
+			return fmt.Errorf("error retrieving permissions: %s", err)
 		}
 
 		for _, perm := range perms {
