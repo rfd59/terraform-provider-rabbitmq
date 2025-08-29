@@ -26,8 +26,8 @@ func TestResourceExchange_CreateExchange_AlreadyExist(t *testing.T) {
 
 	// Assert the expected behavior
 	require.Error(err)
-	assert.ErrorContains(err, "exchange already exists")
-	assert.ErrorContains(err, "myName")
+	require.ErrorContains(err, "exchange already exists")
+	require.ErrorContains(err, "myName")
 	assert.Empty(d.Id())
 }
 
@@ -44,8 +44,8 @@ func TestResourceExchange_CreateExchange_DataError(t *testing.T) {
 
 	// Assert the expected behavior
 	require.Error(err)
-	assert.ErrorContains(err, "failed to parse number")
-	assert.ErrorContains(err, "myValue")
+	require.ErrorContains(err, "failed to parse number")
+	require.ErrorContains(err, "myValue")
 	assert.Empty(d.Id())
 }
 
@@ -65,7 +65,7 @@ func TestResourceExchange_CreateExchange_ErrorDeclare(t *testing.T) {
 
 	// Assert the expected behavior
 	require.Error(err)
-	assert.ErrorContains(err, "exchange not created")
+	require.ErrorContains(err, "exchange not created")
 	assert.Empty(d.Id())
 }
 
@@ -98,7 +98,7 @@ func TestResourceExchange_ReadExchange_FailedId(t *testing.T) {
 
 	// Assert the expected behavior
 	require.Error(err)
-	assert.ErrorContains(err, "unable to parse resource id")
+	require.ErrorContains(err, "unable to parse resource id")
 	assert.Empty(d.Id())
 }
 
@@ -116,7 +116,7 @@ func TestResourceExchange_ReadExchange_ErrorGet(t *testing.T) {
 
 	// Assert the expected behavior
 	require.Error(err)
-	assert.ErrorContains(err, "mock error")
+	require.ErrorContains(err, "mock error")
 	assert.Empty(d.Get("name"))
 }
 
@@ -163,12 +163,11 @@ func TestResourceExchange_DeleteExchange_FailedId(t *testing.T) {
 
 	// Assert the expected behavior
 	require.Error(err)
-	assert.ErrorContains(err, "unable to parse resource id")
+	require.ErrorContains(err, "unable to parse resource id")
 	assert.Empty(d.Id())
 }
 
 func TestResourceExchange_DeleteExchange_ErrorDelete(t *testing.T) {
-	assert := assert.New(t)
 	require := require.New(t)
 
 	// Mock RabbitMQ Infrastructure
@@ -181,7 +180,7 @@ func TestResourceExchange_DeleteExchange_ErrorDelete(t *testing.T) {
 
 	// Assert the expected behavior
 	require.Error(err)
-	assert.ErrorContains(err, "mock error")
+	require.ErrorContains(err, "mock error")
 }
 
 func TestResourceExchange_DeleteExchange_Success(t *testing.T) {
