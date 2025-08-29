@@ -45,7 +45,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: rfd59/go-linky
+          slug: rfd59/terraform-provider-rabbitmq
 
   golangci-lint:
     name: Source Quality
