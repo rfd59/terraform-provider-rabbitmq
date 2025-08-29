@@ -144,17 +144,18 @@ func ReadBinding(d *schema.ResourceData, meta interface{}) error {
 
 	var bindings []rabbithole.BindingInfo
 	var err error
-	if destinationType == "queue" {
+	switch destinationType {
+	case "queue":
 		bindings, err = rmqc.ListQueueBindingsBetween(vhost, source, destination)
 		if err != nil {
 			return err
 		}
-	} else if destinationType == "exchange" {
+	case "exchange":
 		bindings, err = rmqc.ListExchangeBindingsBetween(vhost, source, destination)
 		if err != nil {
 			return err
 		}
-	} else {
+	default:
 		bindings, err = rmqc.ListBindingsIn(vhost)
 		if err != nil {
 			return err
