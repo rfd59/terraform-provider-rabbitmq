@@ -21,6 +21,9 @@ func resourceExchangeRandom() *schema.Resource {
 }
 
 func CreateExchangeRandom(d *schema.ResourceData, meta interface{}) error {
+	// Set the exchange type
+	d.Set("type", "x-random")
+
 	return core.CreateExchange(d, meta.(*rabbithole.Client))
 }
 
