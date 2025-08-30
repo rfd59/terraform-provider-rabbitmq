@@ -1,4 +1,4 @@
-package core_test
+package resources_test
 
 import (
 	"errors"
@@ -7,13 +7,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
-	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core/resources"
 	mock_test "github.com/rfd59/terraform-provider-rabbitmq/test/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestResourceExchange_CreateExchange_AlreadyExist(t *testing.T) {
+func TestExchange_CreateExchange_AlreadyExist(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -21,8 +21,8 @@ func TestResourceExchange_CreateExchange_AlreadyExist(t *testing.T) {
 	mock := &mock_test.RabbitMQInfraMock{Read: mock_test.RabbitMQInfraMock_Exchange{Err: nil, Rec: nil}}
 
 	// Test
-	d := getTestResourseDataExchange_Basic(t)
-	err := core.CreateExchange(d, mock)
+	d := getResourseDataExchange_Basic(t)
+	err := resources.CreateExchange(d, mock)
 
 	// Assert the expected behavior
 	require.Error(err)
@@ -31,7 +31,7 @@ func TestResourceExchange_CreateExchange_AlreadyExist(t *testing.T) {
 	assert.Empty(d.Id())
 }
 
-func TestResourceExchange_CreateExchange_DataError(t *testing.T) {
+func TestExchange_CreateExchange_DataError(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -39,8 +39,8 @@ func TestResourceExchange_CreateExchange_DataError(t *testing.T) {
 	mock := &mock_test.RabbitMQInfraMock{Read: mock_test.RabbitMQInfraMock_Exchange{Err: errors.New("exchange not found!"), Rec: nil}}
 
 	// Test
-	d := getTestResourseDataExchange_ArgumentError(t)
-	err := core.CreateExchange(d, mock)
+	d := getResourseDataExchange_ArgumentError(t)
+	err := resources.CreateExchange(d, mock)
 
 	// Assert the expected behavior
 	require.Error(err)
@@ -49,7 +49,7 @@ func TestResourceExchange_CreateExchange_DataError(t *testing.T) {
 	assert.Empty(d.Id())
 }
 
-func TestResourceExchange_CreateExchange_ErrorDeclare(t *testing.T) {
+func TestExchange_CreateExchange_ErrorDeclare(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -60,8 +60,8 @@ func TestResourceExchange_CreateExchange_ErrorDeclare(t *testing.T) {
 	}
 
 	// Test
-	d := getTestResourseDataExchange_Basic(t)
-	err := core.CreateExchange(d, mock)
+	d := getResourseDataExchange_Basic(t)
+	err := resources.CreateExchange(d, mock)
 
 	// Assert the expected behavior
 	require.Error(err)
@@ -69,7 +69,7 @@ func TestResourceExchange_CreateExchange_ErrorDeclare(t *testing.T) {
 	assert.Empty(d.Id())
 }
 
-func TestResourceExchange_CreateExchange_Success(t *testing.T) {
+func TestExchange_CreateExchange_Success(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -80,21 +80,21 @@ func TestResourceExchange_CreateExchange_Success(t *testing.T) {
 	}
 
 	// Test
-	d := getTestResourseDataExchange_Full(t)
-	err := core.CreateExchange(d, mock)
+	d := getResourseDataExchange_Full(t)
+	err := resources.CreateExchange(d, mock)
 
 	// Assert the expected behavior
 	require.NoError(err)
 	assert.Equal("myName@myVhost", d.Id())
 }
 
-func TestResourceExchange_ReadExchange_FailedId(t *testing.T) {
+func TestExchange_ReadExchange_FailedId(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
 	// Test
-	d := getTestResourseDataExchange_Basic(t)
-	err := core.ReadExchange(d, nil)
+	d := getResourseDataExchange_Basic(t)
+	err := resources.ReadExchange(d, nil)
 
 	// Assert the expected behavior
 	require.Error(err)
@@ -102,7 +102,7 @@ func TestResourceExchange_ReadExchange_FailedId(t *testing.T) {
 	assert.Empty(d.Id())
 }
 
-func TestResourceExchange_ReadExchange_ErrorGet(t *testing.T) {
+func TestExchange_ReadExchange_ErrorGet(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -110,9 +110,9 @@ func TestResourceExchange_ReadExchange_ErrorGet(t *testing.T) {
 	mock := &mock_test.RabbitMQInfraMock{Read: mock_test.RabbitMQInfraMock_Exchange{Err: errors.New("mock error"), Rec: nil}}
 
 	// Test
-	d := getTestResourseDataExchange_Empty(t)
+	d := getResourseDataExchange_Empty(t)
 	d.SetId("myName@myVhost")
-	err := core.ReadExchange(d, mock)
+	err := resources.ReadExchange(d, mock)
 
 	// Assert the expected behavior
 	require.Error(err)
@@ -120,7 +120,7 @@ func TestResourceExchange_ReadExchange_ErrorGet(t *testing.T) {
 	assert.Empty(d.Get("name"))
 }
 
-func TestResourceExchange_ReadExchange_Success(t *testing.T) {
+func TestExchange_ReadExchange_Success(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -136,9 +136,9 @@ func TestResourceExchange_ReadExchange_Success(t *testing.T) {
 	}}}
 
 	// Test
-	d := getTestResourseDataExchange_Empty(t)
+	d := getResourseDataExchange_Empty(t)
 	d.SetId("myName@myVhost")
-	err := core.ReadExchange(d, mock)
+	err := resources.ReadExchange(d, mock)
 
 	// Assert the expected behavior
 	require.NoError(err)
@@ -153,13 +153,13 @@ func TestResourceExchange_ReadExchange_Success(t *testing.T) {
 	assert.Len(set.List(), 3)
 }
 
-func TestResourceExchange_DeleteExchange_FailedId(t *testing.T) {
+func TestExchange_DeleteExchange_FailedId(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
 	// Test
-	d := getTestResourseDataExchange_Basic(t)
-	err := core.DeleteExchange(d, nil)
+	d := getResourseDataExchange_Basic(t)
+	err := resources.DeleteExchange(d, nil)
 
 	// Assert the expected behavior
 	require.Error(err)
@@ -167,48 +167,48 @@ func TestResourceExchange_DeleteExchange_FailedId(t *testing.T) {
 	assert.Empty(d.Id())
 }
 
-func TestResourceExchange_DeleteExchange_ErrorDelete(t *testing.T) {
+func TestExchange_DeleteExchange_ErrorDelete(t *testing.T) {
 	require := require.New(t)
 
 	// Mock RabbitMQ Infrastructure
 	mock := &mock_test.RabbitMQInfraMock{Delete: mock_test.RabbitMQInfraMock_Response{Err: errors.New("mock error"), Res: nil}}
 
 	// Test
-	d := getTestResourseDataExchange_Empty(t)
+	d := getResourseDataExchange_Empty(t)
 	d.SetId("myName@myVhost")
-	err := core.DeleteExchange(d, mock)
+	err := resources.DeleteExchange(d, mock)
 
 	// Assert the expected behavior
 	require.Error(err)
 	require.ErrorContains(err, "mock error")
 }
 
-func TestResourceExchange_DeleteExchange_Success(t *testing.T) {
+func TestExchange_DeleteExchange_Success(t *testing.T) {
 	require := require.New(t)
 
 	// Mock RabbitMQ Infrastructure
 	mock := &mock_test.RabbitMQInfraMock{Delete: mock_test.RabbitMQInfraMock_Response{Err: nil, Res: &http.Response{StatusCode: 200}}}
 
 	// Test
-	d := getTestResourseDataExchange_Empty(t)
+	d := getResourseDataExchange_Empty(t)
 	d.SetId("myName@myVhost")
-	err := core.DeleteExchange(d, mock)
+	err := resources.DeleteExchange(d, mock)
 
 	// Assert the expected behavior
 	require.NoError(err)
 }
 
-func getTestResourseDataExchange_Basic(t *testing.T) *schema.ResourceData {
+func getResourseDataExchange_Basic(t *testing.T) *schema.ResourceData {
 	raw := map[string]interface{}{
 		"name":  "myName",
 		"vhost": "myVhost",
 		"type":  "direct",
 	}
 
-	return schema.TestResourceDataRaw(t, core.ResourceExchange(), raw)
+	return schema.TestResourceDataRaw(t, resources.Exchange(), raw)
 }
 
-func getTestResourseDataExchange_Full(t *testing.T) *schema.ResourceData {
+func getResourseDataExchange_Full(t *testing.T) *schema.ResourceData {
 	raw := map[string]interface{}{
 		"name":               "myName",
 		"vhost":              "myVhost",
@@ -224,10 +224,10 @@ func getTestResourseDataExchange_Full(t *testing.T) *schema.ResourceData {
 		}},
 	}
 
-	return schema.TestResourceDataRaw(t, core.ResourceExchange(), raw)
+	return schema.TestResourceDataRaw(t, resources.Exchange(), raw)
 }
 
-func getTestResourseDataExchange_ArgumentError(t *testing.T) *schema.ResourceData {
+func getResourseDataExchange_ArgumentError(t *testing.T) *schema.ResourceData {
 	raw := map[string]interface{}{
 		"name":  "myName",
 		"vhost": "myVhost",
@@ -239,9 +239,9 @@ func getTestResourseDataExchange_ArgumentError(t *testing.T) *schema.ResourceDat
 		}},
 	}
 
-	return schema.TestResourceDataRaw(t, core.ResourceExchange(), raw)
+	return schema.TestResourceDataRaw(t, resources.Exchange(), raw)
 }
 
-func getTestResourseDataExchange_Empty(t *testing.T) *schema.ResourceData {
-	return schema.TestResourceDataRaw(t, core.ResourceExchange(), map[string]interface{}{})
+func getResourseDataExchange_Empty(t *testing.T) *schema.ResourceData {
+	return schema.TestResourceDataRaw(t, resources.Exchange(), map[string]interface{}{})
 }

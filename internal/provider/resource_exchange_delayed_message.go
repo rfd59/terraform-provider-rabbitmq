@@ -2,7 +2,7 @@ package provider
 
 import (
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
-	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core/resources"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -10,7 +10,7 @@ import (
 
 func resourceExchangeDelayedMessage() *schema.Resource {
 	// Load and customize the resource schema
-	mySchema := core.ResourceExchange()
+	mySchema := resources.Exchange()
 	mySchema["delayed_type"] = &schema.Schema{
 		Description:  "The type of delayed exchange. Possible values are `direct`, `fanout`, `headers`, `topic`, `x-random` and `x-consistent-hash`. Defaults to `direct`.",
 		Type:         schema.TypeString,
@@ -41,11 +41,11 @@ func CreateExchangeDelayedMessage(d *schema.ResourceData, meta interface{}) erro
 	args.Add(map[string]interface{}{"key": "x-delayed-type", "value": d.Get("delayed_type").(string), "type": "string"})
 	d.Set("argument", args)
 
-	return core.CreateExchange(d, meta.(*rabbithole.Client))
+	return resources.CreateExchange(d, meta.(*rabbithole.Client))
 }
 
 func ReadExchangeDelayedMessage(d *schema.ResourceData, meta interface{}) error {
-	if err := core.ReadExchange(d, meta.(*rabbithole.Client)); err != nil {
+	if err := resources.ReadExchange(d, meta.(*rabbithole.Client)); err != nil {
 		return err
 	}
 
@@ -65,5 +65,5 @@ func ReadExchangeDelayedMessage(d *schema.ResourceData, meta interface{}) error 
 }
 
 func DeleteExchangeDelayedMessage(d *schema.ResourceData, meta interface{}) error {
-	return core.DeleteExchange(d, meta.(*rabbithole.Client))
+	return resources.DeleteExchange(d, meta.(*rabbithole.Client))
 }

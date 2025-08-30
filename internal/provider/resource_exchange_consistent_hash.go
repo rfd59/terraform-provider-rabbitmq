@@ -2,7 +2,7 @@ package provider
 
 import (
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
-	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core/resources"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -16,7 +16,7 @@ func resourceExchangeConsistentHash() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
-		Schema: core.ResourceExchange(),
+		Schema: resources.Exchange(),
 	}
 }
 
@@ -24,13 +24,13 @@ func CreateExchangeConsistentHash(d *schema.ResourceData, meta interface{}) erro
 	// Set the exchange type
 	d.Set("type", "x-consistent-hash")
 
-	return core.CreateExchange(d, meta.(*rabbithole.Client))
+	return resources.CreateExchange(d, meta.(*rabbithole.Client))
 }
 
 func ReadExchangeConsistentHash(d *schema.ResourceData, meta interface{}) error {
-	return core.ReadExchange(d, meta.(*rabbithole.Client))
+	return resources.ReadExchange(d, meta.(*rabbithole.Client))
 }
 
 func DeleteExchangeConsistentHash(d *schema.ResourceData, meta interface{}) error {
-	return core.DeleteExchange(d, meta.(*rabbithole.Client))
+	return resources.DeleteExchange(d, meta.(*rabbithole.Client))
 }

@@ -5,12 +5,13 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core"
+	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/core/datasources"
 )
 
 func datasourceExchangeDelayedMessage() *schema.Resource {
 	// Load and customize the resource schema
-	mySchema := core.DatasourceExchange()
+	mySchema := datasources.Exchange()
 	mySchema["delayed_type"] = &schema.Schema{
 		Description: "The type of delayed exchange. Possible values are `direct`, `fanout`, `headers`, `topic`, `x-random` and `x-consistent-hash`.",
 		Type:        schema.TypeString,
@@ -25,7 +26,7 @@ func datasourceExchangeDelayedMessage() *schema.Resource {
 }
 
 func datasourceReadExchangeDelayedMessage(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	diag := core.DatasourceReadExchange(ctx, d, meta)
+	diag := datasources.ReadExchange(d, meta.(*rabbithole.Client))
 
 	// Add specific argument
 	args := d.Get("argument").(*schema.Set)
