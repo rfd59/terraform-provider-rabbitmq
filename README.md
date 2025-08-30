@@ -12,7 +12,7 @@
 ![Go version](https://img.shields.io/github/go-mod/go-version/rfd59/terraform-provider-rabbitmq)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Fbuild.yml?label=build)
 ![Test Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Ftest.yml?label=test)
-![Coverage](https://sonar.rfd.ovh/api/project_badges/measure?project=rfd59.terraform-provider-rabbitmq&metric=coverage&token=sqb_44b6ae8e30de40b0d76cc3bcfad1a5e2e3f3c0c0)
+[![codecov](https://codecov.io/gh/rfd59/terraform-provider-rabbitmq/graph/badge.svg?token=6DNXX7N0IM)](https://codecov.io/gh/rfd59/terraform-provider-rabbitmq)
 
 ---
 
@@ -128,8 +128,16 @@ make doc
 ## 🤝 Contributing
 
 Contributions are welcome!  
-Please open an [issue](https://github.com/rfd59/terraform-provider-rabbitmq/issues) or a [pull request](https://github.com/rfd59/terraform-provider-rabbitmq/pulls).  
 
+Please open an [issue](https://github.com/rfd59/terraform-provider-rabbitmq/issues) first to discuss what you would like to change.
+
+Guidelines:
+- Format code with gofmt
+  > `gofmt -w .`
+- Lint with golangci-lint
+  > `golangci-lint run`
+- Write unit tests for new features
+- Open a [Pull Request](https://github.com/rfd59/terraform-provider-rabbitmq/pulls) to **develop** branch.    
 ---
 
 ## 📄 License
