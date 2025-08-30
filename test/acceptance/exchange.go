@@ -71,16 +71,25 @@ func (e *ExchangeResource) OptionalArgumentsString(data TestData) string {
 }
 
 func (e *ExchangeResource) OptionalArgumentsNumeric(data TestData) string {
+	var val string
+
+	switch e.Arguments[0]["value"].(type) {
+	case int:
+		val = fmt.Sprintf("%d", e.Arguments[0]["value"])
+	case float64:
+		val = fmt.Sprintf("%.2f", e.Arguments[0]["value"])
+	}
+
 	return fmt.Sprintf(`
 	resource "%s" "%s" {
 		name = "%s"
 
 		argument {
 			key = "%s"
-			value = "%d"
+			value = "%s"
 		    type = "%s"
 		}
-	}`, data.ResourceType, data.ResourceLabel, e.Name, e.Arguments[0]["key"], e.Arguments[0]["value"], e.Arguments[0]["type"])
+	}`, data.ResourceType, data.ResourceLabel, e.Name, e.Arguments[0]["key"], val, e.Arguments[0]["type"])
 }
 
 func (e *ExchangeResource) OptionalArgumentsBoolean(data TestData) string {
@@ -166,7 +175,7 @@ func (e ExchangeResource) ExistsInRabbitMQ(argsChecked bool) (*rabbithole.Detail
 
 			for _, v := range e.Arguments {
 				if myExchange.Arguments[v["key"].(string)] != v["value"] {
-					return nil, fmt.Errorf("exchange 'argument %q is not equal: expected: '%s', got '%s'", v["key"], v["value"], myExchange.Arguments[v["key"].(string)])
+					return nil, fmt.Errorf("exchange argument %q is not equal: expected: '%s', got '%s'", v["key"], v["value"], myExchange.Arguments[v["key"].(string)])
 				}
 			}
 		}
