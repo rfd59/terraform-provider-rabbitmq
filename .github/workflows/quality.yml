@@ -4,7 +4,7 @@ on:
   push:
     branches: 
       - develop
-      - feature/quality
+      - dev/quality
   pull_request:
   workflow_dispatch:
 
@@ -31,9 +31,13 @@ jobs:
           go mod download
           go install github.com/jstemmer/go-junit-report/v2@latest
  
-      - name: Run tests
+      - name: Run all tests
         run: |
+          set -e
+          . ./scripts/testacc.env
+          ./scripts/testacc.sh setup
           go test -v -coverprofile=coverage.out ./internal/provider/... | go-junit-report -set-exit-code > junit.xml
+          ./scripts/testacc.sh cleanup
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
