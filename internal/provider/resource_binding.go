@@ -15,7 +15,7 @@ import (
 
 func resourceBinding() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_binding` resource creates and manages a binding relationship between a queue an exchange.",
+		Description: "Binding --- The `rabbitmq_binding` resource creates and manages a binding relationship between a queue an exchange.",
 		Create:      CreateBinding,
 		Read:        ReadBinding,
 		Delete:      DeleteBinding,
