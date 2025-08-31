@@ -119,6 +119,7 @@ func New() *schema.Provider {
 			"rabbitmq_binding":                  resourceBinding(),
 			"rabbitmq_exchange":                 resourceExchange(),
 			"rabbitmq_exchange_direct":          resourceExchangeDirect(),
+			"rabbitmq_exchange_headers":         resourceExchangeHeaders(),
 			"rabbitmq_exchange_fanout":          resourceExchangeFanout(),
 			"rabbitmq_exchange_topic":           resourceExchangeTopic(),
 			"rabbitmq_exchange_delayed_message": resourceExchangeDelayedMessage(),
@@ -137,6 +138,7 @@ func New() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"rabbitmq_exchange":                 dataSourcesExchange(),
 			"rabbitmq_exchange_direct":          datasourceExchangeDirect(),
+			"rabbitmq_exchange_headers":         datasourceExchangeHeaders(),
 			"rabbitmq_exchange_fanout":          datasourceExchangeFanout(),
 			"rabbitmq_exchange_topic":           datasourceExchangeTopic(),
 			"rabbitmq_exchange_delayed_message": datasourceExchangeDelayedMessage(),
