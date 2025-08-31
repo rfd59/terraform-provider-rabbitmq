@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -122,14 +123,14 @@ func CreateExchange(d *schema.ResourceData, meta interface{}) error {
 func ReadExchange(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	exchangeSettings, err := rmqc.GetExchange(vhost, name)
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	d.Set("name", exchangeSettings.Name)
@@ -155,14 +156,14 @@ func ReadExchange(d *schema.ResourceData, meta interface{}) error {
 func DeleteExchange(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	resp, err := rmqc.DeleteExchange(vhost, name)
 	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
-		return failApiResponse(err, resp, "deleting", "exchange")
+		return utils.FailApiResponse(err, resp, "deleting", "exchange")
 	}
 
 	return nil
@@ -197,7 +198,7 @@ func declareExchange(rmqc *rabbithole.Client, vhost string, name string, setting
 
 	resp, err := rmqc.DeclareExchange(vhost, name, exchangeSettings)
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "creating", "exchange")
+		return utils.FailApiResponse(err, resp, "creating", "exchange")
 	}
 
 	return nil

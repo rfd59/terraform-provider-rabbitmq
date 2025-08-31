@@ -5,6 +5,7 @@ import (
 	"log"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -92,14 +93,14 @@ func CreatePermissions(d *schema.ResourceData, meta interface{}) error {
 func ReadPermissions(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	user, vhost, err := parseResourceId(d)
+	user, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	userPerms, err := rmqc.GetPermissionsIn(vhost, user)
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	log.Printf("[DEBUG] RabbitMQ: Permission retrieved for %s: %#v", d.Id(), userPerms)
@@ -121,7 +122,7 @@ func ReadPermissions(d *schema.ResourceData, meta interface{}) error {
 func UpdatePermissions(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	user, vhost, err := parseResourceId(d)
+	user, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
@@ -146,7 +147,7 @@ func UpdatePermissions(d *schema.ResourceData, meta interface{}) error {
 func DeletePermissions(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	user, vhost, err := parseResourceId(d)
+	user, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}

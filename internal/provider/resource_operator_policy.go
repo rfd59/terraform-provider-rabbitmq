@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -98,14 +99,14 @@ func CreateOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 func ReadOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	operatorPolicy, err := rmqc.GetOperatorPolicy(vhost, name)
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	log.Printf("[DEBUG] RabbitMQ: OperatorPolicy retrieved for %s: %#v", d.Id(), operatorPolicy)
@@ -146,7 +147,7 @@ func ReadOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 func UpdateOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
@@ -171,7 +172,7 @@ func UpdateOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 func DeleteOperatorPolicy(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 )
 
 func resourceFederationUpstream() *schema.Resource {
@@ -149,14 +150,14 @@ func CreateFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 func ReadFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	upstream, err := rmqc.GetFederationUpstream(vhost, name)
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	log.Printf("[DEBUG] RabbitMQ: Federation upstream retrieved for %s: %#v", d.Id(), upstream)
@@ -191,7 +192,7 @@ func ReadFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 func UpdateFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
@@ -216,7 +217,7 @@ func UpdateFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 func DeleteFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 )
 
 func resourceQueue() *schema.Resource {
@@ -135,14 +136,14 @@ func CreateQueue(d *schema.ResourceData, meta interface{}) error {
 func ReadQueue(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	queueSettings, err := rmqc.GetQueue(vhost, name)
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	d.Set("name", queueSettings.Name)
@@ -202,14 +203,14 @@ func ReadQueue(d *schema.ResourceData, meta interface{}) error {
 func DeleteQueue(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	resp, err := rmqc.DeleteQueue(vhost, name)
 	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
-		return failApiResponse(err, resp, "deleting", "queue")
+		return utils.FailApiResponse(err, resp, "deleting", "queue")
 	}
 
 	return nil
@@ -232,7 +233,7 @@ func declareQueue(rmqc *rabbithole.Client, vhost string, name string, settingsMa
 
 	resp, err := rmqc.DeclareQueue(vhost, name, queueSettings)
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "creating", "queue")
+		return utils.FailApiResponse(err, resp, "creating", "queue")
 	}
 
 	return nil

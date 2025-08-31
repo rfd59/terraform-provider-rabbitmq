@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 )
 
 func resourceBinding() *schema.Resource {
@@ -118,7 +119,7 @@ func CreateBinding(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] RabbitMQ: Binding properties key: %s", propertiesKey)
 	bindingInfo.PropertiesKey = propertiesKey
-	name := fmt.Sprintf("%s/%s/%s/%s/%s", percentEncodeSlashes(vhost), bindingInfo.Source, bindingInfo.Destination, bindingInfo.DestinationType, bindingInfo.PropertiesKey)
+	name := fmt.Sprintf("%s/%s/%s/%s/%s", utils.PercentEncodeSlashes(vhost), bindingInfo.Source, bindingInfo.Destination, bindingInfo.DestinationType, bindingInfo.PropertiesKey)
 	d.SetId(name)
 
 	return ReadBinding(d, meta)
@@ -134,7 +135,7 @@ func ReadBinding(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("unable to determine binding ID")
 	}
 
-	vhost := percentDecodeSlashes(bindingId[0])
+	vhost := utils.PercentDecodeSlashes(bindingId[0])
 	source := bindingId[1]
 	destination := bindingId[2]
 	destinationType := bindingId[3]
@@ -206,7 +207,7 @@ func DeleteBinding(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("unable to determine binding ID")
 	}
 
-	vhost := percentDecodeSlashes(bindingId[0])
+	vhost := utils.PercentDecodeSlashes(bindingId[0])
 	source := bindingId[1]
 	destination := bindingId[2]
 	destinationType := bindingId[3]

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 )
 
 func resourceUser() *schema.Resource {
@@ -94,13 +95,13 @@ func CreateUser(d *schema.ResourceData, meta interface{}) error {
 
 	resp, err := rmqc.PutUser(name, userSettings)
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "creating", "user")
+		return utils.FailApiResponse(err, resp, "creating", "user")
 	}
 
 	if len(limits) > 0 {
 		resp, err = rmqc.PutUserLimits(name, limits)
 		if err != nil || resp.StatusCode >= 400 {
-			return failApiResponse(err, resp, "creating", "user limits")
+			return utils.FailApiResponse(err, resp, "creating", "user limits")
 		}
 	}
 
@@ -113,7 +114,7 @@ func ReadUser(d *schema.ResourceData, meta interface{}) error {
 
 	user, err := rmqc.GetUser(d.Id())
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 	d.Set("name", user.Name)
 
@@ -131,7 +132,7 @@ func ReadUser(d *schema.ResourceData, meta interface{}) error {
 
 	myUserLimits, err := rmqc.GetUserLimits(d.Id())
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	if len(myUserLimits) > 0 {
@@ -161,7 +162,7 @@ func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 	}
 	myUserLimits, err := rmqc.GetUserLimits(d.Id())
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	limits := make(rabbithole.UserLimitsValues)
@@ -198,18 +199,18 @@ func UpdateUser(d *schema.ResourceData, meta interface{}) error {
 
 	resp, err := rmqc.PutUser(name, userSettings)
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "updating", "user")
+		return utils.FailApiResponse(err, resp, "updating", "user")
 	}
 
 	resp, err = rmqc.DeleteUserLimits(name, rabbithole.UserLimits{"max-connections", "max-channels"})
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "updating", "user limits")
+		return utils.FailApiResponse(err, resp, "updating", "user limits")
 	}
 
 	if len(limits) > 0 {
 		resp, err = rmqc.PutUserLimits(name, limits)
 		if err != nil || resp.StatusCode >= 400 {
-			return failApiResponse(err, resp, "updating", "user limits")
+			return utils.FailApiResponse(err, resp, "updating", "user limits")
 		}
 	}
 
@@ -222,12 +223,12 @@ func DeleteUser(d *schema.ResourceData, meta interface{}) error {
 
 	resp, err := rmqc.DeleteUserLimits(name, rabbithole.UserLimits{"max-connections", "max-channels"})
 	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
-		return failApiResponse(err, resp, "deleting", "user limits")
+		return utils.FailApiResponse(err, resp, "deleting", "user limits")
 	}
 
 	resp, err = rmqc.DeleteUser(name)
 	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
-		return failApiResponse(err, resp, "deleting", "user")
+		return utils.FailApiResponse(err, resp, "deleting", "user")
 	}
 
 	return nil

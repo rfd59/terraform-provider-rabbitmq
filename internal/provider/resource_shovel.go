@@ -5,6 +5,7 @@ import (
 	"log"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -266,14 +267,14 @@ func CreateShovel(d *schema.ResourceData, meta interface{}) error {
 func ReadShovel(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
 
 	shovelInfo, err := rmqc.GetShovel(vhost, name)
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	log.Printf("[DEBUG] RabbitMQ: Shovel retrieved: Vhost: %#v, Name: %#v", vhost, name)
@@ -319,7 +320,7 @@ func ReadShovel(d *schema.ResourceData, meta interface{}) error {
 func UpdateShovel(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}
@@ -348,7 +349,7 @@ func UpdateShovel(d *schema.ResourceData, meta interface{}) error {
 func DeleteShovel(d *schema.ResourceData, meta interface{}) error {
 	rmqc := meta.(*rabbithole.Client)
 
-	name, vhost, err := parseResourceId(d)
+	name, vhost, err := utils.ParseResourceId(d.Id())
 	if err != nil {
 		return err
 	}

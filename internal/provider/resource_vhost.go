@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
+	"github.com/rfd59/terraform-provider-rabbitmq/internal/provider/utils"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -132,13 +133,13 @@ func CreateVhost(d *schema.ResourceData, meta interface{}) error {
 
 	resp, err := rmqc.PutVhost(vhost, settings)
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "creating", "vhost")
+		return utils.FailApiResponse(err, resp, "creating", "vhost")
 	}
 
 	if len(limits) > 0 {
 		resp, err = rmqc.PutVhostLimits(vhost, limits)
 		if err != nil || resp.StatusCode >= 400 {
-			return failApiResponse(err, resp, "creating", "vhost limits")
+			return utils.FailApiResponse(err, resp, "creating", "vhost limits")
 		}
 	}
 
@@ -151,7 +152,7 @@ func ReadVhost(d *schema.ResourceData, meta interface{}) error {
 
 	vhost, err := rmqc.GetVhost(d.Id())
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 	d.Set("name", vhost.Name)
 
@@ -165,7 +166,7 @@ func ReadVhost(d *schema.ResourceData, meta interface{}) error {
 
 	myVhostLimits, err := rmqc.GetVhostLimits(d.Id())
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	if len(myVhostLimits) > 0 {
@@ -192,12 +193,12 @@ func UpdateVhost(d *schema.ResourceData, meta interface{}) error {
 
 	vhost, err := rmqc.GetVhost(d.Id())
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	myVhostLimits, err := rmqc.GetVhostLimits(d.Id())
 	if err != nil {
-		return checkDeleted(d, err)
+		return utils.CheckDeletedResource(d, err)
 	}
 
 	var settings rabbithole.VhostSettings
@@ -266,18 +267,18 @@ func UpdateVhost(d *schema.ResourceData, meta interface{}) error {
 	resp, err := rmqc.PutVhost(vhost.Name, settings)
 	log.Printf("[DEBUG] RabbitMQ: vhost creation response: %#v", resp)
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "updating", "vhost")
+		return utils.FailApiResponse(err, resp, "updating", "vhost")
 	}
 
 	resp, err = rmqc.DeleteVhostLimits(vhost.Name, rabbithole.VhostLimits{"max-connections", "max-queues"})
 	if err != nil || resp.StatusCode >= 400 {
-		return failApiResponse(err, resp, "updating", "vhost limits")
+		return utils.FailApiResponse(err, resp, "updating", "vhost limits")
 	}
 
 	if len(limits) > 0 {
 		resp, err = rmqc.PutVhostLimits(vhost.Name, limits)
 		if err != nil || resp.StatusCode >= 400 {
-			return failApiResponse(err, resp, "updating", "vhost limits")
+			return utils.FailApiResponse(err, resp, "updating", "vhost limits")
 		}
 	}
 
@@ -289,7 +290,7 @@ func DeleteVhost(d *schema.ResourceData, meta interface{}) error {
 
 	resp, err := rmqc.DeleteVhost(d.Id())
 	if err != nil || (resp.StatusCode >= 400 && resp.StatusCode != 404) {
-		return failApiResponse(err, resp, "deleting", "vhost limits")
+		return utils.FailApiResponse(err, resp, "deleting", "vhost limits")
 	}
 
 	return nil
