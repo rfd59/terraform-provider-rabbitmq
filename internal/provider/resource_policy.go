@@ -13,7 +13,7 @@ import (
 
 func resourcePolicy() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_policy` resource creates and manages policies for exchanges and queues.",
+		Description: "Policy --- The `rabbitmq_policy` resource creates and manages policies for exchanges and queues.",
 		Create:      CreatePolicy,
 		Update:      UpdatePolicy,
 		Read:        ReadPolicy,

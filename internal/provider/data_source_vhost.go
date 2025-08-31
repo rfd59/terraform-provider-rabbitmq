@@ -11,7 +11,7 @@ import (
 
 func dataSourcesVhost() *schema.Resource {
 	return &schema.Resource{
-		Description: "Use this data source to access information about an existing _vhost_.",
+		Description: "Virtual Host --- Use this data source to access information about an existing _vhost_.",
 		ReadContext: dataSourcesReadVhost,
 		Schema: map[string]*schema.Schema{
 			"id": {

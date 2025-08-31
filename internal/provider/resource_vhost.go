@@ -12,7 +12,7 @@ import (
 
 func resourceVhost() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_vhost` resource creates and manages a vhost.",
+		Description: "Virtual Host --- The `rabbitmq_vhost` resource creates and manages a vhost.",
 		Create:      CreateVhost,
 		Read:        ReadVhost,
 		Delete:      DeleteVhost,

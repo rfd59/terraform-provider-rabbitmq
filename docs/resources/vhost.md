@@ -1,6 +1,6 @@
 ---
 page_title: "rabbitmq_vhost Resource - terraform-provider-rabbitmq"
-subcategory: ""
+subcategory: "Virtual Host"
 description: |-
   The rabbitmq_vhost resource creates and manages a vhost.
 ---

@@ -10,7 +10,7 @@ import (
 
 func resourceUser() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_user` resource creates and manages a user.",
+		Description: "User --- The `rabbitmq_user` resource creates and manages a user.",
 		Create:      CreateUser,
 		Update:      UpdateUser,
 		Read:        ReadUser,
