@@ -12,7 +12,7 @@ import (
 
 func resourceQueue() *schema.Resource {
 	return &schema.Resource{
-		Description: "The rabbitmq_queue resource creates and manages a queue.",
+		Description: "Queue --- The rabbitmq_queue resource creates and manages a queue.",
 		Create:      CreateQueue,
 		Read:        ReadQueue,
 		Delete:      DeleteQueue,
