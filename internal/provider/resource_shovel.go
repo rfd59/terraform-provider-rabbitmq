@@ -11,7 +11,7 @@ import (
 
 func resourceShovel() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_shovel` resource creates and manages a dynamic shovel.",
+		Description: "Shovel --- The `rabbitmq_shovel` resource creates and manages a dynamic shovel.",
 		Create:      CreateShovel,
 		Update:      UpdateShovel,
 		Read:        ReadShovel,

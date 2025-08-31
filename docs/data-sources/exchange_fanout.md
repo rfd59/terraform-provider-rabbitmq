@@ -46,6 +46,6 @@ data "rabbitmq_exchange_fanout" "example" {
 
 Read-Only:
 
- `key` (String) The argument key.
+- `key` (String) The argument key.
 - `type` (String) The argument value.
 - `value` (String) The value type. Possible values are `string`, `numeric`, `boolean` and `list`.

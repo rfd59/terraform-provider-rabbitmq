@@ -1,6 +1,5 @@
 ---
 page_title: "RabbitMQ Provider - terraform-provider-rabbitmq"
-subcategory: ""
 description: |-
   The RabbitMQ provider exposes resources used to manage the configuration of resources in a RabbitMQ server
 ---

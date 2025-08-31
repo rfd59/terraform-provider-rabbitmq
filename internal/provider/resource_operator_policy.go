@@ -13,7 +13,7 @@ import (
 
 func resourceOperatorPolicy() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_operator_policy` resource creates and manages operator policies for queues.",
+		Description: "Policy --- The `rabbitmq_operator_policy` resource creates and manages operator policies for queues.",
 		Create:      CreateOperatorPolicy,
 		Update:      UpdateOperatorPolicy,
 		Read:        ReadOperatorPolicy,

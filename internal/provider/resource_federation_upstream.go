@@ -11,7 +11,7 @@ import (
 
 func resourceFederationUpstream() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_federation_upstream` resource creates and manages a federation upstream parameter.",
+		Description: "Federation Upstream --- The `rabbitmq_federation_upstream` resource creates and manages a federation upstream parameter.",
 		Create:      CreateFederationUpstream,
 		Read:        ReadFederationUpstream,
 		Update:      UpdateFederationUpstream,

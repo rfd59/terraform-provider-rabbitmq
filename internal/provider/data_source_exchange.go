@@ -12,7 +12,7 @@ import (
 
 func dataSourcesExchange() *schema.Resource {
 	return &schema.Resource{
-		Description:        "Use this data source to access information about an existing _exchange_.",
+		Description:        "Exchange --- Use this data source to access information about an existing _exchange_.",
 		DeprecationMessage: "Migrate this data source to a dedicated exchange data source. This data source will be removed in the next major version of the provider.",
 		ReadContext:        dataSourcesReadExchange,
 		Schema: map[string]*schema.Schema{

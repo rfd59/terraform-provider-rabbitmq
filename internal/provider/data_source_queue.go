@@ -13,7 +13,7 @@ import (
 
 func dataSourcesQueue() *schema.Resource {
 	return &schema.Resource{
-		Description: "Use this data source to access information about an existing _queue_.",
+		Description: "Queue --- Use this data source to access information about an existing _queue_.",
 		ReadContext: dataSourcesReadQueue,
 		Schema: map[string]*schema.Schema{
 			"id": {

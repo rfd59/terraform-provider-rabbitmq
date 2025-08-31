@@ -12,7 +12,7 @@ import (
 
 func resourceTopicPermissions() *schema.Resource {
 	return &schema.Resource{
-		Description: "The `rabbitmq_topic_permissions` resource creates and manages a user's set of topic permissions.",
+		Description: "Permission --- The `rabbitmq_topic_permissions` resource creates and manages a user's set of topic permissions.",
 		Create:      CreateTopicPermissions,
 		Update:      UpdateTopicPermissions,
 		Read:        ReadTopicPermissions,

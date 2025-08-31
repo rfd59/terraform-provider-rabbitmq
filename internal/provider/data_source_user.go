@@ -11,7 +11,7 @@ import (
 
 func dataSourcesUser() *schema.Resource {
 	return &schema.Resource{
-		Description: "Use this data source to access information about an existing _user_.",
+		Description: "User --- Use this data source to access information about an existing _user_.",
 		ReadContext: dsRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
