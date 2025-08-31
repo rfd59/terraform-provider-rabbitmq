@@ -4,7 +4,7 @@ require (
 	github.com/hashicorp/terraform-plugin-docs v0.22.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
 	github.com/michaelklishin/rabbit-hole/v3 v3.2.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.11.1
 	golang.org/x/mod v0.27.0
 )
 
