@@ -10,6 +10,7 @@
 ![GitHub License](https://img.shields.io/github/license/rfd59/terraform-provider-rabbitmq)
 
 ![Go version](https://img.shields.io/github/go-mod/go-version/rfd59/terraform-provider-rabbitmq)
+[![Go Report Card](https://goreportcard.com/badge/github.com/terraform-providers/terraform-provider-rabbitmq)](https://goreportcard.com/report/github.com/terraform-providers/terraform-provider-rabbitmq)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Fbuild.yml?label=build)
 ![Test Status](https://img.shields.io/github/actions/workflow/status/rfd59/terraform-provider-rabbitmq/.github%2Fworkflows%2Ftest.yml?label=test)
 [![codecov](https://codecov.io/gh/rfd59/terraform-provider-rabbitmq/graph/badge.svg?token=6DNXX7N0IM)](https://codecov.io/gh/rfd59/terraform-provider-rabbitmq)
@@ -56,7 +57,7 @@ resource "rabbitmq_vhost" "example" {
 
 ### Requirements
 - [Terraform](https://www.terraform.io/downloads.html) **1.0+**
-- [Go](https://golang.org/doc/install) **1.23**
+- [Go](https://golang.org/doc/install) **1.24**
 - [Docker Engine](https://docs.docker.com/engine/install) **>= 27.2.x**
 - [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-compose-plugin) **>= 2.29.x**
 
