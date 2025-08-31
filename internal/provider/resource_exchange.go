@@ -11,7 +11,7 @@ import (
 
 func resourceExchange() *schema.Resource {
 	return &schema.Resource{
-		Description:        "The `rabbitmq_exchange` resource creates and manages an exchange.",
+		Description:        "Exchange --- The `rabbitmq_exchange` resource creates and manages an exchange.",
 		DeprecationMessage: "Migrate this resource to a dedicated exchange resource. This resource will be removed in the next major version of the provider.",
 		Create:             CreateExchange,
 		Read:               ReadExchange,
