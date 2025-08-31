@@ -79,7 +79,7 @@ func CreateTopicPermissions(d *schema.ResourceData, meta interface{}) error {
 
 		permsMap, ok := exchange.(map[string]interface{})
 		if !ok {
-			return fmt.Errorf("Unable to parse permissions")
+			return fmt.Errorf("unable to parse permissions")
 		}
 
 		if err := setTopicPermissionsIn(rmqc, vhost, user, permsMap); err != nil {
@@ -144,7 +144,7 @@ func UpdateTopicPermissions(d *schema.ResourceData, meta interface{}) error {
 		for _, exchange := range newPermsSet.List() {
 			permsMap, ok := exchange.(map[string]interface{})
 			if !ok {
-				return fmt.Errorf("Unable to parse permissions")
+				return fmt.Errorf("unable to parse permissions")
 			}
 
 			if err := setTopicPermissionsIn(rmqc, vhost, user, permsMap); err != nil {
@@ -183,7 +183,7 @@ func DeleteTopicPermissions(d *schema.ResourceData, meta interface{}) error {
 		if verErr != nil {
 			return verErr
 		}
-		return fmt.Errorf("Error deleting RabbitMQ topic permission: %s", resp.Status)
+		return fmt.Errorf("error deleting RabbitMQ topic permission: %s", resp.Status)
 	}
 
 	return nil
@@ -217,7 +217,7 @@ func setTopicPermissionsIn(rmqc *rabbithole.Client, vhost string, user string, p
 		if verErr != nil {
 			return verErr
 		}
-		return fmt.Errorf("Error setting topic permissions: %s", resp.Status)
+		return fmt.Errorf("error setting topic permissions: %s", resp.Status)
 	}
 
 	return nil
@@ -227,7 +227,7 @@ func checkVersion(rmqc *rabbithole.Client) error {
 	overview, _ := rmqc.Overview()
 	ver, _ := strconv.ParseFloat(overview.RabbitMQVersion, 32)
 	if ver < 3.7 {
-		return fmt.Errorf("Topic permissions were adding in RabbitMQ 3.7, connected to %s", overview.RabbitMQVersion)
+		return fmt.Errorf("topic permissions were adding in RabbitMQ 3.7, connected to %s", overview.RabbitMQVersion)
 	}
 	return nil
 }

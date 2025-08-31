@@ -5,28 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.6.0 (August 31, 2025)
+
+FEATURE:
+
+* New resource/datasource `rabbitmq_exchange_direct` ([#54](https://github.com/rfd59/terraform-provider-rabbitmq/pull/54)) - @rfavreau
+* New resource/datasource `rabbitmq_exchange_topic` ([#55](https://github.com/rfd59/terraform-provider-rabbitmq/pull/55)) - @rfavreau
+* New resource/datasource `rabbitmq_exchange_fanout` ([#56](https://github.com/rfd59/terraform-provider-rabbitmq/pull/56)) - @rfavreau
+* New resource/datasource `rabbitmq_exchange_headers` ([#57](https://github.com/rfd59/terraform-provider-rabbitmq/pull/57)) - @rfavreau
+* New resource/datasource `rabbitmq_exchange_delayed_message` ([#51](https://github.com/rfd59/terraform-provider-rabbitmq/pull/51)) - @rfavreau
+* New resource/datasource `rabbitmq_exchange_random` ([#52](https://github.com/rfd59/terraform-provider-rabbitmq/pull/52)) - @rfavreau
+* New resource/datasource `rabbitmq_exchange_consistent_hash` ([#53](https://github.com/rfd59/terraform-provider-rabbitmq/pull/53)) - @rfavreau
+* Deprecated the resource/datasource `rabbitmq_exchange` ([#58](https://github.com/rfd59/terraform-provider-rabbitmq/pull/58)) - @rfavreau
+
+BUILD / DEV:
+
+* Add coverage code with [Codecov](https://app.codecov.io/gh/rfd59/terraform-provider-rabbitmq) - @rfavreau
+* Bump github.com/hashicorp/terraform-plugin-sdk/v2 from 2.36.1 to 2.37.0 ([#41](https://github.com/rfd59/terraform-provider-rabbitmq/pull/41)) - @rfavreau
+* Bump golang.org/x/mod from 0.24.0 to 0.27.0 ([#47](https://github.com/rfd59/terraform-provider-rabbitmq/pull/47)) - @rfavreau
+* Bump github.com/hashicorp/terraform-plugin-docs from 0.21.0 to 0.22.0 ([#43](https://github.com/rfd59/terraform-provider-rabbitmq/pull/43)) - @rfavreau
+* Bump github.com/stretchr/testify from 1.8.3 to 1.11.1 ([#59](https://github.com/rfd59/terraform-provider-rabbitmq/pull/59)) - @rfavreau
+* Bump go version from 1.23 to 1.24 ([#59](https://github.com/rfd59/terraform-provider-rabbitmq/pull/59)) - @rfavreau
+* Update Goreleaser settings - @rfavreau
+* Update the Github Actions - @rfavreau
+* Update the README style - @rfavreau
+
 ## 2.5.0 (April 21, 2025)
 
 FEATURE:
 
 * Add `internal` and `alternate_exchange` fields for `rabbitmq_exchange` resource - @rfavreau
-
 * Modify the default value for `durable` field for `rabbitmq_exchange` resource - @rfavreau
-
 * Add an input check to `type` field for `rabbitmq_exchange` resource and set its optional - @rfavreau
-
 * Force the `rabbitmq_exchange` resource to be recreated when a field is updated - @rfavreau
-
 * Add `internal` and `alternate_exchange` fields for `rabbitmq_exchange` datasource - @rfavreau
 
 BUILD / DEV:
 
 * Update _rabbit-hole_ dependency - @rfavreau
-
 * Refactor `rabbitmq_queue` resource - @rfavreau
-
 * Add _RabbitMQ 4.1_ into unit tests - @rfavreau
-
 * Upgrade _resource_exchange_ unit tests - @rfavreau
 
 
@@ -35,23 +53,19 @@ BUILD / DEV:
 FEATURE:
 
 * Add `type` read only field for `rabbitmq_queue` resource - @rfavreau
-
 * Add `rabbitmq_queue` datasource - @rfavreau
 
 FIX:
 
 * `x-queue-type` argument causing always queue recreation [#32](https://github.com/rfd59/terraform-provider-rabbitmq/issues/32) - @pnowy
   ([#35](https://github.com/rfd59/terraform-provider-rabbitmq/pull/35))
-
 * Datasource _vhost_ returns no error message when the vhost doesn't exist [#36](https://github.com/rfd59/terraform-provider-rabbitmq/issues/36) - @rfavreau
 
 BUILD / DEV:
 
 * Update dependencies - @rfavreau
   ([#29](https://github.com/rfd59/terraform-provider-rabbitmq/pull/29), [#31](https://github.com/rfd59/terraform-provider-rabbitmq/pull/31), [#33](https://github.com/rfd59/terraform-provider-rabbitmq/pull/33), [#34](https://github.com/rfd59/terraform-provider-rabbitmq/pull/34))
-
 * Upgrade _resource_queue_ unit tests - @rfavreau
-
 * Fix golangci-lint - @rfavreau
 
 ## 2.3.0 (December 06, 2024)
@@ -64,7 +78,6 @@ FEATURES:
 BUILD / DEV:
 
 * Upgrade to Golang 1.23 - @rfavreau
-
 * Update dependencies - @rfavreau
   ([#23](https://github.com/rfd59/terraform-provider-rabbitmq/pull/23), [#25](https://github.com/rfd59/terraform-provider-rabbitmq/pull/25), [#26](https://github.com/rfd59/terraform-provider-rabbitmq/pull/26))
 
@@ -85,7 +98,6 @@ BUILD / DEV:
 
 * Update GitHub Actions - @rfavreau
   ([#15](https://github.com/rfd59/terraform-provider-rabbitmq/pull/15))
-
 * GitHub settings - @rfavreau
   ([#18](https://github.com/rfd59/terraform-provider-rabbitmq/pull/18))
 
@@ -100,7 +112,6 @@ BUILD / DEV:
 
 * New repository structure - @rfavreau
   ([#11](https://github.com/rfd59/terraform-provider-rabbitmq/pull/11))
-
 * Build task for Provider documentation - @rfavreau
   ([#12](https://github.com/rfd59/terraform-provider-rabbitmq/pull/12))
 
@@ -120,7 +131,6 @@ BUILD / DEV:
 
 * Update project - @rfavreau
   ([#2](https://github.com/rfd59/terraform-provider-rabbitmq/pull/2))
-
 * Update GitHub Actions - @rfavreau
   ([#7](https://github.com/rfd59/terraform-provider-rabbitmq/pull/7))
 
@@ -135,7 +145,6 @@ FIX:
 
 * `rabbitmq_federation`: Fix problematic default `message_ttl` - @ahmadalli
   ([#47](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/47))
-
 * `rabbitmq_binding`: Get only bindings related to source/destination to be faster - @avitsidis 
   ([#43](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/43))
 
@@ -145,7 +154,6 @@ FEATURES:
 
 * `rabbitmq_operator_policy`: new resource - @MrLuje
   ([#8](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/8))
-
 * Add `rabbitmq_vhost`, `rabbitmq_user` and `rabbitmq_exchange` datasources - @Skeen
   ([#37](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/37))
 
@@ -166,7 +174,6 @@ FEATURES:
 
 * Allow configuration of a RabbitMQ-specific proxy - @haines
   ([#16](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/16))
-
 * Update rabbit-hole to 2.10.0 - @MrLuje
   ([#14](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/14))
 
@@ -179,10 +186,8 @@ DEV IMPROVEMENTS:
 
 * Configure Github actions to run acceptance tests - @cyrilgdn
   ([#11](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/11))
-
 * Run golangci-lint in Github actions - @cyrilgdn
   ([#12](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/12))
-
 * Update to go1.15 and remove vendor directory - @cyrilgdn
   ([#13](https://github.com/cyrilgdn/terraform-provider-rabbitmq/pull/13))
 
@@ -208,13 +213,10 @@ FEATURES:
 
 * `rabbitmq_federation_upstream`: New resource to manage federation upstreams.
   ([#55](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/55))
-
 * `rabbitmq_shovel`: New resource to manage shovels.
   ([#48](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/48))
-
 * `provider`: Adding client certificate authentication
   ([#29](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/29))
-
 * `rabbitmq_binding`: Allow to specify arguments directly as JSON with `arguments_json`.
   ([#59](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/59))
 
@@ -222,7 +224,6 @@ DEV IMPROVEMENTS:
 
 * Upgrade rabbithole to v2.2.
   ([#54](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/54)) and ([#57](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/57))
-
 * Remove official support of RabbitMQ 3.6.
   ([#58](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/58))
 
@@ -241,7 +242,6 @@ FIXES:
 * ``rabbitmq_queue``: Set ForceNew on all attributes. Queues cannot be changed after creation.
   ([#38](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/38))
   ([#53](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/53))
-
 * ``rabbitmq_permissions``: Fix error when setting empty permissions.
   ([#52](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/52))
 
@@ -250,7 +250,6 @@ IMPROVEMENTS:
 * Allow to use the provider behind a proxy.
   It reads HTTPS_PROXY / HTTP_PROXY environment variables to configure the HTTP client (cf [net/http documentation](https://godoc.org/net/http#ProxyFromEnvironment))
   ([#39](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/39))
-
 * Document the configuration of the provider with environment variables.
   ([#50](https://github.com/terraform-providers/terraform-provider-rabbitmq/pull/50))
 
@@ -260,7 +259,6 @@ FIXES:
 
 * rabbitmq_user: Fix tags/password update.
   ([#31](https://github.com/terraform-providers/terraform-provider-rabbitmq/issues/31))
-
 * Correctly handle "not found" errors
   ([#45](https://github.com/terraform-providers/terraform-provider-rabbitmq/issues/45))
 
@@ -268,10 +266,8 @@ DEV IMPROVEMENTS:
 
 * Upgrade to Go 1.13
   ([#46](https://github.com/terraform-providers/terraform-provider-rabbitmq/issues/46))
-
 * Terraform SDK migrated to new standalone Terraform plugin SDK.
   ([#46](https://github.com/terraform-providers/terraform-provider-rabbitmq/issues/46))
-
 * Execute acceptance tests in Travis.
   ([#47](https://github.com/terraform-providers/terraform-provider-rabbitmq/issues/47))
 

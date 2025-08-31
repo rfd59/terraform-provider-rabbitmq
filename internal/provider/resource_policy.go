@@ -83,14 +83,14 @@ func CreatePolicy(d *schema.ResourceData, meta interface{}) error {
 	// Check if already exists
 	_, not_found := rmqc.GetPolicy(vhost, name)
 	if not_found == nil {
-		return fmt.Errorf("Error creating RabbitMQ policy '%s': policy already exists", name)
+		return fmt.Errorf("error creating RabbitMQ policy '%s': policy already exists", name)
 	}
 
 	policyList := d.Get("policy").([]interface{})
 
 	policyMap, ok := policyList[0].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("Unable to parse policy")
+		return fmt.Errorf("unable to parse policy")
 	}
 
 	if err := putPolicy(rmqc, vhost, name, policyMap); err != nil {
@@ -165,7 +165,7 @@ func UpdatePolicy(d *schema.ResourceData, meta interface{}) error {
 		policyList := newPolicy.([]interface{})
 		policyMap, ok := policyList[0].(map[string]interface{})
 		if !ok {
-			return fmt.Errorf("Unable to parse policy")
+			return fmt.Errorf("unable to parse policy")
 		}
 
 		if err := putPolicy(rmqc, vhost, name, policyMap); err != nil {
@@ -198,7 +198,7 @@ func DeletePolicy(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ policy '%s': %s", name, resp.Status)
+		return fmt.Errorf("error deleting RabbitMQ policy '%s': %s", name, resp.Status)
 	}
 
 	return nil
@@ -252,7 +252,7 @@ func putPolicy(rmqc *rabbithole.Client, vhost string, name string, policyMap map
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error declaring RabbitMQ policy '%s': %s", name, resp.Status)
+		return fmt.Errorf("error declaring RabbitMQ policy '%s': %s", name, resp.Status)
 	}
 
 	return nil

@@ -10,6 +10,8 @@ description: |-
 
 Use this data source to access information about an existing _exchange_.
 
+!> This data source is deprecated. Migrate this data source to a dedicated exchange data source. This data source will be removed in the next major version of the provider.
+
 ## Example Usage
 
 ```terraform

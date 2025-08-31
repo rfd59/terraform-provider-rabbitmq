@@ -15,7 +15,7 @@ lint:
 	golangci-lint run
 
 test: build
-	go test -cover ./rabbitmq
+	go test -cover ./internal/provider/...
 
 testacc: build
 	scripts/testacc.sh

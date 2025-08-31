@@ -132,7 +132,7 @@ func UpdatePermissions(d *schema.ResourceData, meta interface{}) error {
 		newPermsList := newPerms.([]interface{})
 		permsMap, ok := newPermsList[0].(map[string]interface{})
 		if !ok {
-			return fmt.Errorf("Unable to parse permissions")
+			return fmt.Errorf("unable to parse permissions")
 		}
 
 		if err := setPermissionsIn(rmqc, vhost, user, permsMap); err != nil {
@@ -165,7 +165,7 @@ func DeletePermissions(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ permission: %s", resp.Status)
+		return fmt.Errorf("error deleting RabbitMQ permission: %s", resp.Status)
 	}
 
 	return nil
@@ -195,7 +195,7 @@ func setPermissionsIn(rmqc *rabbithole.Client, vhost string, user string, permsM
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error setting permissions: %s", resp.Status)
+		return fmt.Errorf("error setting permissions: %s", resp.Status)
 	}
 
 	return nil

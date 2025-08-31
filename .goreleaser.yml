@@ -1,12 +1,12 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
-# Visit https://goreleaser.com for documentation on how to customize this
-# behavior.
+version: 2
+
 before:
   hooks:
-    # this is just an example and not a requirement for provider building/publishing
     - go mod tidy
+
 builds:
 - env:
     # goreleaser does not work with CGO, it could also complicate
@@ -32,15 +32,18 @@ builds:
     - goos: darwin
       goarch: '386'
   binary: '{{ .ProjectName }}_v{{ .Version }}'
+
 archives:
-- format: zip
+- formats: ['zip']
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+
 checksum:
   extra_files:
     - glob: 'terraform-registry-manifest.json'
       name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
+
 signs:
   - artifacts: checksum
     args:
@@ -53,11 +56,38 @@ signs:
       - "${signature}"
       - "--detach-sign"
       - "${artifact}"
+
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?bug(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: "Securities"
+      regexp: '^.*?dependabot(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^skip:"
+      - "^release:"
+
 release:
   extra_files:
     - glob: 'terraform-registry-manifest.json'
       name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
   # If you want to manually examine the release before its live, uncomment this line:
   # draft: true
-changelog:
-  skip: true
+  footer: >-
+
+    ---
+
+    📦 The **RabbitMQ Provider** has been also uploaded into [Terraform Registry](https://registry.terraform.io/providers/rfd59/rabbitmq/latest/docs).
+

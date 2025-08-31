@@ -133,7 +133,7 @@ func CreateFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 
 	defMap, ok := defList[0].(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("Unable to parse federation upstream definition")
+		return fmt.Errorf("unable to parse federation upstream definition")
 	}
 
 	if err := putFederationUpstream(rmqc, vhost, name, defMap); err != nil {
@@ -202,7 +202,7 @@ func UpdateFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 		defList := newDef.([]interface{})
 		defMap, ok := defList[0].(map[string]interface{})
 		if !ok {
-			return fmt.Errorf("Unable to parse federation definition")
+			return fmt.Errorf("unable to parse federation definition")
 		}
 
 		if err := putFederationUpstream(rmqc, vhost, name, defMap); err != nil {
@@ -235,7 +235,7 @@ func DeleteFederationUpstream(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error deleting RabbitMQ federation upstream: %s", resp.Status)
+		return fmt.Errorf("error deleting RabbitMQ federation upstream: %s", resp.Status)
 	}
 
 	return nil
@@ -295,7 +295,7 @@ func putFederationUpstream(rmqc *rabbithole.Client, vhost string, name string, d
 	}
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Error creating RabbitMQ federation upstream: %s", resp.Status)
+		return fmt.Errorf("error creating RabbitMQ federation upstream: %s", resp.Status)
 	}
 
 	return nil
