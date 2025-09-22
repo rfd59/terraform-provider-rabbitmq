@@ -7,8 +7,8 @@ description: |-
 ---
 
 # rabbitmq_exchange_headers (Data Source)
-
 Use this data source to access information about an existing _exchange_ of type 'headers'.
+
 
 ## Example Usage
 
@@ -46,6 +46,6 @@ data "rabbitmq_exchange_headers" "example" {
 
 Read-Only:
 
-- `key` (String) The argument key.
-- `type` (String) The argument value.
-- `value` (String) The value type. Possible values are `string`, `numeric`, `boolean` and `list`.
+- `key` (String)
+- `type` (String)
+- `value` (String)

@@ -2,10 +2,10 @@ name: Tests
 
 on:
   push:
-    branches-ignore: 
+    branches-ignore:
       - master
   pull_request:
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   acceptance:
@@ -41,4 +41,16 @@ jobs:
           npx github-actions-ctrf failed ctrf-report.json
         if: always()
 
-        
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: make doc
+      - name: git diff
+        run: |
+          git diff --compact-summary --exit-code || \
+            (echo; echo "Unexpected difference in directories after code generation. Run 'make doc' command and commit."; exit 1)

@@ -10,6 +10,7 @@ description: |-
 
 The `rabbitmq_exchange_topic` resource creates and manages an _exchange_ of type 'topic'.
 
+
 ## Example Usage
 
 ```terraform

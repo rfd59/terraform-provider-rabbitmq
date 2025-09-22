@@ -7,8 +7,8 @@ description: |-
 ---
 
 # rabbitmq_exchange_random (Data Source)
-
 Use this data source to access information about an existing _exchange_ of type 'x-random'.
+
 
 ## Example Usage
 
@@ -46,6 +46,6 @@ data "rabbitmq_exchange_random" "example" {
 
 Read-Only:
 
- `key` (String) The argument key.
-- `type` (String) The argument value.
-- `value` (String) The value type. Possible values are `string`, `numeric`, `boolean` and `list`.
+- `key` (String)
+- `type` (String)
+- `value` (String)

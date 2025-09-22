@@ -147,6 +147,7 @@ func New() *schema.Provider {
 			"rabbitmq_queue":                    dataSourcesQueue(),
 			"rabbitmq_user":                     dataSourcesUser(),
 			"rabbitmq_vhost":                    dataSourcesVhost(),
+			"rabbitmq_bindings":                 dataSourcesBindings(),
 		},
 
 		ConfigureFunc: providerConfigure,

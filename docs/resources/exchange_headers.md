@@ -10,6 +10,7 @@ description: |-
 
 The `rabbitmq_exchange_headers` resource creates and manages an _exchange_ of type 'headers'.
 
+
 ## Example Usage
 
 ```terraform

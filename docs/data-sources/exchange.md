@@ -10,8 +10,6 @@ description: |-
 
 Use this data source to access information about an existing _exchange_.
 
-!> This data source is deprecated. Migrate this data source to a dedicated exchange data source. This data source will be removed in the next major version of the provider.
-
 ## Example Usage
 
 ```terraform
@@ -43,9 +41,9 @@ data "rabbitmq_exchange" "example" {
 
 Read-Only:
 
-- `alternate_exchange` (String) If messages to this exchange cannot otherwise be routed, send them to the alternate exchange named here.
-- `arguments` (Map of String) Additional key/value settings for the exchange.
-- `auto_delete` (Boolean) If `true`, the exchange will delete itself after at least one queue or exchange has been bound to this one, and then all queues or exchanges have been unbound.
-- `durable` (Boolean) Whether the exchange survives server restarts.
-- `internal` (Boolean) If `true`, clients cannot publish to this exchange directly. It can only be used with exchange to exchange bindings.
-- `type` (String) The type of exchange. Possible values are `direct`, `fanout`, `headers` and `topic`.
+- `alternate_exchange` (String)
+- `arguments` (Map of String)
+- `auto_delete` (Boolean)
+- `durable` (Boolean)
+- `internal` (Boolean)
+- `type` (String)

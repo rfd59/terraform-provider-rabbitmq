@@ -10,6 +10,7 @@ description: |-
 
 The `rabbitmq_exchange_fanout` resource creates and manages an _exchange_ of type 'fanout'.
 
+
 ## Example Usage
 
 ```terraform

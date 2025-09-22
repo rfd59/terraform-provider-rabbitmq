@@ -10,6 +10,7 @@ description: |-
 
 The `rabbitmq_exchange_direct` resource creates and manages an _exchange_ of type 'direct'.
 
+
 ## Example Usage
 
 ```terraform
