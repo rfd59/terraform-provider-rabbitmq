@@ -80,3 +80,12 @@ Optional:
 ~> **Note:** Either this or `arguments` must be specified but not both.
 - `auto_delete` (Boolean) Whether the queue will self-delete when all consumers have unsubscribed. Defaults to `false`.
 - `durable` (Boolean) Whether the queue survives server restarts. Defaults to `false`.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# Queue can be imported by specifying its name and its vhost (with a '@' between each value).
+terraform import rabbitmq_queue.example myqueue@myvhost
+```

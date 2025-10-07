@@ -67,3 +67,12 @@ Optional:
 - `queue` (String) **Federated Queues Only**: The name of the upstream queue.
 - `reconnect_delay` (Number) Time in seconds to wait after a network link goes down before attempting reconnection. Defaults to `5`.
 - `trust_user_id` (Boolean) Determines how federation should interact with the validated user-id feature. Default is `false`.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# Federation upstream can be imported by specifying its name and its vhost (with a '@' between each value).
+terraform import rabbitmq_federation_upstream.example myfederationupstream@myvhost
+```

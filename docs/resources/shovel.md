@@ -109,3 +109,12 @@ Optional:
 - `source_protocol` (String) The protocol to use when connecting to the source. Possible values are `amqp091` or `amqp10`. Defaults to `amqp091`.
 - `source_queue` (String) The queue from which to consume.
 ~> **Note:** Either this or `source_exchange` must be specified but not both.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# Shovel can be imported by specifying its name and its vhost (with a '@' between each value).
+terraform import rabbitmq_shovel.example myshovel@myvhost
+```

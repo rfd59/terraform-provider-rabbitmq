@@ -92,3 +92,12 @@ resource "rabbitmq_binding" "example" {
 
 - `id` (String) The ID of this resource.
 - `properties_key` (String) A unique key to refer to the binding.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# Binding can be imported by specifying its name and its vhost (with a '@' between each value).
+terraform import rabbitmq_binding.example mybinding@myvhost
+```

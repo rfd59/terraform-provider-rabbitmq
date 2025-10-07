@@ -62,3 +62,12 @@ Required:
 - `exchange` (String) The exchange to set the permissions for.
 - `read` (String) The _read_ ACL.
 - `write` (String) The _write_ ACL.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# Topic permissions can be imported by specifying the user and vhost (with a '@' between each value).
+terraform import rabbitmq_topic_permissions.example myuser@myvhost
+```

@@ -59,3 +59,12 @@ Required:
 -> **Note:** See the RabbitMQ documentation for definition references and examples.
 - `pattern` (String) A pattern to match an exchange or queue name.
 - `priority` (Number) The policy with the greater priority is applied first.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+# Opertaor policy can be imported by specifying its name and its vhost (with a '@' between each value).
+terraform import rabbitmq_operator_policy.example myoperatorpolicy@myvhost
+```
