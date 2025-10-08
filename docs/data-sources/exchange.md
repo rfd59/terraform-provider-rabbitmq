@@ -4,6 +4,7 @@ page_title: "rabbitmq_exchange Data Source - terraform-provider-rabbitmq"
 subcategory: ""
 description: |-
   Use this data source to access information about an existing exchange.
+  !> This data source is deprecated. Migrate this data source to a dedicated exchange data source. This data source will be removed in the next major version of the provider.
 ---
 
 # rabbitmq_exchange (Data Source)

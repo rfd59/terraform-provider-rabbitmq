@@ -4,6 +4,7 @@ page_title: "rabbitmq_exchange Resource - terraform-provider-rabbitmq"
 subcategory: ""
 description: |-
   The rabbitmq_exchange resource creates and manages an exchange.
+  !> This resource is deprecated. Migrate this resource to a dedicated exchange resource. This resource will be removed in the next major version of the provider.
 ---
 
 # rabbitmq_exchange (Resource)

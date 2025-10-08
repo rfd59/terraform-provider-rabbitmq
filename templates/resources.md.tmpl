@@ -17,7 +17,7 @@ description: |-
 # {{.Name}} ({{.Type}})
 {{ if gt (len (split .Description " --- ")) 1 -}}
 {{ index (split .Description " --- ") 1 | trimspace | prefixlines "\n" }}
-{{ else }}
+{{- else }}
 {{ .Description | trimspace }}
 {{- end }}
 

@@ -12,6 +12,22 @@ import (
 	rabbithole "github.com/michaelklishin/rabbit-hole/v3"
 )
 
+func init() {
+	schema.DescriptionKind = schema.StringMarkdown
+
+	// Add Deprecation messages to schema description
+	schema.ResourceDescriptionBuilder = func(r *schema.Resource) string {
+		if r.DeprecationMessage != "" {
+			resourceType := "resource"
+			if r.CreateContext == nil && r.Create == nil {
+				resourceType = "data source"
+			}
+			return fmt.Sprintf("%s\n\n!> This %s is deprecated. %s", r.Description, resourceType, r.DeprecationMessage)
+		}
+		return r.Description
+	}
+}
+
 type customHeaderRoundTripper struct {
 	headers   map[string]string
 	transport http.RoundTripper
